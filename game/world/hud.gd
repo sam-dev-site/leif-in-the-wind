@@ -15,6 +15,6 @@ func _ready() -> void:
 func show_status(world_seed: int, biome_name: String) -> void:
 	_label.text = (
 		"Leif in the Wind  seed %d  %s\n"
-		+ "WASD / arrows walk   R new woods\n"
+		+ "WASD / arrows walk   hold to jog   R new woods\n"
 		+ "Water behind you. The trail leads inland."
 	) % [world_seed, biome_name]

@@ -4,7 +4,7 @@ Updated: 2026-10-27
 
 ## Where we are
 
-Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shore on the south, caribou trail inland, fir/spruce/bakeapple/blueberry placeholders. Walk with WASD. Press R for a new seed. Chop / pick / campfire / night are not in yet.
+Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shore on the south, caribou trail inland, fir/spruce/bakeapple/blueberry placeholders. Walk with WASD; hold a direction ~0.3s to jog. Press R for a new seed. Chop / pick / campfire / night are not in yet.
 
 ## What exists
 

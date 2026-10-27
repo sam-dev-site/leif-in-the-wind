@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Hold a direction to jog, do not sprint
+
+**Decision:** First moment of WASD/arrows is a walk (70). After holding any move key ~0.28s, speed becomes a jog (100). Releasing resets to walk. Same in every direction.
+
+**Why:** First playtest: walk felt a bit slow. Owner asked for `w-wwwwww` hold-to-run, “a bit” faster not a sprint.
+
+**Rejected:** Toggle run. Double-tap. A large speed boost.
+
 ## 2026-10-27 — Tiny headless test runner, not GUT (yet)
 
 **Decision:** Tests are `game/tests/run.gd` run with `godot --headless -s res://tests/run.gd`. GitHub Actions installs Godot 4.7.2 and runs them. GUT is not in the repo yet.

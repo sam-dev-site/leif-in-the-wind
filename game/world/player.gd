@@ -1,10 +1,13 @@
 class_name Player
 extends Node2D
 
-const SPEED := 70.0
+const WALK_SPEED := 70.0
+const RUN_SPEED := 100.0
+const RUN_AFTER := 0.28
 
 var world: World
 var _body: ColorRect
+var _hold_time := 0.0
 
 
 func _ready() -> void:
@@ -23,8 +26,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var dir := _read_dir()
 	if dir == Vector2.ZERO:
+		_hold_time = 0.0
 		return
-	var next := global_position + dir * SPEED * delta
+	_hold_time += delta
+	var speed := RUN_SPEED if _hold_time >= RUN_AFTER else WALK_SPEED
+	var next := global_position + dir * speed * delta
 	if world != null and world.is_blocked_pixel(next):
 		var slide_x := Vector2(next.x, global_position.y)
 		var slide_y := Vector2(global_position.x, next.y)
