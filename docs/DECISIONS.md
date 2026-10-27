@@ -2,6 +2,22 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Coastal North trails are caribou, not white-tailed deer
+
+**Decision:** On `coastal_north`, “deer trails” in the mission are **woodland caribou** trails. White-tailed deer, moose, coyote, and snowshoe hare stay out of this biome.
+
+**Why:** Insular Newfoundland’s native ungulate is caribou. Moose (1878/1904) and coyote (1985) are later. Accuracy is a pillar.
+
+**Rejected:** Generic Stardew deer as the Vinland path-makers.
+
+## 2026-10-27 — CI checks knowledge files only until Godot exists
+
+**Decision:** GitHub Actions `check` verifies the knowledge harness files. Headless Godot/GUT is not in CI until `game/project.godot` exists.
+
+**Why:** First run failed with zero jobs (job-level `hashFiles` is a bad fit). An empty Godot job should not break the harness.
+
+**Rejected:** Skipping CI until a game binary exists. Running Godot on this Surface Pro as the test machine.
+
 ## 2026-10-27 — GitHub is home; this PC is a thin client
 
 **Decision:** Canonical repo is https://github.com/sam-dev-site/leif-in-the-wind. Cloud agents, hooks, and Actions do research, code, tests, and review. The Surface Pro is for `git pull` and Play.

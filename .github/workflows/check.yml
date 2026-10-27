@@ -26,11 +26,5 @@ jobs:
           test -f docs/research/biomes/bayou.md
           test -f .cursor/rules/knowledge.mdc
           test -f .cursor/hooks.json
-
-  godot:
-    if: ${{ hashFiles('game/project.godot') != '' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Godot tests (placeholder until project exists)
-        run: echo "Add headless GUT here when game/project.godot ships."
+          test -f .cursor/hooks/session-start.js
+          test -f .cursor/hooks/pre-compact.js

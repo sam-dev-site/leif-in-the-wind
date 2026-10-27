@@ -8,7 +8,7 @@ One **seed-generated** `coastal_north` chunk.
 
 - Shore on one edge (crash-landing)
 - Researched boreal forest inland
-- A deer trail that points **away from the water**
+- A **caribou** trail that points **away from the water** (the mission’s “deer trails” on this coast)
 
 ## Verbs
 
