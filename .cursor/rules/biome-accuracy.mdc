@@ -1,0 +1,15 @@
+---
+description: Flora and fauna must match researched biome docs
+globs: docs/research/biomes/**,game/data/biomes/**,art/biomes/**
+alwaysApply: false
+---
+
+# Biome accuracy
+
+Species, forage, and climate in these paths must match `docs/research/biomes/<id>.md`.
+
+Do not add a tree, berry, or animal because it “looks Viking” or “looks foresty.”
+
+New species require a research pass with sources, then a spawn/art name using that species (`tree_spruce`, not `tree1`).
+
+`coastal_north` is Vinland boreal coast. Do not place river-valley, plains, or bayou species there until that biome is in play.

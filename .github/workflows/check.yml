@@ -1,0 +1,36 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  knowledge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required knowledge files exist
+        run: |
+          set -e
+          test -f AGENTS.md
+          test -f docs/MISSION.md
+          test -f docs/DECISIONS.md
+          test -f docs/STATUS.md
+          test -f docs/SLICE_0.md
+          test -f docs/REVIEW.md
+          test -f docs/research/biomes/_template.md
+          test -f docs/research/biomes/coastal_north.md
+          test -f docs/research/biomes/river_valley.md
+          test -f docs/research/biomes/inland_plains.md
+          test -f docs/research/biomes/bayou.md
+          test -f .cursor/rules/knowledge.mdc
+          test -f .cursor/hooks.json
+
+  godot:
+    if: ${{ hashFiles('game/project.godot') != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Godot tests (placeholder until project exists)
+        run: echo "Add headless GUT here when game/project.godot ships."

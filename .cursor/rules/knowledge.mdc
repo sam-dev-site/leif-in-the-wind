@@ -1,0 +1,18 @@
+---
+description: Always read the GitHub knowledge files; persist decisions; never trust chat memory
+alwaysApply: true
+---
+
+# Knowledge harness
+
+This repo (`sam-dev-site/leif-in-the-wind`) is the source of truth. Chat memory is not.
+
+Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/DECISIONS.md`, and `docs/STATUS.md`.
+
+If you make a lasting decision, append `docs/DECISIONS.md` in the same session. Update `docs/STATUS.md` before you finish.
+
+Never invent biome species. If it is not in `docs/research/biomes/`, research it with sources first.
+
+Prefer cloud agent + PR over loading this Surface Pro. Local machine is for playtest.
+
+Slice docs do not override `docs/MISSION.md`. Every feature must help Leif go inland.

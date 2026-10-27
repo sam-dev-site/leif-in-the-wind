@@ -1,0 +1,5 @@
+* text=auto
+*.js text eol=lf
+*.yml text eol=lf
+*.mdc text eol=lf
+*.sh text eol=lf

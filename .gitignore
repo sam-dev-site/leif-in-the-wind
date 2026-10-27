@@ -1,0 +1,21 @@
+# Godot 4
+.godot/
+/android/
+export_credentials.cfg
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editors
+.vscode/
+*.swp
+
+# Secrets
+.env
+.env.*
+
+# Aseprite / local art junk
+*.bak
+~$*
