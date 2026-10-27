@@ -12,15 +12,19 @@ One **seed-generated** `coastal_north` chunk.
 
 ## Verbs
 
+These are how Leif keeps walking inland after dark: berries in hand, a fire for light. The camp is not the destination. Hunger and freezing stay slice 1.
+
 1. Walk in 8 directions (keyboard); double-tap the same key and hold to jog — **in now**
-2. Pick forage named in `docs/research/biomes/coastal_north.md` — not yet
-3. Chop a real tree species (stone axe already in hand; crafting is slice 1) — not yet
-4. Place / light a campfire from wood — not yet
-5. Night falls; the campfire is the warm light — not yet
+2. **E** facing bakeapple or blueberry picks it (forage +1, bush gone) — **in now**
+3. **E** facing balsam fir or spruce chops it with the stone axe already in hand (wood +3, tree gone, stump left) — **in now**
+4. **F** spends 3 wood to place and light a campfire on the tile in front of him — **in now**
+5. Night falls on its own, then dawn. The campfire is the warm light. No freezing damage — **in now**
 
-Press **R** in-game for a new seed (mission test: different woods).
+Press **R** in-game for a new seed (mission test: different woods). Wood and forage stay in hand. Fires were on the old ground.
 
-HUD: hearts (even if unused), wood count, forage count.
+HUD: hearts (shown, not spent this slice), wood count, forage count.
+
+Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut.
 
 ## Mission tests (must all be true)
 
