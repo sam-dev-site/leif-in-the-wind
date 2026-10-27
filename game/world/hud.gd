@@ -7,7 +7,7 @@ var _label: Label
 func _ready() -> void:
 	_label = Label.new()
 	_label.position = Vector2(8, 8)
-	_label.add_theme_font_size_override("font_size", 8)
+	_label.add_theme_font_size_override("font_size", 14)
 	_label.modulate = Color(0.95, 0.93, 0.86)
 	add_child(_label)
 
