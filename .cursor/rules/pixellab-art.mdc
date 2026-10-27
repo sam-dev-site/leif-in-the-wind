@@ -1,0 +1,12 @@
+---
+description: PixelLab MCP art must follow biome research and land in named asset folders
+alwaysApply: true
+---
+
+# Pixel art via PixelLab
+
+When PixelLab MCP tools are available, use them for characters, tilesets, and map objects. Do not invent a REST client.
+
+Prompts must use species from `docs/research/biomes/<id>.md`. Camera: high top-down, 16×16, forest screenshot in `art-inspo/screen-layout-pixels.jpg` as style.
+
+Write files to `art/biomes/<id>/` with species in the name (`tree_fir.png`, `forage_bakeapple.png`). Never `tree1`. Never commit `PIXELLAB_API_TOKEN`.

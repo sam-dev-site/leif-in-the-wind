@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — PixelLab MCP in the project, token stays on the PC
+
+**Decision:** `.cursor/mcp.json` points at `https://api.pixellab.ai/mcp` with `Authorization: Bearer ${env:PIXELLAB_API_TOKEN}`. The owner sets that env var locally. Setup notes live in `docs/PIXELAB.md`.
+
+**Why:** We generate Leif and tiles from Cursor against researched species, without putting a secret in GitHub.
+
+**Rejected:** Committing a real token. Calling PixelLab’s REST API from scripts as the default. Blender/Meshy.
+
 ## 2026-10-27 — Hold a direction to jog, do not sprint
 
 **Decision:** First moment of WASD/arrows is a walk (70). After holding any move key ~0.28s, speed becomes a jog (100). Releasing resets to walk. Same in every direction.

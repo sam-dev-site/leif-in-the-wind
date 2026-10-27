@@ -26,6 +26,8 @@ jobs:
           test -f docs/research/biomes/bayou.md
           test -f .cursor/rules/knowledge.mdc
           test -f .cursor/hooks.json
+          test -f .cursor/mcp.json
+          test -f docs/PIXELAB.md
           test -f game/project.godot
 
   godot:

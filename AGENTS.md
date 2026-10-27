@@ -45,4 +45,6 @@ The Godot project lives in `game/`. Open that folder in Godot, not the repo root
 
 Do not install Unity, Unreal, Blender, or Meshy for this game. It is 2D pixel art in Godot.
 
+Pixel art: PixelLab MCP is configured in `.cursor/mcp.json`. It needs `PIXELLAB_API_TOKEN` on this PC (see [docs/PIXELAB.md](docs/PIXELAB.md)). If those tools are missing, ask the owner to finish that doc — do not put a token in git.
+
 Never commit secrets. Do not force-push `main`. Do not change git config.
