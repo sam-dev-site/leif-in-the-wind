@@ -2,6 +2,22 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Tiny headless test runner, not GUT (yet)
+
+**Decision:** Tests are `game/tests/run.gd` run with `godot --headless -s res://tests/run.gd`. GitHub Actions installs Godot 4.7.2 and runs them. GUT is not in the repo yet.
+
+**Why:** Zero addons, works in CI, enough for seed/biome/species checks. We can switch to GUT when tests get awkward.
+
+**Rejected:** Making this Surface Pro run the tests. Shipping a Level1.tscn with no generator.
+
+## 2026-10-27 — World / chunk / biome data from day one
+
+**Decision:** Playable land is `ChunkGenerator` + `Biome` resources. Slice 0 loads chunk (0,0) as `coastal_north`. Other biomes exist as empty resources. Water is south; inland is −Y (north).
+
+**Why:** The continent dies if the first map is a unique painted scene.
+
+**Rejected:** Hand-placed clearing. GUT addon on day one.
+
 ## 2026-10-27 — Coastal North trails are caribou, not white-tailed deer
 
 **Decision:** On `coastal_north`, “deer trails” in the mission are **woodland caribou** trails. White-tailed deer, moose, coyote, and snowshoe hare stay out of this biome.

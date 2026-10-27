@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Biome" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/biome.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"coastal_north"
+display_name = "Coastal North"
+tree_species = PackedStringArray("fir", "spruce")
+forage_species = PackedStringArray("bakeapple", "blueberry")
+trail_maker = &"caribou"
+water_color = Color(0.23, 0.37, 0.44, 1)
+shore_color = Color(0.77, 0.71, 0.6, 1)
+moss_color = Color(0.24, 0.36, 0.2, 1)
+peat_color = Color(0.29, 0.23, 0.16, 1)
+granite_color = Color(0.48, 0.48, 0.45, 1)
+trail_color = Color(0.36, 0.25, 0.19, 1)

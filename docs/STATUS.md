@@ -4,28 +4,27 @@ Updated: 2026-10-27
 
 ## Where we are
 
-Harness-only. The GitHub repo exists and this knowledge layer is the first real commit. There is **no playable Godot project yet**.
+Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shore on the south, caribou trail inland, fir/spruce/bakeapple/blueberry placeholders. Walk with WASD. Press R for a new seed. Chop / pick / campfire / night are not in yet.
 
 ## What exists
 
-- Mission, decision log, slice 0 spec, review gates
-- Biome research template + four biome files; `coastal_north` is a **draft** species list (fir, spruce, bakeapple, blueberry, caribou trails). Owner should skim before art.
-- Cursor rules and project hooks
-- GitHub Actions workflow that checks knowledge files are present
-- Art inspiration images and the original (truncated) style guide
+- Knowledge harness (mission, decisions, review, biome research)
+- `game/` Godot 4.7 project: World, Biome resources, ChunkGenerator, Player, HUD
+- Four biome resources; only `coastal_north` has spawn tables
+- Headless tests in `game/tests/run.gd`
+- GitHub Actions: knowledge files + Godot tests
 
 ## Blocked / next
 
-1. Owner skims `docs/research/biomes/coastal_north.md` and accepts or corrects it
-2. Godot 4 project: World + Biome + Chunk, GUT tests, CI job when `game/project.godot` exists
-3. PixelLab art from the accepted research list
-4. Slice 0 verbs: walk, pick, chop, campfire, night
-5. Owner playtest on the Surface Pro
+1. Owner installs Godot 4.7.2 Standard, opens the `game` folder, presses Play
+2. Slice 0 verbs: pick bakeapple/blueberry, chop fir/spruce, campfire, night
+3. PixelLab art from the research list (placeholders are colored rectangles)
+4. Owner playtest notes in this file
 
 ## Local machine
 
-Surface Pro 6, 8 GB RAM. Godot / Aseprite / PixelLab are **not required until there is something to play or draw**. Do not install Unity.
+Surface Pro 6. Install **Godot 4.7.2 Standard** (not .NET) from https://godotengine.org/download/windows/ — Import → select the `game` folder, not the repo root. Do not install Unity.
 
 ## Checks
 
-First Actions run failed immediately (no jobs). Likely invalid `hashFiles` on a job-level `if`. Workflow simplified to knowledge-file checks only; Godot CI waits until `game/project.godot` exists.
+Godot job added. Last local run: not run on this PC; CI is the check.

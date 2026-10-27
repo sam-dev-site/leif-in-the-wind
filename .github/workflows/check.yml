@@ -26,5 +26,22 @@ jobs:
           test -f docs/research/biomes/bayou.md
           test -f .cursor/rules/knowledge.mdc
           test -f .cursor/hooks.json
-          test -f .cursor/hooks/session-start.js
-          test -f .cursor/hooks/pre-compact.js
+          test -f game/project.godot
+
+  godot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot 4.7.2
+        run: |
+          set -e
+          curl -L -o godot.zip \
+            "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+          sudo mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
+      - name: Import project
+        run: godot --headless --path game --import --quit
+      - name: Headless tests
+        run: godot --headless --path game -s res://tests/run.gd

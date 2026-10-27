@@ -33,9 +33,15 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 
 ## Checks
 
-Until `game/project.godot` exists, GitHub Actions only verifies that the knowledge files are present.
+GitHub Actions runs two jobs: knowledge files exist, and Godot headless tests.
 
-When the Godot project exists, `check` means the Actions workflow plus the review gates in `docs/REVIEW.md`. Do not call a slice done if check or review fails.
+```text
+godot --headless --path game -s res://tests/run.gd
+```
+
+Do not call a slice done if Actions is red or `docs/REVIEW.md` gates fail.
+
+The Godot project lives in `game/`. Open that folder in Godot, not the repo root.
 
 Do not install Unity, Unreal, Blender, or Meshy for this game. It is 2D pixel art in Godot.
 

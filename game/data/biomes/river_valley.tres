@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Biome" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/biome.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"river_valley"
+display_name = "Inland River Valley"
+tree_species = PackedStringArray()
+forage_species = PackedStringArray()
+trail_maker = &""
+water_color = Color(0.22, 0.4, 0.38, 1)
+shore_color = Color(0.62, 0.55, 0.38, 1)
+moss_color = Color(0.28, 0.42, 0.2, 1)
+peat_color = Color(0.4, 0.32, 0.18, 1)
+granite_color = Color(0.5, 0.48, 0.44, 1)
+trail_color = Color(0.4, 0.3, 0.18, 1)

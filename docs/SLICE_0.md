@@ -12,11 +12,13 @@ One **seed-generated** `coastal_north` chunk.
 
 ## Verbs
 
-1. Walk in 8 directions (keyboard)
-2. Pick forage named in `docs/research/biomes/coastal_north.md`
-3. Chop a real tree species (stone axe already in hand; crafting is slice 1)
-4. Place / light a campfire from wood
-5. Night falls; the campfire is the warm light
+1. Walk in 8 directions (keyboard) — **in now**
+2. Pick forage named in `docs/research/biomes/coastal_north.md` — not yet
+3. Chop a real tree species (stone axe already in hand; crafting is slice 1) — not yet
+4. Place / light a campfire from wood — not yet
+5. Night falls; the campfire is the warm light — not yet
+
+Press **R** in-game for a new seed (mission test: different woods).
 
 HUD: hearts (even if unused), wood count, forage count.
 
