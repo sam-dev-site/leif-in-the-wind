@@ -16,15 +16,14 @@ Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shor
 
 ## Blocked / next
 
-1. Owner installs Godot 4.7.2 Standard, opens the `game` folder, presses Play
+1. Owner playtest: WASD walk, R new seed; note what feels wrong
 2. Slice 0 verbs: pick bakeapple/blueberry, chop fir/spruce, campfire, night
 3. PixelLab art from the research list (placeholders are colored rectangles)
-4. Owner playtest notes in this file
 
 ## Local machine
 
-Surface Pro 6. Install **Godot 4.7.2 Standard** (not .NET) from https://godotengine.org/download/windows/ — Import → select the `game` folder, not the repo root. Do not install Unity.
+Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.GodotEngine`). Open the `game` folder, not the repo root. Do not install Unity.
 
 ## Checks
 
-Godot job added. Last local run: not run on this PC; CI is the check.
+CI green on the scaffold commit. Godot 4.7.2 launched locally in a play window (`Leif in the Wind (DEBUG)`).
