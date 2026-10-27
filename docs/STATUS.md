@@ -13,8 +13,9 @@ PixelLab trial: **14 / 40** generations left. Then 5/day (stack to 20). Paid flo
 ## What exists
 
 - Knowledge harness (mission, decisions, review, biome research)
+- `docs/research/biomes/river_valley.md` is a **draft** species list (Saint John and inner Miramichi). Not in the game. Owner skims before spawn tables or art.
 - `game/` Godot 4.7 project: World, Biome resources, ChunkGenerator, Player, HUD
-- Four biome resources; only `coastal_north` has spawn tables
+- Four biome resources; only `coastal_north` has spawn tables. `river_valley.tres` stays empty.
 - Headless tests in `game/tests/run.gd` (seed, species, pick, chop, campfire, night, HUD)
 - GitHub Actions: knowledge files + Godot tests
 - PixelLab Leif: character `327ed41b-0289-49cb-bcd8-787b17f963ea`, 8 idle rotations + 8-dir walk in `game/art/leif/`
@@ -27,7 +28,7 @@ Two lanes (see `AGENTS.md`). Play signed off. Walk, plants, dawn fade, and the b
 
 1. **This PC / art:** Walk 8/8 and four plants are in. Next: wire the Wang tiles onto the chunk, then a stump sprite if chop looks empty. Spend trial gens until empty, then owner upgrades.
 2. **Cloud / verbs:** Done. Do not start more verb work until this PC pushes and the PR is closed.
-3. **Cloud + PR / research (optional, later):** `river_valley` with sources. Owner skims before spawn tables.
+3. **Cloud + PR / research:** `river_valley` draft is written, with sources. Owner skims before any spawn table, art, or PixelLab prompt. Do not merge that research into the chunk until then.
 
 ## Local machine
 

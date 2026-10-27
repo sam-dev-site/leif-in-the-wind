@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — `river_valley` is the Saint John and inner Miramichi, not a generic oak wood
+
+**Decision:** The inland river-valley biome is the temperate deciduous valley of the Saint John River and the inner Southwest Miramichi (about 46–47°N), in the 11th century. Signature plants are the hardwoods coastal North saved for inland: butternut, riverbank grape, basswood, elm, beech, ash, plus maple, oak, and hemlock. The ground is intervale silt over clay and clay loam, not peat and granite. The main river is a barrier (raft or timber bridge). Intervale trails are white-tailed deer. Moose are native here. Coyote is not. Caribou stay the coastal trail, not this one. Full list and sources: `docs/research/biomes/river_valley.md`. No spawn table, art, or PixelLab prompt until the owner skims that file.
+
+**Why:** Mission row 2 is this valley. Wallace’s butternuts and grapes from L’Anse aux Meadows point here, not at the Newfoundland shore. Copying the coastal species list, or inventing a generic forest, would erase the first biome change.
+
+**Rejected:** A generic oak-maple-birch list with no sources. Treating New Brunswick moose like Newfoundland’s introduced moose. Letting coyote or caribou define the valley. Filling `river_valley.tres` in the same pass as the research.
+
 ## 2026-10-27 — Play window fills the largest 16:9 that fits; F11 fullscreen
 
 **Decision:** The game stays **480×270**. The play window is resized at launch to the largest 16:9 rectangle on the usable screen, with `viewport` stretch, `aspect=keep`, and **fractional** scale. **F11** toggles fullscreen. This Surface’s desktop is 1368×912; integer 3× needs 1440×810, so integer scale was stuck at 2× (960×540) with black bars in a 1280×720 window.
