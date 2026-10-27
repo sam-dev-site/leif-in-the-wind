@@ -16,7 +16,7 @@ Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shor
 
 ## Blocked / next
 
-1. Owner: PixelLab account + `PIXELLAB_API_TOKEN` env var, then fully restart Cursor ([docs/PIXELAB.md](PIXELAB.md))
+1. Owner: fully quit and reopen Cursor so PixelLab MCP loads (token is on this PC, not in git)
 2. Generate Leif + coastal_north tiles via MCP; swap the colored boxes
 3. Slice 0 verbs: pick bakeapple/blueberry, chop fir/spruce, campfire, night
 
