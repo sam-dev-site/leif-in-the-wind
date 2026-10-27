@@ -2,6 +2,30 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Play window fills the largest 16:9 that fits; F11 fullscreen
+
+**Decision:** The game stays **480×270**. The play window is resized at launch to the largest 16:9 rectangle on the usable screen, with `viewport` stretch, `aspect=keep`, and **fractional** scale. **F11** toggles fullscreen. This Surface’s desktop is 1368×912; integer 3× needs 1440×810, so integer scale was stuck at 2× (960×540) with black bars in a 1280×720 window.
+
+**Why:** Owner Play: plants look excellent; dragging the window only grew black bars.
+
+**Rejected:** Changing the viewport. Camera zoom (that shows less woods). Non-uniform stretch. Leaving integer scale as the playtest default on this 3:2 laptop.
+
+## 2026-10-27 — Slice 0 plants are PixelLab map objects, one generation each
+
+**Decision:** Fir, spruce, bakeapple, and blueberry are still sprites from `create_map_object` (high top-down, transparent background). Files are species-named: `tree_fir.png`, `tree_spruce.png`, `forage_bakeapple.png`, `forage_blueberry.png` in `art/biomes/coastal_north/` and `game/art/coastal_north/`. Chunk loads those PNGs and keeps ColorRect fallback. Stumps stay boxes for now.
+
+**Why:** Owner said go on the art lane. Pro Flash objects quote 5 generations for one 32×48 still. Map objects cost 1. Trial had 18 left; these four used 4.
+
+**Rejected:** Pro Flash objects for still plants. Generic `tree1` filenames. Regenerating the first fir because it reads a bit like a Christmas tree — owner Play decides.
+
+## 2026-10-27 — Dawn fades like dusk; night does not snap to day
+
+**Decision:** Night still lasts 40 seconds. The last 10 of those are **dawn**: darkness eases from 1 to 0, and the campfire pool eases out with it. Dusk already eases in over the last 10 seconds of day. A new walk still starts in full daylight.
+
+**Why:** Owner Play: pick/chop/fire felt good; night-to-day was a hard cutoff.
+
+**Rejected:** Keeping the wrap from full night to full day. Adding extra cycle time. Starting the game in dawn.
+
 ## 2026-10-27 — Space picks and chops; F still lights the fire
 
 **Decision:** The main action is **Space**. It picks bakeapple/blueberry and chops fir/spruce, same reach and facing as before. **F** still spends wood to light a campfire. **R** still reseeds.

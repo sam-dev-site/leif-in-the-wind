@@ -18,7 +18,7 @@ These are how Leif keeps walking inland after dark: berries in hand, a fire for 
 2. **Space** facing bakeapple or blueberry picks it (forage +1, bush gone) — **in now**
 3. **Space** facing balsam fir or spruce chops it with the stone axe already in hand (wood +3, tree gone, stump left) — **in now**
 4. **F** spends 3 wood to place and light a campfire on the tile in front of him — **in now**
-5. Night falls on its own, then dawn. The campfire is the warm light. No freezing damage — **in now**
+5. Night falls on its own. Dusk eases in; dawn eases back to day. The campfire is the warm light. No freezing damage — **in now**
 
 Press **R** in-game for a new seed (mission test: different woods). Wood and forage stay in hand. Fires were on the old ground.
 

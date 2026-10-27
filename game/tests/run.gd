@@ -355,14 +355,19 @@ func _test_night_falls_without_freezing() -> void:
 	_expect(Campfire.LIGHT_COLOR.r > DayClock.NIGHT_COLOR.r, "the fire is warmer than the night")
 	var hearts := supplies.hearts
 	supplies.tick_night(true)
-	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS - 0.1
+	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS - DayClock.DAWN_SECONDS - 0.1
 	supplies.tick_night(clock.is_night())
 	_expect(clock.is_night(), "the end of the night is still night")
 	_expect(supplies.hearts == hearts, "a full night does not take hearts")
 	_expect(supplies.hearts == supplies.hearts_max, "hearts stay full")
 	_expect(supplies.wood == 0 and supplies.forage == 0, "night does not spend the pack")
+	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS - DayClock.DAWN_SECONDS * 0.5
+	_expect(clock.phase() == "dawn", "dawn is the fade back to day")
+	_expect(is_equal_approx(clock.darkness(), 0.5), "dawn is halfway light")
+	_expect(not clock.is_night(), "dawn is no longer night")
 	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS
 	_expect(clock.phase() == "day", "dawn comes back so the walk can continue")
+	_expect(clock.darkness() == 0.0, "day after dawn is full daylight")
 	clock.free()
 
 

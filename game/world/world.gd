@@ -17,6 +17,7 @@ var _hint := ""
 
 
 func _ready() -> void:
+	_fit_play_window()
 	y_sort_enabled = true
 	catalog.load_all()
 	_hud = GameHud.new()
@@ -56,6 +57,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif key.keycode == KEY_F:
 		_try_place_campfire()
+		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_F11:
+		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
 
 
@@ -127,6 +131,39 @@ func _campfire_block_reason(cell: Vector2i) -> String:
 	if _chunk.cell_occupied(cell):
 		return "That spot is taken."
 	return ""
+
+
+## Keep 480×270. Size the play window to the largest 16:9 that fits this screen.
+## Integer 3× needs 1440px; this Surface's desktop is 1368px, so fractional fill is how F5 gets bigger.
+func _fit_play_window() -> void:
+	if Engine.is_embedded_in_editor():
+		return
+	if DisplayServer.get_name() == "headless":
+		return
+	var win := get_window()
+	if win == null:
+		return
+	if win.mode == Window.MODE_FULLSCREEN or win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
+		return
+	var usable := DisplayServer.screen_get_usable_rect(win.current_screen)
+	var scale := minf(float(usable.size.x) / 480.0, float(usable.size.y) / 270.0)
+	scale = maxf(scale, 1.0)
+	var size := Vector2i(int(480.0 * scale), int(270.0 * scale))
+	win.mode = Window.MODE_WINDOWED
+	win.size = size
+	var extra := usable.size - size
+	win.position = usable.position + Vector2i(extra.x / 2, extra.y / 2)
+
+
+func _toggle_fullscreen() -> void:
+	var win := get_window()
+	if win == null:
+		return
+	if win.mode == Window.MODE_FULLSCREEN or win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
+		win.mode = Window.MODE_WINDOWED
+		_fit_play_window()
+	else:
+		win.mode = Window.MODE_FULLSCREEN
 
 
 func _fit_camera() -> void:

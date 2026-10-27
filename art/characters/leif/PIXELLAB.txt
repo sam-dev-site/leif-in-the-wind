@@ -10,3 +10,25 @@ tileset_water_shore: fdd32e67-6703-4188-ae65-816f6ae6e106
 tileset_shore_moss: 31dd25b6-5bf6-48de-80d7-b27cc513407c
   lower_base: e57c4ac4-ed2a-4b81-b76e-356ec7e098d7
   upper_base: 77c0d075-b562-4450-afa3-b8ef0b16da93
+tileset_moss_trail: d013adbb-4392-4b61-986b-54c5ac2b53e2
+  lower_base: 77c0d075-b562-4450-afa3-b8ef0b16da93
+  upper_base: d99babf5-1da9-4b86-90d9-27df0ec10e32
+tileset_moss_granite: 747e6064-ef81-4012-b3d7-65a958ed5489
+  lower_base: 77c0d075-b562-4450-afa3-b8ef0b16da93
+  upper_base: 33a1f532-726e-4c57-8e99-72b7297bf51b
+walk_group: d95a1a76-3d9c-449d-8009-97e9cc74ced3
+  south_job: 90d76626-088d-4f77-85df-509ce43ca75f
+  east_anim: bc97f27b-c0b5-4d9c-8478-8084e8bb7068
+  west_anim: fe9d071e-cd85-4ae4-b82c-710db3595ceb
+  north_anim: c40da848-12e4-4bfc-b3ba-f38c14c1f261
+  southeast_anim: 1b689683-3226-4608-8d0d-7d072d612633
+  southwest_anim: cf3364b5-493a-4764-a5fd-0059f41028f5
+  northeast_anim: 83b5dca7-40d4-44f3-a54f-8d822e8b8a09
+  northwest_anim: c54ec0f3-b8a2-4f5c-b556-3107e2de39a4
+  still_needed: none (8/8 walk)
+
+coastal_north props (create_map_object, 1 gen each, high top-down):
+  tree_fir: 5c2429f6-2b07-4de1-831f-8c02735d31db (48x64)
+  tree_spruce: e965e3c8-75c1-4fec-9bf3-e650deaa4d85 (48x64)
+  forage_bakeapple: 1b8007b2-73aa-4bf0-bf7e-6f39bc0e1938 (32x32)
+  forage_blueberry: 9e63e337-e37c-4343-8e75-127b1b327328 (32x32)

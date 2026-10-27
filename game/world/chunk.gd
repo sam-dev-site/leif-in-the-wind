@@ -164,17 +164,21 @@ func _spawn_props() -> void:
 func _make_tree(species: String, origin: Vector2) -> Node2D:
 	var node := Node2D.new()
 	node.position = origin
-	var trunk := ColorRect.new()
-	trunk.size = Vector2(3, 8)
-	trunk.position = Vector2(-1, -8)
-	trunk.color = Color(0.28, 0.18, 0.10)
-	node.add_child(trunk)
-	var crown := ColorRect.new()
-	crown.size = Vector2(10, 12)
-	crown.position = Vector2(-5, -20)
-	crown.color = Color(0.12, 0.24, 0.14) if species == "fir" else Color(0.16, 0.28, 0.16)
-	node.add_child(crown)
 	node.y_sort_enabled = true
+	var sprite := _prop_sprite("tree", species)
+	if sprite != null:
+		node.add_child(sprite)
+	else:
+		var trunk := ColorRect.new()
+		trunk.size = Vector2(3, 8)
+		trunk.position = Vector2(-1, -8)
+		trunk.color = Color(0.28, 0.18, 0.10)
+		node.add_child(trunk)
+		var crown := ColorRect.new()
+		crown.size = Vector2(10, 12)
+		crown.position = Vector2(-5, -20)
+		crown.color = Color(0.12, 0.24, 0.14) if species == "fir" else Color(0.16, 0.28, 0.16)
+		node.add_child(crown)
 	node.set_meta("species", species)
 	node.set_meta("kind", "tree")
 	return node
@@ -183,20 +187,39 @@ func _make_tree(species: String, origin: Vector2) -> Node2D:
 func _make_forage(species: String, origin: Vector2) -> Node2D:
 	var node := Node2D.new()
 	node.position = origin
-	var bush := ColorRect.new()
-	bush.size = Vector2(6, 4)
-	bush.position = Vector2(-3, -4)
-	bush.color = Color(0.18, 0.32, 0.16)
-	node.add_child(bush)
-	var berry := ColorRect.new()
-	berry.size = Vector2(2, 2)
-	berry.position = Vector2(-1, -5)
-	berry.color = Color(0.78, 0.42, 0.16) if species == "bakeapple" else Color(0.22, 0.22, 0.48)
-	node.add_child(berry)
 	node.y_sort_enabled = true
+	var sprite := _prop_sprite("forage", species)
+	if sprite != null:
+		node.add_child(sprite)
+	else:
+		var bush := ColorRect.new()
+		bush.size = Vector2(6, 4)
+		bush.position = Vector2(-3, -4)
+		bush.color = Color(0.18, 0.32, 0.16)
+		node.add_child(bush)
+		var berry := ColorRect.new()
+		berry.size = Vector2(2, 2)
+		berry.position = Vector2(-1, -5)
+		berry.color = Color(0.78, 0.42, 0.16) if species == "bakeapple" else Color(0.22, 0.22, 0.48)
+		node.add_child(berry)
 	node.set_meta("species", species)
 	node.set_meta("kind", "forage")
 	return node
+
+
+func _prop_sprite(kind: String, species: String) -> Sprite2D:
+	var path := "res://art/coastal_north/%s_%s.png" % [kind, species]
+	if not ResourceLoader.exists(path):
+		return null
+	var tex := load(path) as Texture2D
+	if tex == null:
+		return null
+	var sprite := Sprite2D.new()
+	sprite.texture = tex
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.centered = true
+	sprite.offset = Vector2(0, -float(tex.get_height()) * 0.5)
+	return sprite
 
 
 func _make_stump(origin: Vector2) -> Node2D:

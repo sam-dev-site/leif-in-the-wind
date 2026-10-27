@@ -8,6 +8,9 @@ const TAP_WINDOW_MSEC := 300
 ## PixelLab canvas is 64×64 with ~34×57 of Leif. Half-size keeps him ~2 tiles tall.
 const SPRITE_SCALE := 0.5
 const FEET_OFFSET_Y := -28.0
+const WALK_FPS := 7.0
+const JOG_FPS := 10.0
+const WALK_FRAME_COUNT := 6
 
 const DIR_NAMES := [
 	"east", "south-east", "south", "south-west",
@@ -18,6 +21,8 @@ var world: World
 var _sprite: Sprite2D
 var _facing := "south"
 var _frames: Dictionary = {}
+var _walk: Dictionary = {}
+var _walk_time := 0.0
 var _run_keycode := 0
 var _last_tap_keycode := 0
 var _last_tap_msec := 0
@@ -56,7 +61,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	var dir := _read_dir()
 	if dir == Vector2.ZERO:
+		_walk_time = 0.0
+		_apply_facing()
 		return
+	_walk_time += delta
 	_face(dir)
 	var speed := RUN_SPEED if _is_running() else WALK_SPEED
 	var next := global_position + dir * speed * delta
@@ -106,6 +114,13 @@ func _load_frames() -> void:
 		var path := "res://art/leif/%s.png" % name
 		if ResourceLoader.exists(path):
 			_frames[name] = load(path) as Texture2D
+		var steps: Array[Texture2D] = []
+		for i in WALK_FRAME_COUNT:
+			var step_path := "res://art/leif/walk/%s_%d.png" % [name, i]
+			if ResourceLoader.exists(step_path):
+				steps.append(load(step_path) as Texture2D)
+		if not steps.is_empty():
+			_walk[name] = steps
 
 
 func _face(dir: Vector2) -> void:
@@ -118,6 +133,12 @@ func _face(dir: Vector2) -> void:
 
 func _apply_facing() -> void:
 	if _sprite == null:
+		return
+	if _walk.has(_facing) and _walk_time > 0.0:
+		var steps: Array = _walk[_facing]
+		var fps := JOG_FPS if _is_running() else WALK_FPS
+		var idx := int(_walk_time * fps) % steps.size()
+		_sprite.texture = steps[idx]
 		return
 	if _frames.has(_facing):
 		_sprite.texture = _frames[_facing]

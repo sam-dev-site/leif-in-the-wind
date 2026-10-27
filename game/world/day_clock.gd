@@ -7,6 +7,7 @@ extends Node
 const DAY_SECONDS := 50.0
 const DUSK_SECONDS := 10.0
 const NIGHT_SECONDS := 40.0
+const DAWN_SECONDS := 10.0
 const NIGHT_COLOR := Color(0.07, 0.08, 0.16, 1.0)
 
 signal phase_changed(next: String)
@@ -38,6 +39,8 @@ func cycle_length() -> float:
 
 func phase() -> String:
 	var t := fposmod(elapsed, cycle_length())
+	if t >= cycle_length() - DAWN_SECONDS:
+		return "dawn"
 	if t >= DAY_SECONDS:
 		return "night"
 	if t >= DAY_SECONDS - DUSK_SECONDS:
@@ -49,15 +52,18 @@ func is_night() -> bool:
 	return phase() == "night"
 
 
-## 0 is full daylight. 1 is night.
+## 0 is full daylight. 1 is night. Dusk eases in; dawn eases out so the wrap is not a cut.
 func darkness() -> float:
 	var t := fposmod(elapsed, cycle_length())
-	if t >= DAY_SECONDS:
-		return 1.0
 	var dusk_start := DAY_SECONDS - DUSK_SECONDS
+	var dawn_start := cycle_length() - DAWN_SECONDS
 	if t <= dusk_start:
 		return 0.0
-	return (t - dusk_start) / DUSK_SECONDS
+	if t < DAY_SECONDS:
+		return (t - dusk_start) / DUSK_SECONDS
+	if t < dawn_start:
+		return 1.0
+	return 1.0 - (t - dawn_start) / DAWN_SECONDS
 
 
 func modulate_color() -> Color:
