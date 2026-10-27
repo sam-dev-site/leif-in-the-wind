@@ -27,7 +27,7 @@ static func status_text(world_seed: int, biome_name: String, supplies: Supplies,
 	var lines := (
 		"hearts %d/%d   wood %d   forage %d   %s\n"
 		+ "seed %d   %s\n"
-		+ "E pick or chop    F campfire (%d wood)    R new woods\n"
+		+ "Space pick or chop    F campfire (%d wood)    R new woods\n"
 		+ "WASD walk    double-tap a key to jog\n"
 		+ "Water behind you. The trail leads inland."
 	) % [
@@ -55,6 +55,7 @@ func _build() -> void:
 	_shadow.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_shadow.size = Vector2(464, 140)
 	_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shadow.focus_mode = Control.FOCUS_NONE
 	add_child(_shadow)
 	_label = Label.new()
 	_label.position = Vector2(8, 18)
@@ -65,6 +66,7 @@ func _build() -> void:
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_label.size = Vector2(464, 140)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label.focus_mode = Control.FOCUS_NONE
 	add_child(_label)
 
 
@@ -74,5 +76,6 @@ func _ensure_pips(count: int) -> void:
 		pip.size = Vector2(8, 8)
 		pip.position = Vector2(8 + _pips.size() * 11, 6)
 		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pip.focus_mode = Control.FOCUS_NONE
 		add_child(pip)
 		_pips.append(pip)

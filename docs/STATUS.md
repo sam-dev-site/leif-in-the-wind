@@ -4,7 +4,7 @@ Updated: 2026-10-27
 
 ## Where we are
 
-Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shore on the south, caribou trail inland, fir/spruce/bakeapple/blueberry placeholders. Hold WASD/arrows to walk; double-tap the same key and hold to jog. **E** picks bakeapple/blueberry or chops fir/spruce (stone axe already in hand). **F** spends 3 wood to light a campfire. Night falls on its own; the fire is the warm light; hearts are not spent. Press R for a new seed (wood and forage stay). Leif is an 8-direction PixelLab sprite from the friend photo (idle stills; no walk cycle yet).
+Godot scaffold is in `game/`. One **seed-generated** `coastal_north` chunk: shore on the south, caribou trail inland, fir/spruce/bakeapple/blueberry placeholders. Hold WASD/arrows to walk; double-tap the same key and hold to jog. **Space** picks bakeapple/blueberry or chops fir/spruce (stone axe already in hand). **F** spends 3 wood to light a campfire. Night falls on its own; the fire is the warm light; hearts are not spent. Press R for a new seed (wood and forage stay). Leif is an 8-direction PixelLab sprite from the friend photo (idle stills; no walk cycle yet).
 
 How this helps him inland: food in hand and a fire so he can keep walking the trail after dark. The camp is not the goal.
 
@@ -36,4 +36,4 @@ Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.Go
 
 CI green on the scaffold commit. Godot 4.7.2 launched locally in a play window (`Leif in the Wind (DEBUG)`) before these verbs.
 
-Slice 0 verbs: headless tests passed on Godot 4.7.2 (`godot --headless --path game -s res://tests/run.gd`, all checks OK). A scripted window also drew the shore, a day campfire, and the night pool. The cloud agent did not press Play, so the feel gate is not signed off. Owner: pull, open `game/`, walk inland, E a bush and a fir or spruce, F a fire, wait for night.
+Slice 0 verbs: headless tests passed on Godot 4.7.2 (`godot --headless --path game -s res://tests/run.gd`, all checks OK). A scripted window also drew the shore, a day campfire, and the night pool. The cloud agent did not press Play, so the feel gate is not signed off. Owner: pull, open `game/`, walk inland, Space on a bush and a fir or spruce, F a fire, wait for night.

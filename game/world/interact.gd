@@ -1,7 +1,7 @@
 class_name Interact
 extends Node
 
-## E uses the prop on Leif's tile, or a prop on a neighboring tile he is facing.
+## Space uses the prop on Leif's tile, or a prop on a neighboring tile he is facing.
 ## Positions are chunk-local, same space as the player and the colored-box props.
 
 const MIN_FACING_DOT := 0.5
@@ -96,7 +96,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
 	var key := event as InputEventKey
-	if not key.pressed or key.echo or key.keycode != KEY_E:
+	if not key.pressed or key.echo or key.keycode != KEY_SPACE:
 		return
 	var target := best_target(player.position, player.facing_name(), chunk.prop_nodes())
 	var action := use_on(target)

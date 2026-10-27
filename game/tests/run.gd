@@ -151,7 +151,7 @@ func _test_player_reports_facing() -> void:
 
 
 func _test_facing_gates_the_tile_in_front() -> void:
-	print("E uses the tile in front")
+	print("Space uses the tile in front")
 	var interact := Interact.new()
 	var tile := float(ChunkGenerator.TILE)
 	var origin := Vector2((4.0 + 0.5) * tile, (6.0 + 0.5) * tile)
@@ -376,7 +376,7 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	_expect(text.contains("wood 3"), "wood count is on the hud")
 	_expect(text.contains("forage 2"), "forage count is on the hud")
 	_expect(text.contains("night"), "the phase is on the hud")
-	_expect(text.contains("E pick or chop"), "pick and chop are labeled")
+	_expect(text.contains("Space pick or chop"), "pick and chop are labeled")
 	_expect(text.contains("F campfire"), "the campfire key is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
 	_expect(supplies.hearts == 3, "the hud line does not spend hearts")

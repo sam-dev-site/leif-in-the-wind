@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Space picks and chops; F still lights the fire
+
+**Decision:** The main action is **Space**. It picks bakeapple/blueberry and chops fir/spruce, same reach and facing as before. **F** still spends wood to light a campfire. **R** still reseeds.
+
+**Why:** The owner asked for Space as the gather/chop button while playing. F already reads as fire, so that key stays.
+
+**Rejected:** Keeping E. Using Space for the campfire too.
+
 ## 2026-10-27 — Slice 0 verbs: E picks or chops, F lights a fire, night does not freeze
 
 **Decision:** Press **E** on the tile Leif is standing on, or a neighboring tile he is facing. Forage on the biome resource (`bakeapple`, `blueberry`) adds 1 forage and the bush is removed. Trees on that resource (`fir`, `spruce`) add 3 wood, the tree node is removed, and a stump marks the spot. The stone axe is already in hand: no crafting, no durability. Press **F** to spend 3 wood and place a lit campfire one tile ahead (not on water, not on a prop). One fir or spruce pays for one fire. More wood can light more fires along the trail. A day is 50 seconds, the last 10 of them dusk, then 40 seconds of night, then dawn. Night is a cold `CanvasModulate`. Each campfire is a warm `PointLight2D` that is off in full daylight and fades in with the dark, so the day ground stays readable and the fire is the night light. The camera stays inside the chunk, because the window clear color is not shaded by that night tint. Hearts stay at 3. Forage is carried, not eaten. **R** reseeds the coast and keeps wood, forage, and the clock; fires were on the old ground and go with it. Verbs read `Biome.tree_species` / `forage_species` and prop meta `kind` / `species`. They do not live on the player script.
