@@ -1,0 +1,12 @@
+﻿character_id: 327ed41b-0289-49cb-bcd8-787b17f963ea
+mode: pro
+size: 64
+view: high top-down
+source: art-inspo/viking-inspo.jpeg (upload:a56525a8-b50b-4343-b5a6-28c3dbedf31f)
+
+tileset_water_shore: fdd32e67-6703-4188-ae65-816f6ae6e106
+  lower_base: c8c1b8d8-0f8e-4fb7-b1fa-e9a9102ce3b7
+  upper_base: e57c4ac4-ed2a-4b81-b76e-356ec7e098d7
+tileset_shore_moss: 31dd25b6-5bf6-48de-80d7-b27cc513407c
+  lower_base: e57c4ac4-ed2a-4b81-b76e-356ec7e098d7
+  upper_base: 77c0d075-b562-4450-afa3-b8ef0b16da93

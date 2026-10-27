@@ -20,3 +20,6 @@ Desktop.ini
 # Aseprite / local art junk
 *.bak
 ~$*
+
+# PixelLab working crops (not source art)
+art/biomes/**/_leif_ref_*

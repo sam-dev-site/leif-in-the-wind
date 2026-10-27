@@ -26,10 +26,22 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 ## How work should happen
 
 1. Prefer a cloud agent + pull request for research, code, tests, and review.
-2. This PC is for `git pull` and pressing Play. Do not treat it as the CI machine.
+2. This PC is for PixelLab, `git pull`, and pressing Play. Do not treat it as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
 4. Every feature must answer: *how does this help Leif go inland?*
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
+
+## Parallel lanes (do not collide)
+
+Art and code can run at the same time if they do not edit the same files. **Push this PC’s work before a cloud agent starts**, or it will code on a stale `main`.
+
+| Lane | Where | Owns | Must not touch |
+|---|---|---|---|
+| **Art** | This PC, PixelLab MCP | `art/`, `game/art/`, player sprites/animations, swapping ColorRects for named PNGs | Slice verbs, HUD counts, other biomes’ research |
+| **Verbs** | Cloud agent + PR | Pick, chop, campfire, night, HUD numbers, tests for those. New scripts under `game/world/` (interact, time, fire). Props keep `set_meta("species")` / `set_meta("kind")` | PixelLab, tokens, generating or replacing PNGs |
+| **Research** | Cloud agent + PR | `docs/research/biomes/` with sources (next: `river_valley`) | Spawn tables and art until the owner skims the doc |
+
+Player movement lives on this PC until art is done with it. Verbs should read facing/position, not rewrite walk/run.
 
 ## Checks
 

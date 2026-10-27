@@ -2,6 +2,38 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Two lanes: this PC does PixelLab; cloud does verbs/research
+
+**Decision:** We do not back up. The world exists; art is replacing placeholders, not starting the game. While this PC generates Leif/tiles/props, a **cloud agent + PR** builds pick/chop/campfire/night against the colored boxes and `species` metadata. A second cloud PR can research `river_valley`. Lanes are in `AGENTS.md`. Push local work before the cloud agent branches.
+
+**Why:** Owner asked for this harness. PixelLab’s token only lives here. Verbs do not need finished sprites. Research never needed this laptop.
+
+**Rejected:** Pausing the continent until the forest looks pretty. One chat doing art and verbs in series. A cloud agent calling PixelLab (it cannot).
+
+## 2026-10-27 — Double-tap a move key to run; hold is always walk
+
+**Decision:** Hold WASD/arrows = walk (70). Double-tap the **same** key within 0.3s and keep holding it = jog (100). Releasing that key returns to walk. Diagonals stay a run only while the double-tapped key is still down.
+
+**Why:** Owner clarified the first playtest request: hold-without-double-tap must never speed up.
+
+**Rejected:** Hold-to-jog after 0.28s (the previous rule). Toggle run. Sprint-scale speed.
+
+## 2026-10-27 — PixelLab for generated sprites; Cursor for the world
+
+**Decision:** Keep PixelLab for characters, Wang tiles, and animations. Cursor writes Godot, biomes, and tests. `pixelart_workbench` (free, no generations) is how we poke individual pixels after a generate. Do not ask a Cursor agent to invent 8-dir sheets or autotiles from scratch.
+
+**Why:** Photo-to-8-dir and chained tilesets are PixelLab’s job. A Cursor agent drawing pixels by hand is slow, inconsistent, and would burn chat tokens on this Surface Pro. World/seed/chunk is already ours.
+
+**Rejected:** Replacing PixelLab with Cursor image tools. Paying Architect ($50) before we have outgrown Apprentice.
+
+## 2026-10-27 — Leif is the friend in viking clothes, PixelLab Pro 8-dir
+
+**Decision:** First Leif sprite is PixelLab `create_character` mode=pro, 64px, high top-down, 8 directions, from `art-inspo/viking-inspo.jpeg` (head crop uploaded as `upload:a56525a8-...`). Character id `327ed41b-0289-49cb-bcd8-787b17f963ea`. PNGs live in `art/characters/leif/` and `game/art/leif/`. Godot draws him at 0.5 scale so he is about two tiles tall.
+
+**Why:** Owner asked for the character based on that photo. Pro is the mode that takes a concept photo. 64px was too tall on 16px tiles, so we scale in-engine rather than regenerating.
+
+**Rejected:** Ignoring the photo and inventing a generic Norseman. Sending the full 1600px JPEG as inline base64 (MCP truncates it). Regenerating before the owner sees the first pass.
+
 ## 2026-10-27 — PixelLab MCP in the project, token stays on the PC
 
 **Decision:** `.cursor/mcp.json` points at `https://api.pixellab.ai/mcp` with `Authorization: Bearer ${env:PIXELLAB_API_TOKEN}`. The owner sets that env var locally. Setup notes live in `docs/PIXELAB.md`.

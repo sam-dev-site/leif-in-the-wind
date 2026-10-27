@@ -20,6 +20,8 @@ Never commit the token. Never paste it into a GitHub file.
 
 When it worked, a new chat will see PixelLab tools (`create_character`, `create_topdown_tileset`, and so on). Say “PixelLab is in” and we generate Leif + coastal tiles against the forest screenshot.
 
+First Leif (2026-10-27): character id `327ed41b-0289-49cb-bcd8-787b17f963ea`, mode=pro, 64px, high top-down, concept photo `art-inspo/viking-inspo.jpeg` via `get_upload_url` (do not paste large base64 — MCP truncates it). Trial plan had 40 generations; this character cost 10.
+
 ## Agents
 
 - If PixelLab tools are visible, use them. Do not curl the REST API as a workaround.

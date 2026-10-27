@@ -12,7 +12,7 @@ One **seed-generated** `coastal_north` chunk.
 
 ## Verbs
 
-1. Walk in 8 directions (keyboard); hold to jog — **in now**
+1. Walk in 8 directions (keyboard); double-tap the same key and hold to jog — **in now**
 2. Pick forage named in `docs/research/biomes/coastal_north.md` — not yet
 3. Chop a real tree species (stone axe already in hand; crafting is slice 1) — not yet
 4. Place / light a campfire from wood — not yet
