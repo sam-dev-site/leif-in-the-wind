@@ -1,6 +1,6 @@
 # Skills (later — Challenge)
 
-Status: **plan only. Not in this slice.**
+Status: **earlier sketch. Not this slice.** The later note is **Leveling** in [IDEAS.md](IDEAS.md): an Old School RuneScape-style curve from 0 to 99, at half the effort, with the effects on other systems still open. The “no level 99” line below is this sketch, not that note.
 
 Woodcutting and fire-making as **skill** come after the coast has body (rocks/logs block), night is cold, and sleep at the fire is in. The mission names that fun as **Challenge**. It is not the next Play.
 
