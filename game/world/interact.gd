@@ -12,6 +12,7 @@ var player: Player
 var supplies: Supplies
 var biome: Biome
 var chunk: MapChunk
+var world: World
 
 
 static func facing_vector(facing_name: String) -> Vector2:
@@ -53,7 +54,7 @@ func best_target(origin: Vector2, facing_name: String, props: Array) -> Node2D:
 		var node := prop as Node2D
 		if not _is_usable(node):
 			continue
-		var cell := MapChunk.cell_at_prop(node.position)
+		var cell := MapChunk.cell_at_prop(_point_of(node))
 		var delta := Vector2(float(cell.x - player_cell.x), float(cell.y - player_cell.y))
 		var steps := maxi(absi(cell.x - player_cell.x), absi(cell.y - player_cell.y))
 		if steps > 1:
@@ -81,9 +82,12 @@ func use_on(target: Node2D) -> String:
 	if kind == "forage":
 		ok = supplies.pick_forage(species, biome)
 		action = "forage"
-	elif kind == "tree":
+	elif kind == "tree" or kind == "fallen":
 		ok = supplies.chop_tree(species, biome)
 		action = "chop"
+	elif kind == "branch" or (kind == "clutter" and Supplies.is_branch(species)):
+		ok = supplies.gather_branch(species)
+		action = "clear"
 	if not ok:
 		return ""
 	target.set_meta("harvested", true)
@@ -91,21 +95,43 @@ func use_on(target: Node2D) -> String:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if player == null or chunk == null or supplies == null:
+	if player == null or supplies == null:
 		return
 	if not event is InputEventKey:
 		return
 	var key := event as InputEventKey
 	if not key.pressed or key.echo or key.keycode != KEY_SPACE:
 		return
-	var target := best_target(player.position, player.facing_name(), chunk.prop_nodes())
+	var target := best_target(player.global_position, player.facing_name(), _usable_props())
 	var action := use_on(target)
 	if action == "":
 		return
 	var species := str(target.get_meta("species"))
 	acted.emit(action, species)
-	chunk.release_prop(target)
+	_release(target)
 	get_viewport().set_input_as_handled()
+
+
+func _usable_props() -> Array:
+	if world != null:
+		return world.nearby_props()
+	if chunk != null:
+		return chunk.prop_nodes()
+	return []
+
+
+func _release(target: Node2D) -> void:
+	var host := target.get_parent()
+	if host is MapChunk:
+		(host as MapChunk).release_prop(target)
+	elif chunk != null:
+		chunk.release_prop(target)
+
+
+func _point_of(node: Node2D) -> Vector2:
+	if node.is_inside_tree():
+		return node.global_position
+	return node.position
 
 
 func _is_usable(node: Node2D) -> bool:
@@ -116,4 +142,6 @@ func _is_usable(node: Node2D) -> bool:
 	if not node.has_meta("kind") or not node.has_meta("species"):
 		return false
 	var kind := str(node.get_meta("kind"))
-	return kind == "tree" or kind == "forage"
+	if kind == "tree" or kind == "forage" or kind == "fallen" or kind == "branch":
+		return true
+	return kind == "clutter" and Supplies.is_branch(str(node.get_meta("species")))

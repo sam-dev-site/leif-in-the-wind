@@ -22,9 +22,26 @@ func _init() -> void:
 	_test_campfire_on_open_ground_only()
 	_test_night_falls_without_freezing()
 	_test_hud_shows_hearts_wood_forage()
+	_test_wang_corners()
+	_test_wang_sheets_load()
+	_test_granite_is_a_rock_not_a_floor()
+	_test_fallen_tree_gives_wood()
+	_test_branch_gives_half_wood()
+	_test_trail_is_a_game_path()
+	_test_coast_runs_east_west()
+	_test_inland_chunk_continues_the_trail()
+	_test_world_cells_cross_chunks()
+	_test_peek_ground_matches_sea_and_woods()
+	_test_rocks_and_logs_block_walking()
+	_test_night_is_cold_away_from_fire()
+	_test_sleep_jumps_to_dawn()
+	_test_night_costs_six_hearts()
+	_test_fallen_log_blocks_its_length()
+	_test_campfire_burns_one_night()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
+		return
 	print("OK")
 	quit(0)
 
@@ -52,6 +69,9 @@ func _test_same_seed_same_chunk() -> void:
 	_expect(a["tiles"] == b["tiles"], "tiles match")
 	_expect(a["trees"] == b["trees"], "trees match")
 	_expect(a["forage"] == b["forage"], "forage match")
+	_expect(a["rocks"] == b["rocks"], "rocks match")
+	_expect(a["clutter"] == b["clutter"], "clutter match")
+	_expect(a["fallen"] == b["fallen"], "fallen match")
 	_expect(a["spawn"] == b["spawn"], "spawn match")
 
 
@@ -329,6 +349,7 @@ func _test_campfire_on_open_ground_only() -> void:
 	fire.position = MapChunk.anchor_for_cell(open)
 	fire.build_visual()
 	chunk.add_child(fire)
+	chunk.register_prop(fire)
 	_expect(chunk.cell_of_prop(fire) == open, "the fire sits on that tile")
 	_expect(chunk.cell_occupied(open), "the tile is now taken")
 	var left := supplies.wood
@@ -353,13 +374,8 @@ func _test_night_falls_without_freezing() -> void:
 	_expect(night == DayClock.NIGHT_COLOR, "night tint is the cold color")
 	_expect(DayClock.NIGHT_COLOR.b > DayClock.NIGHT_COLOR.r, "night tint is cold")
 	_expect(Campfire.LIGHT_COLOR.r > DayClock.NIGHT_COLOR.r, "the fire is warmer than the night")
-	var hearts := supplies.hearts
-	supplies.tick_night(true)
 	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS - DayClock.DAWN_SECONDS - 0.1
-	supplies.tick_night(clock.is_night())
 	_expect(clock.is_night(), "the end of the night is still night")
-	_expect(supplies.hearts == hearts, "a full night does not take hearts")
-	_expect(supplies.hearts == supplies.hearts_max, "hearts stay full")
 	_expect(supplies.wood == 0 and supplies.forage == 0, "night does not spend the pack")
 	clock.elapsed = DayClock.DAY_SECONDS + DayClock.NIGHT_SECONDS - DayClock.DAWN_SECONDS * 0.5
 	_expect(clock.phase() == "dawn", "dawn is the fade back to day")
@@ -379,12 +395,305 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	var text := GameHud.status_text(11, "Coastal North", supplies, "night", "Campfire lit.")
 	_expect(text.contains("hearts 3/3"), "hearts are on the hud")
 	_expect(text.contains("wood 3"), "wood count is on the hud")
+	supplies.hearts = 2.5
+	text = GameHud.status_text(11, "Coastal North", supplies, "night", "Campfire lit.")
+	_expect(text.contains("hearts 2.5/3"), "half a heart shows as a decimal")
+	supplies.hearts = 3.0
+	supplies.wood = 0.5
+	text = GameHud.status_text(11, "Coastal North", supplies, "night", "Campfire lit.")
+	_expect(text.contains("wood 0.5"), "half a wood shows as a decimal")
 	_expect(text.contains("forage 2"), "forage count is on the hud")
 	_expect(text.contains("night"), "the phase is on the hud")
-	_expect(text.contains("Space pick or chop"), "pick and chop are labeled")
+	_expect(text.contains("Space pick, chop, or clear"), "pick, chop, and clear are labeled")
 	_expect(text.contains("F campfire"), "the campfire key is labeled")
+	_expect(text.contains("C sleep"), "sleep is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
 	_expect(supplies.hearts == 3, "the hud line does not spend hearts")
+
+
+func _test_wang_corners() -> void:
+	print("wang corners")
+	_expect(WangTiles.index(false, false, false, false) == 0, "all lower is wang 0")
+	_expect(WangTiles.index(true, true, true, true) == 15, "all upper is wang 15")
+	_expect(WangTiles.index(false, false, false, true) == 1, "SE is bit 1")
+	_expect(WangTiles.index(false, false, true, false) == 2, "SW is bit 2")
+	_expect(WangTiles.index(false, true, false, false) == 4, "NE is bit 4")
+	_expect(WangTiles.index(true, false, false, false) == 8, "NW is bit 8")
+	_expect(not WangTiles.is_upper(WangTiles.PAIR_WATER_SHORE, ChunkGenerator.TILE_WATER), "water is the lower terrain")
+	_expect(WangTiles.is_upper(WangTiles.PAIR_WATER_SHORE, ChunkGenerator.TILE_SHORE), "shore is the upper terrain on the water sheet")
+	_expect(WangTiles.is_upper(WangTiles.PAIR_MOSS_TRAIL, ChunkGenerator.TILE_TRAIL), "trail is the upper terrain")
+	_expect(not WangTiles.is_upper(WangTiles.PAIR_MOSS_TRAIL, ChunkGenerator.TILE_MOSS), "moss is the lower terrain on the trail sheet")
+	_expect(WangTiles.pick_pair(ChunkGenerator.TILE_WATER, []) == WangTiles.PAIR_WATER_SHORE, "water uses the water sheet")
+	_expect(WangTiles.pick_pair(ChunkGenerator.TILE_TRAIL, []) == WangTiles.PAIR_MOSS_TRAIL, "trail uses the trail sheet")
+	var moss_next_trail: Array[int] = [ChunkGenerator.TILE_TRAIL]
+	_expect(WangTiles.pick_pair(ChunkGenerator.TILE_MOSS, moss_next_trail) == WangTiles.PAIR_MOSS_TRAIL, "moss beside a trail uses the trail sheet")
+
+
+func _test_wang_sheets_load() -> void:
+	print("wang sheets load")
+	var wang := WangTiles.new()
+	wang.load_coastal()
+	_expect(wang.ready(), "the four coastal sheets load")
+
+
+func _test_granite_is_a_rock_not_a_floor() -> void:
+	print("granite is a rock object")
+	var data := _gen(11)
+	var tiles: PackedInt32Array = data["tiles"]
+	var rocks: Array = data["rocks"]
+	var clutter: Array = data["clutter"]
+	var has_rock := false
+	var has_clutter := false
+	var granite_tiles := 0
+	for i in tiles.size():
+		if tiles[i] == ChunkGenerator.TILE_GRANITE:
+			granite_tiles += 1
+		if rocks[i] == "granite":
+			has_rock = true
+		if clutter[i] != ChunkGenerator.CLUTTER_NONE:
+			has_clutter = true
+	_expect(granite_tiles == 0, "no granite baked into the floor")
+	_expect(has_rock, "seed 11 has at least one granite boulder")
+	_expect(has_clutter, "seed 11 has forest-floor clutter")
+	var chunk := _chunk(11)
+	var occupied := 0
+	for child in chunk.get_children():
+		if child is Node2D and str((child as Node2D).get_meta("kind", "")) == "clutter":
+			if chunk.cell_occupied(chunk.cell_of_prop(child)):
+				occupied += 1
+	_expect(occupied == 0, "clutter does not take the tile")
+	chunk.free()
+
+
+func _test_fallen_tree_gives_wood() -> void:
+	print("fallen tree gives wood")
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	var log := _prop(Vector2i(4, 4), "fallen", "fir")
+	_expect(interact.use_on(log) == "chop", "Space on a fallen fir gives wood")
+	_expect(interact.supplies.wood == Supplies.WOOD_PER_TREE, "a fallen tree pays like a standing one")
+	_expect(interact.use_on(log) == "", "a fallen tree is not chopped twice")
+	var rock := _prop(Vector2i(5, 5), "rock", "granite")
+	_expect(interact.use_on(rock) == "", "rocks do nothing yet")
+	_expect(interact.supplies.wood == Supplies.WOOD_PER_TREE, "a rock adds no wood")
+	interact.free()
+	log.free()
+	rock.free()
+
+
+func _test_branch_gives_half_wood() -> void:
+	print("fallen branch gives half wood")
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	var twig := _prop(Vector2i(3, 3), "branch", "fir_branch")
+	_expect(interact.use_on(twig) == "clear", "Space clears a fir branch")
+	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH), "a branch is half a wood")
+	_expect(interact.use_on(twig) == "", "a branch is not cleared twice")
+	var moss := _prop(Vector2i(3, 4), "clutter", "sphagnum")
+	_expect(interact.use_on(moss) == "", "sphagnum is not firewood")
+	var needles := _prop(Vector2i(3, 5), "clutter", "needles")
+	_expect(interact.use_on(needles) == "", "needles are not firewood")
+	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH), "litter does not add wood")
+	var tree := _prop(Vector2i(4, 3), "tree", "fir")
+	_expect(interact.use_on(tree) == "chop", "a standing tree still chops")
+	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH + Supplies.WOOD_PER_TREE), "tree wood stays 3")
+	interact.free()
+	twig.free()
+	moss.free()
+	needles.free()
+	tree.free()
+
+
+func _test_trail_is_a_game_path() -> void:
+	print("trail is a game path")
+	var data := _gen(11)
+	var tiles: PackedInt32Array = data["tiles"]
+	var wide := 0
+	for ty in ChunkGenerator.HEIGHT:
+		var run := 0
+		for tx in ChunkGenerator.WIDTH:
+			if tiles[ty * ChunkGenerator.WIDTH + tx] == ChunkGenerator.TILE_TRAIL:
+				run += 1
+				if run > 1:
+					wide += 1
+			else:
+				run = 0
+	_expect(wide == 0, "the caribou trail is one tile wide")
+
+
+func _test_coast_runs_east_west() -> void:
+	print("coast runs east-west")
+	var gen := ChunkGenerator.new()
+	var east := gen.generate(11, 1, 0, _coast())
+	var sea := gen.generate(11, 0, 1, _coast())
+	var inland := gen.generate(11, 0, -1, _coast())
+	var east_tiles: PackedInt32Array = east["tiles"]
+	var sea_tiles: PackedInt32Array = sea["tiles"]
+	var inland_tiles: PackedInt32Array = inland["tiles"]
+	var east_water := 0
+	var sea_water := 0
+	var inland_water := 0
+	var south := ChunkGenerator.HEIGHT - 1
+	for tx in ChunkGenerator.WIDTH:
+		if east_tiles[south * ChunkGenerator.WIDTH + tx] == ChunkGenerator.TILE_WATER:
+			east_water += 1
+	for i in sea_tiles.size():
+		if sea_tiles[i] == ChunkGenerator.TILE_WATER:
+			sea_water += 1
+		if inland_tiles[i] == ChunkGenerator.TILE_WATER:
+			inland_water += 1
+	_expect(east_water == ChunkGenerator.WIDTH, "the shore continues east of the landing")
+	_expect(sea_water == sea_tiles.size(), "south of the landing is sea")
+	_expect(inland_water == 0, "north of the landing is woods, not sea")
+
+
+func _test_inland_chunk_continues_the_trail() -> void:
+	print("inland chunk continues the trail")
+	var gen := ChunkGenerator.new()
+	var land := gen.generate(11, 0, 0, _coast())
+	var inland := gen.generate(11, 0, -1, _coast())
+	var again := gen.generate(11, 0, -1, _coast())
+	_expect(inland["tiles"] == again["tiles"], "the inland woods are stable")
+	var land_tiles: PackedInt32Array = land["tiles"]
+	var inland_tiles: PackedInt32Array = inland["tiles"]
+	var north_tx := -1
+	var south_tx := -1
+	for tx in ChunkGenerator.WIDTH:
+		if land_tiles[tx] == ChunkGenerator.TILE_TRAIL:
+			north_tx = tx
+		if inland_tiles[(ChunkGenerator.HEIGHT - 1) * ChunkGenerator.WIDTH + tx] == ChunkGenerator.TILE_TRAIL:
+			south_tx = tx
+	_expect(north_tx >= 0, "the trail reaches the north edge of the landing")
+	_expect(south_tx >= 0, "the trail enters the next woods")
+	_expect(absi(north_tx - south_tx) <= 1, "the trail meets across the seam")
+
+
+func _test_world_cells_cross_chunks() -> void:
+	print("world cells cross chunks")
+	_expect(ChunkGenerator.chunk_of_cell(Vector2i(0, -1)) == Vector2i(0, -1), "a cell north of the origin is the north chunk")
+	_expect(ChunkGenerator.local_of_cell(Vector2i(0, -1)) == Vector2i(0, ChunkGenerator.HEIGHT - 1), "negative y wraps to the south edge of the north chunk")
+	_expect(ChunkGenerator.world_cell_at(Vector2(8, -8)) == Vector2i(0, -1), "pixels just north of the landing are the next cell")
+
+
+func _test_peek_ground_matches_sea_and_woods() -> void:
+	print("peek ground does not need a built chunk")
+	var gen := ChunkGenerator.new()
+	_expect(gen.peek_ground(11, 24, ChunkGenerator.HEIGHT + 2) == ChunkGenerator.TILE_WATER, "south of the landing is sea without building a chunk")
+	_expect(gen.peek_ground(11, 24, -2) != ChunkGenerator.TILE_WATER, "north of the landing is walkable without building a chunk")
+
+
+func _test_rocks_and_logs_block_walking() -> void:
+	print("rocks and logs block walking")
+	var chunk := MapChunk.new()
+	var rock := _prop(Vector2i(4, 4), "rock", "granite")
+	var log := _prop(Vector2i(5, 5), "fallen", "fir")
+	var tree := _prop(Vector2i(6, 6), "tree", "fir")
+	var bush := _prop(Vector2i(7, 7), "forage", "bakeapple")
+	var twig := _prop(Vector2i(8, 8), "branch", "fir_branch")
+	chunk.add_child(rock)
+	chunk.add_child(log)
+	chunk.add_child(tree)
+	chunk.add_child(bush)
+	chunk.add_child(twig)
+	chunk.register_prop(rock)
+	chunk.register_prop(log)
+	chunk.register_prop(tree)
+	chunk.register_prop(bush)
+	chunk.register_prop(twig)
+	_expect(chunk.cell_blocks_walk(Vector2i(4, 4)), "a granite rock blocks the path")
+	_expect(chunk.cell_blocks_walk(Vector2i(5, 5)), "a fallen log blocks the path")
+	_expect(chunk.cell_blocks_walk(Vector2i(6, 6)), "a standing tree blocks the path")
+	_expect(not chunk.cell_blocks_walk(Vector2i(7, 7)), "a berry bush does not block the path")
+	_expect(not chunk.cell_blocks_walk(Vector2i(8, 8)), "a fallen branch does not block the path")
+	_expect(not chunk.cell_blocks_walk(Vector2i(3, 3)), "empty moss does not block")
+	chunk.free()
+
+
+func _test_night_costs_six_hearts() -> void:
+	print("night costs six hearts of cold")
+	var dark := DayClock.cold_seconds()
+	var drain := dark / Supplies.COLD_SECONDS * Supplies.HEART_STEP
+	_expect(is_equal_approx(dark, 60.0), "the cold night is sixty seconds")
+	_expect(is_equal_approx(drain, 6.0), "standing the night is six hearts")
+	var clock := DayClock.new()
+	clock.elapsed = DayClock.DAY_SECONDS
+	_expect(clock.is_night(), "night has started")
+	clock.elapsed = DayClock.DAY_SECONDS + dark - 0.01
+	_expect(clock.is_night(), "the last moment of night is still cold")
+	clock.elapsed = DayClock.DAY_SECONDS + dark
+	_expect(clock.phase() == "dawn", "dawn starts after the cold night")
+	clock.free()
+
+
+func _test_fallen_log_blocks_its_length() -> void:
+	print("fallen log blocks its length")
+	var chunk := MapChunk.new()
+	var log := _prop(Vector2i(10, 10), "fallen", "fir")
+	log.set_meta("span_x", 2)
+	chunk.add_child(log)
+	chunk.register_prop(log)
+	_expect(chunk.cell_blocks_walk(Vector2i(8, 10)), "the left end of the log blocks")
+	_expect(chunk.cell_blocks_walk(Vector2i(9, 10)), "the left of the log blocks")
+	_expect(chunk.cell_blocks_walk(Vector2i(10, 10)), "the middle of the log blocks")
+	_expect(chunk.cell_blocks_walk(Vector2i(11, 10)), "the right of the log blocks")
+	_expect(chunk.cell_blocks_walk(Vector2i(12, 10)), "the right end of the log blocks")
+	_expect(not chunk.cell_blocks_walk(Vector2i(7, 10)), "past the left end is open")
+	_expect(not chunk.cell_blocks_walk(Vector2i(13, 10)), "past the right end is open")
+	_expect(not chunk.cell_blocks_walk(Vector2i(10, 9)), "north of the log is open")
+	chunk.release_prop(log)
+	_expect(not chunk.cell_blocks_walk(Vector2i(10, 10)), "chopping the log opens the middle")
+	_expect(not chunk.cell_blocks_walk(Vector2i(8, 10)), "chopping the log opens the ends")
+	chunk.free()
+
+
+func _test_campfire_burns_one_night() -> void:
+	print("campfire burns one night")
+	var fire := Campfire.new()
+	fire.build_visual()
+	_expect(is_equal_approx(fire.lifetime, DayClock.cold_seconds()), "a fire is built for one night")
+	_expect(not fire.consume(DayClock.cold_seconds() - 0.1), "almost a night still burns")
+	_expect(fire.lit, "the fire is still lit")
+	_expect(fire.consume(0.2), "one night puts it out")
+	_expect(not fire.lit, "the fire is out")
+	_expect(not fire.consume(1.0), "a dead fire does not expire twice")
+	var clock := DayClock.new()
+	clock.elapsed = DayClock.DAY_SECONDS
+	_expect(is_equal_approx(clock.seconds_until_dawn(), DayClock.cold_seconds()), "sleep at nightfall spends one night of fire")
+	clock.free()
+	fire.free()
+
+
+func _test_night_is_cold_away_from_fire() -> void:
+	print("night is cold away from a fire")
+	var supplies := Supplies.new()
+	_expect(supplies.tick_vitals(true, true, Supplies.COLD_SECONDS) == "", "a fire keeps the night")
+	_expect(supplies.hearts == 3, "warmth spends no hearts")
+	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "cold night spends half a heart")
+	_expect(is_equal_approx(supplies.hearts, 2.5), "half a heart is gone")
+	_expect(supplies.tick_vitals(false, false, Supplies.HEAL_SECONDS) == "heal", "day heals slowly")
+	_expect(is_equal_approx(supplies.hearts, 3.0), "half a heart came back")
+	supplies.hearts = 2.5
+	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "the next chill is another half")
+	_expect(is_equal_approx(supplies.hearts, 2.0), "a full heart is two chills")
+	supplies.hearts = 0.5
+	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "", "the last half-heart stays")
+	_expect(is_equal_approx(supplies.hearts, 0.5), "night does not kill him this slice")
+
+
+func _test_sleep_jumps_to_dawn() -> void:
+	print("sleep jumps to dawn")
+	var clock := DayClock.new()
+	clock.elapsed = 10.0
+	_expect(not clock.can_sleep(), "day is too bright to sleep")
+	_expect(not clock.sleep_to_dawn(), "day sleep is refused")
+	clock.elapsed = DayClock.DAY_SECONDS + 5.0
+	_expect(clock.can_sleep(), "night can sleep")
+	_expect(clock.sleep_to_dawn(), "night sleep is taken")
+	_expect(clock.phase() == "dawn", "sleep wakes at dawn")
+	_expect(not clock.is_night(), "dawn is not night")
+	clock.free()
 
 
 func _prop(cell: Vector2i, kind: String, species: String) -> Node2D:

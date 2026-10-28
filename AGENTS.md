@@ -28,7 +28,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 1. Prefer a cloud agent + pull request for research, code, tests, and review.
 2. This PC is for PixelLab, `git pull`, and pressing Play. Do not treat it as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
-4. Every feature must answer: *how does this help Leif go inland?*
+4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Inland is the discovery/fantasy spine; sensation and sitting still also count. “Leif moved” is not enough.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
 
 ## Parallel lanes (do not collide)

@@ -62,8 +62,10 @@ These are wrong for 11th-century insular Newfoundland:
 
 Use these and nothing else until this file is revised:
 
-- Trees to chop: balsam fir, spruce
-- Ground: moss/peat, granite, bog, low blueberry/cranberry bushes
+- Trees to chop: balsam fir, spruce (standing or fallen)
+- Ground: moss/peat, bog, low blueberry/cranberry bushes
+- Rocks: granite as objects on the moss, not painted into the floor
+- Clutter: sphagnum cushions, fir/spruce needles, short fallen branches (not deciduous leaves)
 - Forage pickups: bakeapple, blueberry
 - Path: caribou trail inland, away from water
 - No wolves or bears in slice 0 (named here so slice 1 does not invent them)

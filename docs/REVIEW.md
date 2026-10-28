@@ -4,9 +4,9 @@ Do not call a unit of work complete until the applicable gates pass. Owner is a 
 
 ## 1. Mission
 
-- Serves at least one pillar in `docs/MISSION.md`
-- Answers: *how does this help Leif go inland?*
-- Does not turn the game into a finished camp / town sim
+- Serves at least one current aesthetic in `docs/MISSION.md` (sensation, fantasy, discovery, submission) and does not fight the pillars
+- Answers: *which feeling is this for, and does it make the woods worth being in?* Inland travel still counts. Sitting still counts. A checklist that only moves Leif does not.
+- Does not turn this slice into a finished camp / town sim or a skill-tree grind (expression and challenge are later)
 
 ## 2. Knowledge
 

@@ -8,10 +8,15 @@ const LIGHT_COLOR := Color(1.0, 0.68, 0.32)
 const LIGHT_SCALE := 2.4
 const NIGHT_ENERGY := 1.45
 
+signal expired
+
 var lit: bool = true
+var lifetime := DayClock.cold_seconds()
+var burn_left := DayClock.cold_seconds()
 
 var _built := false
 var _flame: ColorRect
+var _core: ColorRect
 var _flicker := 0.0
 
 
@@ -26,10 +31,31 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if consume(delta):
+		return
 	if _flame != null:
 		_flicker += delta
 		_flame.position.y = -8.0 + sin(_flicker * 9.0) * 0.6
 	set_darkness(DayClock.darkness_now)
+
+
+## One night of wood. Sleeping the night away spends the same time.
+func consume(seconds: float) -> bool:
+	if not lit or seconds <= 0.0:
+		return false
+	burn_left = maxf(0.0, burn_left - seconds)
+	_refresh_flame()
+	if burn_left > 0.0:
+		return false
+	lit = false
+	expired.emit()
+	return true
+
+
+func fuel() -> float:
+	if lifetime <= 0.0:
+		return 0.0
+	return clampf(burn_left / lifetime, 0.0, 1.0)
 
 
 ## Full day keeps the pixel flame only. The warm pool fades in with dusk.
@@ -38,8 +64,24 @@ func set_darkness(amount: float) -> void:
 	if light == null:
 		return
 	var dark := clampf(amount, 0.0, 1.0)
-	light.energy = NIGHT_ENERGY * dark
-	light.enabled = dark > 0.02
+	var fade := _fuel_fade()
+	light.energy = NIGHT_ENERGY * dark * fade
+	light.enabled = dark > 0.02 and fade > 0.02
+
+
+func _fuel_fade() -> float:
+	var left := fuel()
+	if left >= 0.25:
+		return 1.0
+	return clampf(left / 0.25, 0.0, 1.0)
+
+
+func _refresh_flame() -> void:
+	var fade := _fuel_fade()
+	if _flame != null:
+		_flame.modulate.a = fade
+	if _core != null:
+		_core.modulate.a = fade
 
 
 func build_visual() -> void:
@@ -60,12 +102,12 @@ func build_visual() -> void:
 	_flame.color = Color(0.93, 0.48, 0.14)
 	_flame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_flame)
-	var core := ColorRect.new()
-	core.size = Vector2(2, 3)
-	core.position = Vector2(-1, -6)
-	core.color = Color(1.0, 0.86, 0.42)
-	core.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(core)
+	_core = ColorRect.new()
+	_core.size = Vector2(2, 3)
+	_core.position = Vector2(-1, -6)
+	_core.color = Color(1.0, 0.86, 0.42)
+	_core.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_core)
 	var light := PointLight2D.new()
 	light.color = LIGHT_COLOR
 	light.energy = 0.0

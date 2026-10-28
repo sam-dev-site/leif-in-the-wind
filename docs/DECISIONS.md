@@ -2,6 +2,94 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Longer night, log spans, fires burn out
+
+**Decision:** The cold night is **60 seconds** (~6 hearts at ½ / 5s). Dawn is still 10 seconds after that. A 3-heart newbie cannot stand the night; more hearts come later. Fallen logs block their full length (the 64px fir log is five tiles, not one). A campfire burns **one night** of wood and goes out. Sleeping to dawn spends that same time, so a fire you slept through is ash.
+
+**Why:** Owner could almost stand the old night. They asked for ~1.5× / six hearts of cold, ends of logs that actually stop you, and fires that do not last forever. Sleep blink stays as signed off.
+
+**Rejected:** Death at 0 this slice. Fires that persist across seeds. Changing the log art.
+
+## 2026-10-27 — Half-heart cold and heal; sleep blinks; occupancy cache
+
+**Decision:** Night away from a fire spends **half a heart every 5 seconds**. Day or fire warmth heals **half a heart every 10 seconds**. The last half-heart stays (no death this slice). **C** sleep fades to black, holds a blink, then fades in on dawn so the woods lighten as he wakes. Walk-block, occupancy, usable props, and campfires are occupancy maps — not a child scan every footstep or Space.
+
+**Why:** 18 seconds per full heart was too generous. Owner asked for slow natural heal and a lights-out blink on sleep. Run + Space-spam felt like the camera lagged the player because each move frame walked every sprite in the chunk.
+
+**Rejected:** Death at 0. Camera smoothing (that would sit further behind). Skills in this cut.
+
+## 2026-10-27 — Rocks and logs block; night is cold; C sleeps at a fire. Skills wait.
+
+**Decision:** Standing trees, granite rocks, fallen logs, and campfires **block walking**. Berry bushes and loose branches do not. Night away from a fire spends a heart every 18 seconds; the last heart stays (no death this slice). Within about 3.5 tiles of a campfire he is warm. **C** at dusk or night by a fire skips to dawn. Woodcutting and fire-making **skills** are planned in `docs/SKILLS.md` and stay off this Play. Today’s 1-tap / 3 wood / sure fire is the future mid-skill feel.
+
+**Why:** Owner signed off the three next steps and asked when skills should land. Challenge is a later aesthetic. Mixing fail-chance and multi-tap with cold and blocking would hide which change hurt.
+
+**Rejected:** Hunger that ticks while exploring. Dying at 0 hearts. Adding woodcutting XP in the same cut. Pushing rocks (still later).
+
+## 2026-10-27 — Prebuild a coastal strip; bake the floor; do not generate while walking
+
+**Decision:** Slice 0 is a **prebuilt** `coastal_north` strip (3 chunks east-west, 4 north from the landing). It is still seed-generated. It is not generated while Leif walks. Each chunk’s moss/shore/trail and the sphagnum/needle litter are **one baked image**. Only trees, forage, rocks, fallen logs, and clearable branches stay as nodes. Far chunks hide. Crossing a seam only reparents him. The far north of the strip is a quiet edge until we grow the continent later.
+
+**Why:** Owner Play: streaming one chunk per frame made the whole walk choppy; the big window hitching on every footstep; Space lagged; the seam still hitched. They asked for a seamless forest, not live generation.
+
+**Rejected:** Building woods during the walk. Redrawing 2,300 Wang tiles every frame. Keeping moss cushions as nodes.
+
+## 2026-10-27 — Fun is sensation, fantasy, discovery, submission — not only inland motion
+
+**Decision:** The mission now names Hunicke / LeBlanc / Zubek’s MDA aesthetics. Current fun: **sensation**, **fantasy**, **discovery**, **submission**. Later: **expression** (house, town, crafting) and **challenge** (skill trees that raise efficiency or unlock better output). Narrative-as-plot and fellowship stay out. Features are judged by whether the woods are worth being in, not by whether Leif’s coordinate changed. Sitting by a fire is valid play. The continent and inland pull stay; they are the discovery/fantasy spine, not the only pass.
+
+**Why:** Owner: the goal is not simply “get Leif moving.” They want exploration and chilling out. The old review question (*how does this help Leif go inland?*) treated motion as the win and made lingering look like waste.
+
+**Rejected:** Treating inland travel as the only mission test. Adding town-building or mastery trees in this slice. Turning the camp into a win condition. Authored plot or multiplayer as the hook.
+
+## 2026-10-27 — Stream chunks ahead; fill the Game view by keeping aspect
+
+**Decision:** Neighbor woods generate **ahead of the walk**, one chunk per frame, tiles first, then a few props per frame. Wang sheets and plant textures load once and are reused. Crossing a seam does not build a 3×3 of sprites on the spot. Walk-blocking uses a cheap ground peek if that chunk is not ready. The editor Game view for this project is **Keep Aspect Ratio** so the 480×270 picture fills the panel instead of sitting at Fixed Size in a black frame.
+
+**Why:** Owner Play: 2–3 second hitch at the chunk line, and the live view was a postage stamp at 1.0× speed in a 1368×770 Game tab.
+
+**Rejected:** Building the whole next ring when he steps over the line. Making the viewport itself bigger (that shows more world, not a bigger picture).
+
+## 2026-10-27 — The coast is a strip of chunks; walking north loads more woods
+
+**Decision:** Slice 0 is still `coastal_north`, but it is no longer one boxed chunk. The world keeps a 3×3 of seed-generated chunks around Leif. Sea is south of the whole shore (`chunk_y > 0` is water; every `chunk_y == 0` has a south beach). The caribou trail continues on `chunk_x == 0` into the north woods. Distant chunks unload; fires on them go with the old ground, same as **R**. Player stays a child of the chunk he stands on so trees still Y-sort. No new biome.
+
+**Why:** The trail said inland, then the north edge counted as water. That fought the mission. Streaming more coastal woods is how he actually goes inland.
+
+**Rejected:** A second painted level. Loading `river_valley`. Keeping the camera locked to chunk (0,0). Treating east/west of the landing as more ocean.
+
+## 2026-10-27 — Long aim is west; world map is a later artifact, not a new biome pass
+
+**Decision:** Slice 0 stays `coastal_north`. The long walk is: leave Newfoundland, go south using the rivers, then across the later United States toward the Pacific. That is compressed journey length, same as the mission already says. A **world map** (even a schematic one) is on the enhancement list so the continent stays visible. It is not baked into the chunk. Do not research more biomes until this shore is the game we mean to keep playing.
+
+**Why:** Owner Play: river-valley research is right, but they do not want more-more-more biomes right now. They still want the west-coast aim written down so later work has a spine.
+
+**Rejected:** Starting `inland_plains` or west-coast species lists. Painting a Level1 overworld. Treating the river-valley draft as the next playable land.
+
+## 2026-10-27 — Fallen branches clear for 0.5 wood; the trail is a game path
+
+**Decision:** Space on a piney fallen branch (`kind=branch`, species `fir_branch`) removes it and adds **0.5 wood**. Standing trees and fallen logs still add **3**. Sphagnum and needles stay scenery. Wood is a tenth-rounded float so two branches make one fire-log. The caribou trail is **one tile wide**, with moss gaps, so it reads as an animal path and not a road.
+
+**Why:** Owner Play: the woods felt cluttered, and those branches should be clearable firewood. The two-tile trail looked too established.
+
+**Rejected:** Making moss or needles firewood. Changing tree/log pay. Widening the trail. Blocking walk with branches.
+
+## 2026-10-27 — Granite is a rock object; floor clutter is boreal; obstacles later
+
+**Decision:** Big rocks are no longer painted into Wang tiles. The generator scatters **granite** props (`kind=rock`) on moss/peat. They occupy a tile (no fire there) but do **not** block walking and do **not** react to Space. Forest-floor clutter is sphagnum cushions, fir/spruce needles, and short fallen branches — not deciduous leaves. Clutter does not occupy. Rare **fallen** fir/spruce logs are choppable for the same wood as a standing tree and leave no stump. Player collision, pushing rocks, and seasonality are later work.
+
+**Why:** Owner Play: baked granite looked like something you should move; repeating moss dots felt sterile; they asked for biome-fitting litter and named fallen trees as wood sources.
+
+**Rejected:** Maple/oak leaves. Making rocks or fallen logs block the player in this pass. Baking boulders back into the moss sheet. Seasonality now.
+
+## 2026-10-27 — Wire the PixelLab Wang sheets; do not buy an itch floor yet
+
+**Decision:** The chunk draws the four existing PixelLab tileset15 sheets (`water_shore`, `shore_moss`, `moss_trail`, `moss_granite`) with 4-corner Wang matching. Peat uses the moss tiles. Off-map south is water; north stays moss so the inland edge is not a fake beach. ColorRects stay as fallback. Recolor later with `pixelart_workbench` if Play says a sheet is too muddy. Itch packs stay a backup.
+
+**Why:** Owner asked to wire what we have. Those sheets already say moss, peat, granite, trail, and shore. A new generate or an itch grass pack would spend gens or fight Vinland ground.
+
+**Rejected:** Regenerating the floor. Downloading an itch pack first. Treating off-map as water on every edge.
+
 ## 2026-10-27 — Play window fills the largest 16:9 that fits; F11 fullscreen
 
 **Decision:** The game stays **480×270**. The play window is resized at launch to the largest 16:9 rectangle on the usable screen, with `viewport` stretch, `aspect=keep`, and **fractional** scale. **F11** toggles fullscreen. This Surface’s desktop is 1368×912; integer 3× needs 1440×810, so integer scale was stuck at 2× (960×540) with black bars in a 1280×720 window.

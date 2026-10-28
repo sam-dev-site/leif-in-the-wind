@@ -3,9 +3,16 @@ extends Node2D
 
 @export var world_seed: int = 11
 
+const STRIP_WEST := -1
+const STRIP_EAST := 1
+const STRIP_SOUTH := 0
+const STRIP_NORTH := -3
+
 var catalog: BiomeCatalog = BiomeCatalog.new()
 var generator: ChunkGenerator = ChunkGenerator.new()
 var supplies: Supplies = Supplies.new()
+var _wang := WangTiles.new()
+var _chunks: Dictionary = {}
 var _chunk: MapChunk
 var _player: Player
 var _hud: GameHud
@@ -14,12 +21,22 @@ var _interact: Interact
 var _clock: DayClock
 var _night: CanvasModulate
 var _hint := ""
+var _fires: Array[Node2D] = []
+var _sleep_phase := ""
+var _sleep_t := 0.0
+
+const SLEEP_OUT := 0.4
+const SLEEP_HOLD := 0.12
+const SLEEP_IN := 0.7
+const FIRE_WARM_PIXELS := 56.0
+const PROP_EDGE := 24.0
 
 
 func _ready() -> void:
 	_fit_play_window()
 	y_sort_enabled = true
 	catalog.load_all()
+	_wang.load_coastal()
 	_hud = GameHud.new()
 	add_child(_hud)
 	_player = Player.new()
@@ -39,9 +56,25 @@ func _ready() -> void:
 	_interact = Interact.new()
 	_interact.player = _player
 	_interact.supplies = supplies
+	_interact.world = self
 	_interact.acted.connect(_on_acted)
 	add_child(_interact)
 	rebuild()
+
+
+func _process(delta: float) -> void:
+	if _player == null or _clock == null:
+		return
+	if _sleep_phase != "":
+		_tick_sleep(delta)
+		return
+	var warm := is_near_fire(_player.global_position)
+	var change := supplies.tick_vitals(_clock.is_night(), warm, delta)
+	if change == "cold":
+		_hint = "The night is cold. Get to a fire."
+		_refresh_hud()
+	elif change == "heal":
+		_refresh_hud()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -58,6 +91,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif key.keycode == KEY_F:
 		_try_place_campfire()
 		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_C:
+		_try_sleep()
+		get_viewport().set_input_as_handled()
 	elif key.keycode == KEY_F11:
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
@@ -71,41 +107,168 @@ func _on_acted(action: String, species: String) -> void:
 	if action == "forage":
 		_hint = "Picked %s." % species
 	elif action == "chop":
-		_hint = "Chopped %s. +%d wood." % [species, Supplies.WOOD_PER_TREE]
+		_hint = "Chopped %s. +%s wood." % [species, Supplies.wood_label(Supplies.WOOD_PER_TREE)]
+	elif action == "clear":
+		_hint = "Cleared a branch. +%s wood." % Supplies.wood_label(Supplies.WOOD_PER_BRANCH)
 	_refresh_hud()
 
 
 func rebuild() -> void:
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
-	if _chunk != null:
-		_chunk.queue_free()
-		_chunk = null
-	_chunk = MapChunk.new()
-	_chunk.y_sort_enabled = true
-	var biome := catalog.get_biome(catalog.biome_id_at(0, 0))
-	_chunk.setup(world_seed, 0, 0, biome)
-	add_child(_chunk)
-	move_child(_chunk, 0)
-	_chunk.add_child(_player)
-	_player.position = _chunk.spawn_local()
+	for key in _chunks.keys():
+		var old: MapChunk = _chunks[key]
+		if old != null and is_instance_valid(old):
+			old.queue_free()
+	_chunks.clear()
+	_fires.clear()
+	_chunk = null
+	_build_strip()
+	var landing: MapChunk = _chunks.get(Vector2i(0, 0))
+	add_child(_player)
+	_player.global_position = landing.position + landing.spawn_local()
+	_reparent_player()
+	_cull_far_chunks()
 	_fit_camera()
 	_camera.make_current()
-	_interact.chunk = _chunk
-	_interact.biome = biome
 	_hint = ""
 	_refresh_hud()
+
+
+func nearby_props() -> Array:
+	var found: Array = []
+	if _chunk == null or not is_instance_valid(_chunk):
+		return found
+	found.append_array(_chunk.prop_nodes())
+	if _player == null:
+		return found
+	var local := _player.position
+	var width := float(ChunkGenerator.WIDTH * ChunkGenerator.TILE)
+	var height := float(ChunkGenerator.HEIGHT * ChunkGenerator.TILE)
+	var home := Vector2i(_chunk.chunk_x, _chunk.chunk_y)
+	if local.x < PROP_EDGE:
+		_append_chunk_props(found, home + Vector2i(-1, 0))
+	if local.x > width - PROP_EDGE:
+		_append_chunk_props(found, home + Vector2i(1, 0))
+	if local.y < PROP_EDGE:
+		_append_chunk_props(found, home + Vector2i(0, -1))
+	if local.y > height - PROP_EDGE:
+		_append_chunk_props(found, home + Vector2i(0, 1))
+	return found
+
+
+func _append_chunk_props(found: Array, key: Vector2i) -> void:
+	var other: MapChunk = _chunks.get(key)
+	if other != null and is_instance_valid(other):
+		found.append_array(other.prop_nodes())
+
+
+func is_sleeping() -> bool:
+	return _sleep_phase != ""
+
+
+func on_entered_chunk(_world_px: Vector2) -> void:
+	_reparent_player()
+	_cull_far_chunks()
+	_sync_interact()
+
+
+func _cull_far_chunks() -> void:
+	var home := Vector2i(0, 0)
+	if _chunk != null:
+		home = Vector2i(_chunk.chunk_x, _chunk.chunk_y)
+	for key: Vector2i in _chunks.keys():
+		var chunk: MapChunk = _chunks[key]
+		if chunk == null or not is_instance_valid(chunk):
+			continue
+		chunk.visible = absi(key.x - home.x) <= 1 and absi(key.y - home.y) <= 1
+
+
+func _build_strip() -> void:
+	for cy in range(STRIP_NORTH, STRIP_SOUTH + 1):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			_make_chunk(Vector2i(cx, cy))
+	for chunk: MapChunk in _chunks.values():
+		if chunk != null and is_instance_valid(chunk):
+			chunk.bake_floor()
+			chunk.spawn_interactive()
+
+
+func _make_chunk(key: Vector2i) -> MapChunk:
+	if _chunks.has(key) and is_instance_valid(_chunks[key]):
+		return _chunks[key]
+	var biome := catalog.get_biome(catalog.biome_id_at(key.x * ChunkGenerator.WIDTH, key.y * ChunkGenerator.HEIGHT))
+	var chunk := MapChunk.new()
+	chunk.y_sort_enabled = true
+	chunk.world_sample = _sample_world_tile
+	chunk.use_wang(_wang)
+	chunk.foreign_grid = _adjust_foreign_cell
+	chunk.setup(world_seed, key.x, key.y, biome, false)
+	add_child(chunk)
+	move_child(chunk, 0)
+	_chunks[key] = chunk
+	return chunk
+
+
+func _chunk_at(key: Vector2i) -> MapChunk:
+	var chunk: MapChunk = _chunks.get(key)
+	if chunk != null and is_instance_valid(chunk):
+		return chunk
+	return null
+
+
+func _reparent_player() -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	var key := ChunkGenerator.chunk_of_cell(ChunkGenerator.world_cell_at(_player.global_position))
+	var host := _chunk_at(key)
+	if host == null:
+		return
+	if _player.get_parent() == host:
+		_chunk = host
+		return
+	var keep := _player.global_position
+	if _player.get_parent() != null:
+		_player.get_parent().remove_child(_player)
+	host.add_child(_player)
+	_player.global_position = keep
+	_chunk = host
+
+
+func _sync_interact() -> void:
+	if _interact == null:
+		return
+	_interact.chunk = _chunk
+	if _chunk != null:
+		_interact.biome = _chunk.biome
+
+
+func _sample_world_tile(world_tx: int, world_ty: int) -> int:
+	var cell := Vector2i(world_tx, world_ty)
+	var key := ChunkGenerator.chunk_of_cell(cell)
+	var chunk: MapChunk = _chunks.get(key)
+	if chunk != null and is_instance_valid(chunk):
+		return chunk.tile_kind(ChunkGenerator.local_of_cell(cell))
+	if key.y > 0:
+		return ChunkGenerator.TILE_WATER
+	if key.y == 0:
+		var local_y := posmod(world_ty, ChunkGenerator.HEIGHT)
+		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS:
+			return ChunkGenerator.TILE_WATER
+		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS:
+			return ChunkGenerator.TILE_SHORE
+	return ChunkGenerator.TILE_MOSS
 
 
 func _try_place_campfire() -> void:
 	if _chunk == null or _player == null:
 		return
 	if supplies.wood < Supplies.CAMPFIRE_WOOD:
-		_hint = "Need %d wood for a fire." % Supplies.CAMPFIRE_WOOD
+		_hint = "Need %s wood for a fire." % Supplies.wood_label(Supplies.CAMPFIRE_WOOD)
 		_refresh_hud()
 		return
-	var cell := Interact.tile_ahead(_player.position, _player.facing_name())
-	var reason := _campfire_block_reason(cell)
+	var world_cell := Interact.tile_ahead(_player.global_position, _player.facing_name())
+	var reason := _campfire_block_reason(world_cell)
 	if reason != "":
 		_hint = reason
 		_refresh_hud()
@@ -114,21 +277,31 @@ func _try_place_campfire() -> void:
 		_hint = "The fire does not catch."
 		_refresh_hud()
 		return
+	var key := ChunkGenerator.chunk_of_cell(world_cell)
+	var host := _chunk_at(key)
+	if host == null:
+		_hint = "Cannot light a fire there."
+		_refresh_hud()
+		return
+	var local := ChunkGenerator.local_of_cell(world_cell)
 	var fire := Campfire.new()
-	fire.position = MapChunk.anchor_for_cell(cell)
-	_chunk.add_child(fire)
+	fire.position = MapChunk.anchor_for_cell(local)
+	host.add_child(fire)
+	host.register_prop(fire)
+	fire.expired.connect(_on_fire_expired.bind(fire))
+	_fires.append(fire)
 	_hint = "Campfire lit."
 	_refresh_hud()
 
 
-func _campfire_block_reason(cell: Vector2i) -> String:
-	if _chunk == null:
+func _campfire_block_reason(world_cell: Vector2i) -> String:
+	var host := _chunk_at(ChunkGenerator.chunk_of_cell(world_cell))
+	if host == null:
 		return "Cannot light a fire there."
-	if cell.x < 0 or cell.y < 0 or cell.x >= ChunkGenerator.WIDTH or cell.y >= ChunkGenerator.HEIGHT:
-		return "Cannot light a fire there."
-	if generator.is_blocked(_chunk.tile_kind(cell)):
+	var local := ChunkGenerator.local_of_cell(world_cell)
+	if generator.is_blocked(host.tile_kind(local)):
 		return "Cannot light a fire in the water."
-	if _chunk.cell_occupied(cell):
+	if host.cell_occupied(local):
 		return "That spot is taken."
 	return ""
 
@@ -167,14 +340,26 @@ func _toggle_fullscreen() -> void:
 
 
 func _fit_camera() -> void:
-	# The clear color is not shaded by the night tint. Keep the view on the chunk.
-	var origin := _chunk.position
+	# The clear color is not shaded by the night tint. Keep the view on loaded woods.
+	if _chunks.is_empty():
+		return
+	var min_x := 1000000
+	var min_y := 1000000
+	var max_x := -1000000
+	var max_y := -1000000
 	var width := ChunkGenerator.WIDTH * ChunkGenerator.TILE
 	var height := ChunkGenerator.HEIGHT * ChunkGenerator.TILE
-	_camera.limit_left = int(origin.x)
-	_camera.limit_top = int(origin.y)
-	_camera.limit_right = int(origin.x) + width
-	_camera.limit_bottom = int(origin.y) + height
+	for chunk: MapChunk in _chunks.values():
+		if chunk == null or not is_instance_valid(chunk):
+			continue
+		min_x = mini(min_x, int(chunk.position.x))
+		min_y = mini(min_y, int(chunk.position.y))
+		max_x = maxi(max_x, int(chunk.position.x) + width)
+		max_y = maxi(max_y, int(chunk.position.y) + height)
+	_camera.limit_left = min_x
+	_camera.limit_top = min_y
+	_camera.limit_right = max_x
+	_camera.limit_bottom = max_y
 
 
 func _refresh_hud() -> void:
@@ -188,7 +373,113 @@ func _refresh_hud() -> void:
 
 
 func is_blocked_pixel(global_px: Vector2) -> bool:
-	if _chunk == null:
+	var cell := ChunkGenerator.world_cell_at(global_px)
+	var key := ChunkGenerator.chunk_of_cell(cell)
+	var host: MapChunk = _chunks.get(key)
+	if host == null or not is_instance_valid(host) or host.data.is_empty():
 		return true
-	var local := global_px - _chunk.position
-	return generator.is_blocked(_chunk.tile_at_local_pixel(local))
+	var local := ChunkGenerator.local_of_cell(cell)
+	if generator.is_blocked(host.tile_kind(local)):
+		return true
+	return host.cell_blocks_walk(local)
+
+
+func _adjust_foreign_cell(world_cell: Vector2i, delta: int, walk: bool, occupy: bool) -> void:
+	var host := _chunk_at(ChunkGenerator.chunk_of_cell(world_cell))
+	if host == null:
+		return
+	host.adjust_cell(ChunkGenerator.local_of_cell(world_cell), delta, walk, occupy)
+
+
+func _burn_fires(seconds: float) -> void:
+	if seconds <= 0.0:
+		return
+	var dead: Array[Node2D] = []
+	for fire in _fires:
+		if fire == null or not is_instance_valid(fire):
+			continue
+		if fire is Campfire and (fire as Campfire).consume(seconds):
+			dead.append(fire)
+	for fire in dead:
+		_expire_fire(fire, false)
+
+
+func _on_fire_expired(fire: Node2D) -> void:
+	_expire_fire(fire, _sleep_phase == "")
+
+
+func _expire_fire(fire: Node2D, tell: bool) -> void:
+	if fire == null:
+		return
+	_fires.erase(fire)
+	if not is_instance_valid(fire):
+		return
+	var host := fire.get_parent()
+	if host is MapChunk:
+		(host as MapChunk).unregister_prop(fire)
+	if fire.get_parent() != null:
+		fire.get_parent().remove_child(fire)
+	fire.queue_free()
+	if tell:
+		_hint = "The fire burned out."
+		_refresh_hud()
+
+
+func is_near_fire(world_px: Vector2) -> bool:
+	for fire in _fires:
+		if fire == null or not is_instance_valid(fire):
+			continue
+		if fire.global_position.distance_to(world_px) <= FIRE_WARM_PIXELS:
+			return true
+	return false
+
+
+func _try_sleep() -> void:
+	if _player == null or _clock == null or _sleep_phase != "":
+		return
+	if not is_near_fire(_player.global_position):
+		_hint = "Sleep by a fire."
+		_refresh_hud()
+		return
+	if not _clock.can_sleep():
+		_hint = "Sleep when it is dark."
+		_refresh_hud()
+		return
+	_sleep_phase = "out"
+	_sleep_t = 0.0
+	_clock.set_process(false)
+
+
+func _tick_sleep(delta: float) -> void:
+	_sleep_t += delta
+	if _sleep_phase == "out":
+		_hud.set_fade(clampf(_sleep_t / SLEEP_OUT, 0.0, 1.0))
+		if _sleep_t >= SLEEP_OUT:
+			_clock.set_process(true)
+			var skipped := _clock.seconds_until_dawn()
+			if not _clock.sleep_to_dawn():
+				_sleep_phase = ""
+				_hud.set_fade(0.0)
+				_hint = "Sleep when it is dark."
+				_refresh_hud()
+				return
+			_burn_fires(skipped)
+			supplies.cold_acc = 0.0
+			supplies.heal_acc = 0.0
+			_sleep_phase = "hold"
+			_sleep_t = 0.0
+			if is_near_fire(_player.global_position):
+				_hint = "Slept by the fire."
+			else:
+				_hint = "Slept by the fire. It burned out."
+			_refresh_hud()
+	elif _sleep_phase == "hold":
+		_hud.set_fade(1.0)
+		if _sleep_t >= SLEEP_HOLD:
+			_sleep_phase = "in"
+			_sleep_t = 0.0
+	elif _sleep_phase == "in":
+		_hud.set_fade(1.0 - clampf(_sleep_t / SLEEP_IN, 0.0, 1.0))
+		if _sleep_t >= SLEEP_IN:
+			_sleep_phase = ""
+			_hud.set_fade(0.0)

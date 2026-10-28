@@ -26,6 +26,7 @@ var _walk_time := 0.0
 var _run_keycode := 0
 var _last_tap_keycode := 0
 var _last_tap_msec := 0
+var _chunk_key := Vector2i(9999, 9999)
 
 
 func _ready() -> void:
@@ -59,6 +60,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if world != null and world.is_sleeping():
+		_walk_time = 0.0
+		_apply_facing()
+		return
 	var dir := _read_dir()
 	if dir == Vector2.ZERO:
 		_walk_time = 0.0
@@ -75,8 +80,20 @@ func _process(delta: float) -> void:
 			global_position = slide_x
 		elif not world.is_blocked_pixel(slide_y):
 			global_position = slide_y
+		_notify_chunk()
 		return
 	global_position = next
+	_notify_chunk()
+
+
+func _notify_chunk() -> void:
+	if world == null:
+		return
+	var key := ChunkGenerator.chunk_of_cell(ChunkGenerator.world_cell_at(global_position))
+	if key == _chunk_key:
+		return
+	_chunk_key = key
+	world.on_entered_chunk(global_position)
 
 
 func facing_name() -> String:

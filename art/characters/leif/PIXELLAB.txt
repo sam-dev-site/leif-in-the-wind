@@ -32,3 +32,8 @@ coastal_north props (create_map_object, 1 gen each, high top-down):
   tree_spruce: e965e3c8-75c1-4fec-9bf3-e650deaa4d85 (48x64)
   forage_bakeapple: 1b8007b2-73aa-4bf0-bf7e-6f39bc0e1938 (32x32)
   forage_blueberry: 9e63e337-e37c-4343-8e75-127b1b327328 (32x32)
+  rock_granite: 14a3d010-4ecd-4e26-99a5-31623094474c (32x32)
+  clutter_sphagnum: 6b87facc-40f8-43ed-8505-ed78285021ef (32x32)
+  clutter_needles: 04a0dff2-ccbb-4cf1-9327-e28dc232529a (32x32)
+  clutter_fir_branch: cdca19eb-2f72-4c3b-881a-9a153af36c98 (32x32)
+  fallen_fir: a56cec9e-0bc1-4d09-9eb7-ae4628ddbc53 (48x32)
