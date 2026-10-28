@@ -20,6 +20,7 @@ var _camera: Camera2D
 var _interact: Interact
 var _clock: DayClock
 var _night: CanvasModulate
+var _music: AudioStreamPlayer
 var _hint := ""
 var _fires: Array[Node2D] = []
 var _sleep_phase := ""
@@ -59,6 +60,11 @@ func _ready() -> void:
 	_interact.world = self
 	_interact.acted.connect(_on_acted)
 	add_child(_interact)
+	_music = AudioStreamPlayer.new()
+	_music.bus = "Master"
+	_music.volume_db = -4.0
+	_music.finished.connect(_on_music_finished)
+	add_child(_music)
 	rebuild()
 
 
@@ -133,6 +139,7 @@ func rebuild() -> void:
 	_camera.make_current()
 	_hint = ""
 	_refresh_hud()
+	_ensure_music()
 
 
 func nearby_props() -> Array:
@@ -360,6 +367,32 @@ func _fit_camera() -> void:
 	_camera.limit_top = min_y
 	_camera.limit_right = max_x
 	_camera.limit_bottom = max_y
+
+
+func _ensure_music() -> void:
+	if _music == null:
+		return
+	var path := ""
+	if _chunk != null and _chunk.biome != null:
+		path = _chunk.biome.music_path
+	if path.is_empty() or not ResourceLoader.exists(path):
+		_music.stop()
+		_music.stream = null
+		return
+	if _music.stream != null and _music.playing and _music.stream.resource_path == path:
+		return
+	var stream := load(path)
+	if stream == null or not stream is AudioStream:
+		return
+	if stream is AudioStreamMP3:
+		(stream as AudioStreamMP3).loop = true
+	_music.stream = stream
+	_music.play()
+
+
+func _on_music_finished() -> void:
+	if _music != null and _music.stream != null:
+		_music.play()
 
 
 func _refresh_hud() -> void:

@@ -38,6 +38,7 @@ func _init() -> void:
 	_test_night_costs_six_hearts()
 	_test_fallen_log_blocks_its_length()
 	_test_campfire_burns_one_night()
+	_test_coastal_north_has_grove_music()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -694,6 +695,21 @@ func _test_sleep_jumps_to_dawn() -> void:
 	_expect(clock.phase() == "dawn", "sleep wakes at dawn")
 	_expect(not clock.is_night(), "dawn is not night")
 	clock.free()
+
+
+func _test_coastal_north_has_grove_music() -> void:
+	print("coastal north has grove music")
+	var coast := _coast()
+	_expect(coast.music_path == "res://art/coastal_north/the_first_grove.mp3", "the first grove is the coastal bed")
+	_expect(FileAccess.file_exists(coast.music_path), "the grove track is in the project")
+	if ResourceLoader.exists(coast.music_path):
+		var stream := load(coast.music_path)
+		_expect(stream is AudioStream, "the grove track loads")
+	else:
+		_expect(true, "the grove track loads after Godot imports it")
+	var valley := BiomeCatalog.new()
+	valley.load_all()
+	_expect(valley.get_biome(&"river_valley").music_path == "", "river valley has no music yet")
 
 
 func _prop(cell: Vector2i, kind: String, species: String) -> Node2D:

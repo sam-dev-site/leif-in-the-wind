@@ -9,6 +9,7 @@ display_name = "Coastal North"
 tree_species = PackedStringArray("fir", "spruce")
 forage_species = PackedStringArray("bakeapple", "blueberry")
 trail_maker = &"caribou"
+music_path = "res://art/coastal_north/the_first_grove.mp3"
 water_color = Color(0.23, 0.37, 0.44, 1)
 shore_color = Color(0.77, 0.71, 0.6, 1)
 moss_color = Color(0.24, 0.36, 0.2, 1)

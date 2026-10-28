@@ -13,6 +13,7 @@ A **seed-generated** `coastal_north` strip, built once at Play. The landing is c
 - Granite is a rock object on the moss, not painted into the floor
 - Light clutter: sphagnum and needles stay scenery. Fallen fir branches: Space clears them for **0.5 wood**
 - Fallen fir/spruce logs: Space chops for **3 wood**, same as a standing tree. Logs block their **full length**. Rocks and standing trees block their tile.
+- Bed music: **The First Grove** loops on this coast (~3 minutes)
 
 ## Verbs
 

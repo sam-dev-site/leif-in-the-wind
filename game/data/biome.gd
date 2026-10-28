@@ -8,6 +8,7 @@ extends Resource
 @export var tree_species: PackedStringArray = []
 @export var forage_species: PackedStringArray = []
 @export var trail_maker: StringName = &""
+@export var music_path: String = ""
 @export var water_color: Color = Color(0.23, 0.37, 0.44)
 @export var shore_color: Color = Color(0.77, 0.71, 0.60)
 @export var moss_color: Color = Color(0.24, 0.36, 0.20)

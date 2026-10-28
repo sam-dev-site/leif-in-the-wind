@@ -24,12 +24,13 @@ PixelLab trial: **9 / 40** generations left. Then 5/day (stack to 20). Paid floo
 - PixelLab Wang floor: water/shore/moss/trail (granite is no longer a floor tile)
 - Ground props: granite rocks, sphagnum/needle/branch clutter, fallen fir/spruce (wood; logs block their full length)
 - Slice 0 verbs: `game/world/supplies.gd`, `interact.gd`, `campfire.gd`, `day_clock.gd`
+- Coastal bed: `The First Grove` loops on `coastal_north` (`game/art/coastal_north/the_first_grove.mp3`)
 
 ## Blocked / next
 
 Two lanes (see `AGENTS.md`). Play cut is on `main`: longer night, log spans, fires that burn out, sleep blink, half-hearts.
 
-1. **This PC / play:** Reload from disk, F5. Confirm the longer night, log ends, and a fire dying after one night.
+1. **This PC / play:** Reload from disk, F5. The First Grove should start with the woods and loop. Confirm night, log ends, and a fire dying after one night.
 2. **This PC / art:** Stump sprite if chop looks empty. Trial gens until empty, then owner upgrades.
 3. **Later / enhancements:** Grow the strip past the quiet edge. Push rocks. Seasonality. A world map he can hold. More hearts. Skills: see `docs/SKILLS.md`.
 4. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
@@ -40,4 +41,4 @@ Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.Go
 
 ## Checks
 
-Headless tests cover half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, and blocking. Owner Play: sleep blink signed off; they asked for a longer night, log ends that block, and fires that burn out.
+Headless tests cover half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, blocking, and the coastal grove track. Owner Play: sleep blink signed off; they asked for a longer night, log ends that block, and fires that burn out.

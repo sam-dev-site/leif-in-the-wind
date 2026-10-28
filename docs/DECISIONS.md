@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — First grove loops on coastal_north
+
+**Decision:** The first biome bed is `The First Grove` (`game/art/coastal_north/the_first_grove.mp3`), about three minutes, **looped**. It lives on the `Biome` resource as `music_path`, not hardcoded to World, so a later biome can bring its own track. Pressing R does not restart it. Sleep does not stop it.
+
+**Why:** Owner brought the soundtrack for the first woods. Sensation is a current aesthetic. Music as biome data keeps the continent from becoming a one-off Level1 playlist.
+
+**Rejected:** A global playlist. Restarting the track on every new seed. Silence during sleep.
+
 ## 2026-10-27 — Longer night, log spans, fires burn out
 
 **Decision:** The cold night is **60 seconds** (~6 hearts at ½ / 5s). Dawn is still 10 seconds after that. A 3-heart newbie cannot stand the night; more hearts come later. Fallen logs block their full length (the 64px fir log is five tiles, not one). A campfire burns **one night** of wood and goes out. Sleeping to dawn spends that same time, so a fire you slept through is ash.
