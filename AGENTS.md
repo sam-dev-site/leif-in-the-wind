@@ -30,6 +30,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
 4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Inland is the discovery/fantasy spine; sensation and sitting still also count. “Leif moved” is not enough.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
+6. When the owner signs off a Play, commit that work in the same session. Do not ask whether to commit. A signed-off change left only in the working tree is not on GitHub, and GitHub `main` is the brain.
 
 ## Parallel lanes (do not collide)
 

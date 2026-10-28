@@ -11,6 +11,8 @@ Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/DECISIONS.md`, a
 
 If you make a lasting decision, append `docs/DECISIONS.md` in the same session. Update `docs/STATUS.md` before you finish.
 
+When the owner signs off a Play, commit that work in the same session. Do not ask first.
+
 Never invent biome species. If it is not in `docs/research/biomes/`, research it with sources first.
 
 Prefer cloud agent + PR over loading this Surface Pro. Local machine is for playtest.

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — A Play sign-off is the commit
+
+**Decision:** When the owner signs off a Play, commit that work in the same session. Do not ask whether to commit. GitHub `main` is the brain. A signed-off change left only in the working tree is not done.
+
+**Why:** Eating worked, and the owner still had to answer “say if you want them committed.” They do not want that ask each time.
+
+**Rejected:** Waiting for a separate commit request after a sign-off. Leaving signed-off Play only on this PC.
+
 ## 2026-10-28 — E eats one berry for half a heart
 
 **Decision:** Press **E** to eat 1 forage already in hand and heal **half a heart**. Bakeapple and blueberry share that one count. Empty hands refuse. Hearts already at max refuse, and a bite never goes past max. There is no hunger bar and no starve clock. Day heal, fire heal, and night cold stay as they are. **E** during the sleep blink does nothing.
