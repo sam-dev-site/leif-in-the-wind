@@ -13,6 +13,7 @@ PixelLab trial: **7 / 40** generations left. Then 5/day (stack to 20). Paid floo
 ## What exists
 
 - Knowledge harness (mission names MDA fun: sensation / fantasy / discovery / submission now; expression and challenge later)
+- Sign-off language runs git in that turn (`.cursor/rules/commit-signoff.mdc`): `commit`, `save`, `all set`, `good`, `done`, `push`
 - `docs/research/biomes/river_valley.md` is on `main` (Saint John and inner Miramichi). Owner said it looks right. No spawn tables or art.
 - `docs/research/journey.md` is a schematic world map (Newfoundland → rivers south → west). Not in the game.
 - `game/` Godot 4.7 project: World, Biome resources, ChunkGenerator, Player, HUD

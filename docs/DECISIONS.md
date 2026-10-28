@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Sign-off words run git
+
+**Decision:** `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, and `push` are the order to commit in that turn. The reply’s hash comes from `git log -1` after the command succeeds. `push` also pushes. A follow-on note (`good, but…`) is still notes, not a sign-off.
+
+**Why:** “good! all done, save and commit” was answered with a hash and “has not been pushed” as if git had run. The owner wants those words to be the commit.
+
+**Rejected:** Asking whether to commit after a sign-off. Reporting a commit that was only described.
+
 ## 2026-10-28 — Sphagnum is a small patch on the moss
 
 **Decision:** The sphagnum picture stays 32×32, including the bottom-right of the cushion. It is stamped at half size (16×16, nearest neighbor) onto its tile after the ground is painted. It stays scenery: not firewood, and it does not block the walk. Needles stay at the picture’s own size. The title still uses the same half size.
