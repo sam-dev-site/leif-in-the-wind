@@ -5,6 +5,8 @@ var _label: Label
 var _shadow: Label
 var _fade: ColorRect
 var _pips: Array[ColorRect] = []
+var _minimap: TextureRect
+var _minimap_tex: ImageTexture
 
 
 func _ready() -> void:
@@ -24,6 +26,18 @@ func set_fade(alpha: float) -> void:
 	if _fade == null:
 		_build()
 	_fade.color.a = clampf(alpha, 0.0, 1.0)
+
+
+func show_minimap(img: Image) -> void:
+	if img == null:
+		return
+	if _minimap == null:
+		_build()
+	if _minimap_tex == null:
+		_minimap_tex = ImageTexture.create_from_image(img)
+	else:
+		_minimap_tex.update(img)
+	_minimap.texture = _minimap_tex
 
 
 static func status_text(world_seed: int, biome_name: String, supplies: Supplies, phase: String, hint: String) -> String:
@@ -77,6 +91,7 @@ func _build() -> void:
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade.focus_mode = Control.FOCUS_NONE
 	add_child(_fade)
+	_build_minimap()
 
 
 func _paint_hearts(supplies: Supplies) -> void:
@@ -105,3 +120,17 @@ func _ensure_pips(count: int) -> void:
 		pip.focus_mode = Control.FOCUS_NONE
 		add_child(pip)
 		_pips.append(pip)
+
+
+func _build_minimap() -> void:
+	if _minimap != null:
+		return
+	_minimap = TextureRect.new()
+	_minimap.position = Vector2(4, 270 - FogMap.VIEW - 4)
+	_minimap.size = Vector2(FogMap.VIEW, FogMap.VIEW)
+	_minimap.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_minimap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_minimap.stretch_mode = TextureRect.STRETCH_KEEP
+	_minimap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_minimap.focus_mode = Control.FOCUS_NONE
+	add_child(_minimap)

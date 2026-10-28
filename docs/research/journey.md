@@ -2,7 +2,7 @@
 
 Status: **draft — schematic only. Not playable. Not a spawn table.**
 
-This is the continent as a sequence of walks, not a painted overworld and not a new biome pass. Slice 0 stays `coastal_north`. A later slice can draw this as a map item. Until then the file is the map.
+This is the continent as a sequence of walks, not a painted overworld and not a new biome pass. Slice 0 stays `coastal_north`. In-game orientation is a tiny fog-of-war minimap, not a map he holds. This file is the long-aim spine for later biomes.
 
 ## How this helps Leif go inland
 
@@ -33,7 +33,7 @@ These are implied by the ground, not a crafting tree.
 | Raft or timber bridge | The Saint John / Miramichi main stem is not a brook | First time `river_valley` is playable |
 | Later boat | Southbound rivers, then larger water | After the first crossing exists |
 | Iron as a travel tool | Interior hills in the mission ladder | `inland_plains` research, not now |
-| A world map the player can hold | So the long walk is visible | Enhancement. Schematic in this file is enough until then |
+| Tiny bottom-left minimap with fog of war | So he can see where he has walked on this coast | Next UI. Not a held item. This file stays the continent spine |
 
 ## River spine (southbound)
 

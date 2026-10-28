@@ -21,15 +21,16 @@ These are how Leif stays in the woods after dark: berries in hand, a fire for li
 
 1. Walk in 8 directions (keyboard); double-tap the same key and hold to jog — **in now**
 2. **Space** facing bakeapple or blueberry picks it (forage +1, bush gone) — **in now**
-3. **Space** facing balsam fir or spruce chops it with the stone axe already in hand (wood +3, tree gone, stump left) — **in now**
+3. **Space** facing balsam fir or spruce chops it with the stone axe already in hand (wood +3, tree gone, smaller ringed stump left) — **in now**
 3b. **Space** facing a fallen fir branch clears it (wood +0.5). Fallen logs still give 3 — **in now**
 4. **F** spends 3 wood to place and light a campfire on the tile in front of him. It burns **one night**, then goes out — **in now**
 5. Night is **60 seconds** of cold (six hearts if you stand it). Dusk eases in; dawn eases back to day. Away from a fire, night spends **half a heart every 5 seconds**. Day or warmth heals **half a heart every 10 seconds**. The last half-heart stays — **in now**
 6. **C** by a fire at dusk or night fades to black, then wakes at dawn as it gets light. Sleeping the night spends the fire — **in now**
+7. Tiny bottom-left map: tiles that have been on the 480×270 screen; **R** wipes it — **in now**
 
 Press **R** in-game for a new seed (mission test: different woods). Wood and forage stay in hand. Fires were on the old ground.
 
-HUD: hearts (half-pips), wood count, forage count.
+HUD: hearts (half-pips), wood count, forage count. Tiny bottom-left minimap: the play view as he sees it; **R** wipes it.
 
 Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut.
 
@@ -50,4 +51,4 @@ Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth and sleep are in. Next on this coast if Play wants them: grow the strip past the quiet edge, push rocks, a stump sprite. Hunger and skills wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, and smaller ringed stumps are in. Next on this coast if Play wants it: grow the strip past the quiet edge. Hunger and skills wait. Still `coastal_north`.

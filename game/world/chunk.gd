@@ -16,6 +16,8 @@ var _occupy: Dictionary = {}
 var _usable: Array[Node2D] = []
 static var _tex_cache: Dictionary = {}
 static var _stamp_cache: Dictionary = {}
+## Keep the 32×32 ringed stump PNG. Draw it smaller so it fits a tile without flattening the rings.
+const STUMP_SCALE := 0.6
 
 
 func use_wang(shared: WangTiles) -> void:
@@ -200,6 +202,7 @@ func release_prop(node: Node2D) -> void:
 	if node == null or not is_instance_valid(node):
 		return
 	var kind := str(node.get_meta("kind", ""))
+	var species := str(node.get_meta("species", ""))
 	var at := node.position
 	unregister_prop(node)
 	_clear_prop_cell(node)
@@ -207,7 +210,7 @@ func release_prop(node: Node2D) -> void:
 		remove_child(node)
 	node.queue_free()
 	if kind == "tree":
-		_place(_make_stump(at))
+		_place(_make_stump(at, species))
 
 
 func _place(node: Node2D) -> void:
@@ -507,15 +510,21 @@ func _hash_flip(tx: int, ty: int) -> bool:
 	return ((tx * 13 + ty * 7) & 1) == 1
 
 
-func _make_stump(origin: Vector2) -> Node2D:
+func _make_stump(origin: Vector2, species: String) -> Node2D:
 	var node := Node2D.new()
 	node.position = origin
 	node.y_sort_enabled = true
-	var stump := ColorRect.new()
-	stump.size = Vector2(4, 3)
-	stump.position = Vector2(-2, -3)
-	stump.color = Color(0.32, 0.20, 0.12)
-	stump.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	node.add_child(stump)
+	var sprite := _prop_sprite("stump", species)
+	if sprite != null:
+		sprite.scale = Vector2(STUMP_SCALE, STUMP_SCALE)
+		node.add_child(sprite)
+	else:
+		var stump := ColorRect.new()
+		stump.size = Vector2(4, 3)
+		stump.position = Vector2(-2, -3)
+		stump.color = Color(0.32, 0.20, 0.12)
+		stump.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		node.add_child(stump)
 	node.set_meta("kind", "stump")
+	node.set_meta("species", species)
 	return node

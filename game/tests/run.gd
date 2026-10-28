@@ -39,6 +39,9 @@ func _init() -> void:
 	_test_fallen_log_blocks_its_length()
 	_test_campfire_burns_one_night()
 	_test_coastal_north_has_grove_music()
+	_test_fog_reveals_the_visible_view()
+	_test_minimap_paints_revealed_tiles()
+	_test_chop_leaves_named_stump()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -266,6 +269,10 @@ func _test_chop_tree_in_front() -> void:
 		var i := cell.y * ChunkGenerator.WIDTH + cell.x
 		_expect(str(chunk.data["trees"][i]) == "", "%s is gone from the woods" % species)
 		_expect(chunk.cell_occupied(cell), "%s leaves a stump" % species)
+		var stump := _stump_at(chunk, cell)
+		_expect(stump != null, "%s left a stump node" % species)
+		if stump != null:
+			_expect(str(stump.get_meta("species")) == species, "%s stump is named for that tree" % species)
 	var trees_after := 0
 	for node in chunk.prop_nodes():
 		if str(node.get_meta("kind")) == "tree":
@@ -710,6 +717,114 @@ func _test_coastal_north_has_grove_music() -> void:
 	var valley := BiomeCatalog.new()
 	valley.load_all()
 	_expect(valley.get_biome(&"river_valley").music_path == "", "river valley has no music yet")
+
+
+func _test_fog_reveals_the_visible_view() -> void:
+	print("fog reveals the visible view")
+	var fog := FogMap.new()
+	_expect(not fog.is_revealed(Vector2i(0, 0)), "new fog is closed")
+	var rect := FogMap.view_rect(Vector2(240, 135))
+	_expect(rect.position == Vector2i(0, 0), "the play view starts at the top-left tile")
+	_expect(rect.size.x == 30, "the play view is thirty tiles wide")
+	_expect(rect.size.y >= 16 and rect.size.y <= 17, "the play view is about seventeen tiles tall")
+	_expect(fog.reveal_rect(rect), "the screen opens")
+	_expect(fog.is_revealed(Vector2i(0, 0)), "the near corner of the view is open")
+	_expect(fog.is_revealed(Vector2i(29, 0)), "the far edge of the view is open")
+	_expect(fog.is_revealed(Vector2i(15, 8)), "the middle of the view is open")
+	_expect(not fog.is_revealed(Vector2i(30, 0)), "past the screen stays fog")
+	_expect(not fog.is_revealed(Vector2i(0, rect.position.y + rect.size.y)), "past the bottom of the screen stays fog")
+	_expect(not fog.reveal_rect(rect), "the same view does not open again")
+	fog.clear()
+	_expect(not fog.is_revealed(Vector2i(0, 0)), "new woods wipe the walk")
+	_expect(fog.reveal(Vector2i(4, 6)), "a single cell still works")
+	_expect(not fog.is_revealed(Vector2i(5, 6)), "reveal() alone is still one cell")
+	_expect(FogMap.VIEW == FogMap.RADIUS * 2 + 1, "the circle is centered on an odd canvas")
+	_expect(FogMap.PLAY_SIZE == Vector2(480, 270), "fog uses the play view size")
+
+
+func _test_minimap_paints_revealed_tiles() -> void:
+	print("minimap paints only a local circle")
+	var fog := FogMap.new()
+	var player_cell := Vector2i(10, 10)
+	var trail_cell := player_cell + Vector2i(1, 0)
+	var moss_cell := player_cell + Vector2i(0, 1)
+	var far_cell := player_cell + Vector2i(FogMap.RADIUS + 4, 0)
+	var trail_color := Color8(204, 102, 51, 255)
+	var moss_color := Color8(51, 102, 51, 255)
+	var sample := func(cell: Vector2i) -> int:
+		if cell == trail_cell:
+			return ChunkGenerator.TILE_TRAIL
+		return ChunkGenerator.TILE_MOSS
+	var color_of := func(kind: int) -> Color:
+		if kind == ChunkGenerator.TILE_TRAIL:
+			return trail_color
+		return moss_color
+	var closed := fog.paint(sample, color_of, player_cell)
+	_expect(closed.get_width() == FogMap.VIEW, "minimap width is the circle")
+	_expect(closed.get_height() == FogMap.VIEW, "minimap height is the circle")
+	_expect(closed.get_pixel(0, 0).a == 0.0, "outside the circle is clear")
+	_expect(closed.get_pixel(FogMap.RADIUS, FogMap.RADIUS) == FogMap.LEIF_COLOR, "leif is the center pip")
+	var east := fog.map_pixel(trail_cell, player_cell)
+	_expect(closed.get_pixel(east.x, east.y) == FogMap.FOG_COLOR, "an unwalked neighbor stays fog")
+	fog.reveal(player_cell)
+	fog.reveal(trail_cell)
+	fog.reveal(moss_cell)
+	fog.reveal(far_cell)
+	_expect(fog.is_revealed(far_cell), "a far step is still remembered")
+	_expect(not fog.in_view(far_cell, player_cell), "a far step is outside this circle")
+	var open := fog.paint(sample, color_of, player_cell)
+	_expect(open.get_pixel(east.x, east.y) == trail_color, "a walked neighbor in view shows trail")
+	var south := fog.map_pixel(moss_cell, player_cell)
+	_expect(open.get_pixel(south.x, south.y) == moss_color, "a walked neighbor in view shows moss")
+	_expect(open.get_pixel(FogMap.RADIUS, FogMap.RADIUS) == FogMap.LEIF_COLOR, "leif stays the center pip")
+	_expect(open.get_pixel(0, 0).a == 0.0, "the corner stays outside the circle")
+
+
+func _test_chop_leaves_named_stump() -> void:
+	print("chop leaves a named stump")
+	_expect(FileAccess.file_exists("res://art/coastal_north/stump_fir.png"), "fir stump art is in the project")
+	_expect(FileAccess.file_exists("res://art/coastal_north/stump_spruce.png"), "spruce stump art is in the project")
+	var chunk := _chunk(11)
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	var tree: Node2D = null
+	for node in chunk.prop_nodes():
+		if str(node.get_meta("kind")) == "tree" and str(node.get_meta("species")) == "fir":
+			tree = node
+			break
+	_expect(tree != null, "seed 11 has a fir to chop")
+	if tree != null:
+		var cell := chunk.cell_of_prop(tree)
+		_expect(interact.use_on(tree) == "chop", "chop the fir")
+		chunk.release_prop(tree)
+		var stump := _stump_at(chunk, cell)
+		_expect(stump != null, "the fir left a stump")
+		if stump != null:
+			_expect(str(stump.get_meta("species")) == "fir", "the leftover is a fir stump")
+			var sprite: Sprite2D = null
+			for child in stump.get_children():
+				if child is Sprite2D:
+					sprite = child
+			_expect(sprite != null and sprite.texture != null, "the fir stump uses the named PNG")
+			if sprite != null and sprite.texture != null:
+				_expect(sprite.texture.resource_path.ends_with("stump_fir.png"), "the leftover is the fir stump")
+				_expect(sprite.texture.get_width() == 32 and sprite.texture.get_height() == 32, "the stump keeps the ringed 32 source")
+				_expect(is_equal_approx(sprite.scale.x, MapChunk.STUMP_SCALE), "the stump is drawn smaller than the source")
+	chunk.free()
+	interact.free()
+
+
+func _stump_at(chunk: MapChunk, cell: Vector2i) -> Node2D:
+	for child in chunk.get_children():
+		if not child is Node2D:
+			continue
+		var node := child as Node2D
+		if str(node.get_meta("kind", "")) != "stump":
+			continue
+		if chunk.cell_of_prop(node) == cell:
+			return node
+	return null
 
 
 func _prop(cell: Vector2i, kind: String, species: String) -> Node2D:

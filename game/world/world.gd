@@ -25,6 +25,9 @@ var _hint := ""
 var _fires: Array[Node2D] = []
 var _sleep_phase := ""
 var _sleep_t := 0.0
+var _fog := FogMap.new()
+var _minimap_cell := Vector2i(99999, 99999)
+var _minimap_view := Vector2i(99999, 99999)
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
@@ -81,6 +84,7 @@ func _process(delta: float) -> void:
 		_refresh_hud()
 	elif change == "heal":
 		_refresh_hud()
+	_reveal_visible_view()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -138,6 +142,10 @@ func rebuild() -> void:
 	_fit_camera()
 	_camera.make_current()
 	_hint = ""
+	_fog.clear()
+	_minimap_cell = Vector2i(99999, 99999)
+	_minimap_view = Vector2i(99999, 99999)
+	_reveal_visible_view()
 	_refresh_hud()
 	_ensure_music()
 
@@ -403,6 +411,54 @@ func _refresh_hud() -> void:
 	if _clock != null:
 		phase = _clock.phase()
 	_hud.show_play(world_seed, biome_name, supplies, phase, _hint)
+
+
+func _reveal_visible_view() -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	var center := _player.global_position
+	if _camera != null and is_instance_valid(_camera):
+		center = _camera.get_screen_center_position()
+	var rect := FogMap.view_rect(center)
+	var opened := _fog.reveal_rect(rect)
+	var cell := ChunkGenerator.world_cell_at(_player.global_position)
+	if opened or cell != _minimap_cell or rect.position != _minimap_view:
+		_minimap_cell = cell
+		_minimap_view = rect.position
+		_refresh_minimap()
+
+
+func _refresh_minimap() -> void:
+	if _hud == null:
+		return
+	_hud.show_minimap(_fog.paint(_minimap_sample, _minimap_color, _minimap_cell))
+
+
+func _minimap_sample(cell: Vector2i) -> int:
+	return _sample_world_tile(cell.x, cell.y)
+
+
+func _minimap_color(kind: int) -> Color:
+	var biome: Biome = null
+	if _chunk != null and _chunk.biome != null:
+		biome = _chunk.biome
+	else:
+		biome = catalog.get_biome(&"coastal_north")
+	if biome == null:
+		return Color(0.24, 0.36, 0.20)
+	match kind:
+		ChunkGenerator.TILE_WATER:
+			return biome.water_color
+		ChunkGenerator.TILE_SHORE:
+			return biome.shore_color
+		ChunkGenerator.TILE_PEAT:
+			return biome.peat_color
+		ChunkGenerator.TILE_GRANITE:
+			return biome.granite_color
+		ChunkGenerator.TILE_TRAIL:
+			return biome.trail_color
+		_:
+			return biome.moss_color
 
 
 func is_blocked_pixel(global_px: Vector2) -> bool:

@@ -2,6 +2,46 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Fir and spruce stump sprites swapped
+
+**Decision:** `stump_fir.png` and `stump_spruce.png` swapped. The larger leftover sits under the larger tree.
+
+**Why:** Owner Play: the stumps were right, the pairing was backwards.
+
+**Rejected:** Regenerating. Changing scale again.
+
+## 2026-10-27 — Ringed stumps stay; they are drawn smaller
+
+**Decision:** Chop leftovers use the first PixelLab stumps (`stump_fir.png` / `stump_spruce.png`, 32×32, rings and bark) drawn at **0.6 scale**. The PNG is not downsampled. Flattening to 16×16 killed the depth. Half-size trees are not the leftover.
+
+**Why:** Owner Play: those first sprites looked the most like real stumps, just too big. The 16×16 crush and the tiny-tree leftover both looked flat.
+
+**Rejected:** Another PixelLab generation. Keeping the 16×16 oval. Using the standing-tree PNG scaled down.
+
+## 2026-10-27 — Fog opens the play view; leftovers are the tree, smaller
+
+**Decision:** The corner map still only remembers land Leif has seen, but a look opens **every tile on the 480×270 screen**, not the one cell under his feet. Chopped fir and spruce leave the **same tree PNG at half size** (nearest-neighbor). The generated stump blobs are gone.
+
+**Why:** Owner Play: one-pixel reveal felt empty; they wanted the map to match what he can see. The generated stumps looked like mushrooms. The existing fir/spruce art, just smaller, is the leftover they asked for.
+
+**Rejected:** Keeping the mushroom stumps. Another PixelLab stump pass. Revealing a radius that is not the play view.
+
+## 2026-10-27 — Corner map is the walked strip; stumps are named PNGs
+
+**Decision:** The bottom-left minimap is **48×64**, one pixel per 3 world tiles, so the prebuilt `coastal_north` strip fits. Fog opens **only the cell Leif stands on**, not a radius. A map pixel lights if any of its 3×3 was walked. **R** wipes the walk. Leif is a cream pip. Chopped fir and spruce leave `stump_fir.png` / `stump_spruce.png` (32×32, high top-down, same `create_map_object` path as granite and forage). ColorRect fallback stays if a file is missing. Fallen logs still leave no stump.
+
+**Why:** Owner asked to see where they have been on this coast, and for a stump when a tree is gone. A 16×16 canvas is PixelLab’s floor for `create_object_pro_flash` only; `create_map_object` starts at 32, and a 16-pixel stump is a speck under the 48×64 trees. 32×32 matches the other tile props. The corner map serves **discovery** (the shore appears as he walks it) without becoming a held parchment.
+
+**Rejected:** A 16×16 stump canvas. Revealing a radius around him. Showing the `journey.md` continent. Growing the strip or starting `river_valley` as land.
+
+## 2026-10-27 — Tiny fog-of-war minimap, not a map he holds
+
+**Decision:** There is **no handheld world map**. Orientation is a **small minimap in the bottom-left** with fog of war. Simple. The schematic continent in `docs/research/journey.md` stays a design file, not an item.
+
+**Why:** Owner: the long-aim map as something Leif carries is the wrong toy. They want to see where they have been on this coast, not open a parchment.
+
+**Rejected:** A map item in the pack. A full-screen overworld. Filling fog for the whole continent this slice.
+
 ## 2026-10-27 — First grove loops on coastal_north
 
 **Decision:** The first biome bed is `The First Grove` (`game/art/coastal_north/the_first_grove.mp3`), about three minutes, **looped**. It lives on the `Biome` resource as `music_path`, not hardcoded to World, so a later biome can bring its own track. Pressing R does not restart it. Sleep does not stop it.
