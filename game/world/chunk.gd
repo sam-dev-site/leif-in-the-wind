@@ -10,6 +10,8 @@ var world_sample: Callable = Callable()
 var foreign_grid: Callable = Callable()
 var _wang := WangTiles.new()
 var _baked := false
+var _floor_img: Image
+var _bake_ty := 0
 var _grid_live := false
 var _walk_block: Dictionary = {}
 var _occupy: Dictionary = {}
@@ -39,28 +41,45 @@ func setup(world_seed: int, cx: int, cy: int, biome_data: Biome, spawn_now: bool
 
 
 func bake_floor() -> void:
-	if data.is_empty() or biome == null or _baked:
-		return
+	while not bake_floor_step(ChunkGenerator.HEIGHT):
+		pass
+
+
+## A few tile rows at a time, so the title can keep walking while the coast is built.
+func bake_floor_step(rows: int) -> bool:
+	if _baked:
+		return true
+	if data.is_empty() or biome == null:
+		_baked = true
+		return true
 	var w := ChunkGenerator.WIDTH * ChunkGenerator.TILE
 	var h := ChunkGenerator.HEIGHT * ChunkGenerator.TILE
-	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-	for ty in ChunkGenerator.HEIGHT:
+	if _floor_img == null:
+		_floor_img = Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var end := mini(_bake_ty + maxi(rows, 1), ChunkGenerator.HEIGHT)
+	var tiles: PackedInt32Array = data["tiles"]
+	for ty in range(_bake_ty, end):
 		for tx in ChunkGenerator.WIDTH:
-			if not _wang.blit_to_image(img, tx, ty, _sample_ground):
-				img.fill_rect(
+			if not _wang.blit_to_image(_floor_img, tx, ty, _sample_ground):
+				_floor_img.fill_rect(
 					Rect2i(tx * ChunkGenerator.TILE, ty * ChunkGenerator.TILE, ChunkGenerator.TILE, ChunkGenerator.TILE),
-					_color_for((data["tiles"] as PackedInt32Array)[ty * ChunkGenerator.WIDTH + tx])
+					_color_for(tiles[ty * ChunkGenerator.WIDTH + tx])
 				)
-			_stamp_paint_clutter(img, tx, ty)
+			_stamp_paint_clutter(_floor_img, tx, ty)
+	_bake_ty = end
+	if _bake_ty < ChunkGenerator.HEIGHT:
+		return false
 	var floor := Sprite2D.new()
-	floor.texture = ImageTexture.create_from_image(img)
+	floor.texture = ImageTexture.create_from_image(_floor_img)
 	floor.centered = false
 	floor.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	floor.z_as_relative = false
 	floor.z_index = -20
 	add_child(floor)
 	move_child(floor, 0)
+	_floor_img = null
 	_baked = true
+	return true
 
 
 func spawn_interactive() -> void:

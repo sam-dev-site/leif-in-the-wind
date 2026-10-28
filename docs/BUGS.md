@@ -1,0 +1,70 @@
+# Bugs
+
+Each heading below is one break in the game you already have. It stays open until a fix session takes it and you sign that Play off.
+
+[IDEAS.md](IDEAS.md) is for new wishes. [SLICE_0.md](SLICE_0.md) is the current cut. A bug found while you are signing off that cut stays in that session. This file is for breaks that are not the work in front of you.
+
+## How a bug lands
+
+1. A new want goes in [IDEAS.md](IDEAS.md). This file is only for something the game already does wrong.
+2. If it is the feature you are playtesting in this sitting, it stays with that work.
+3. Otherwise give it its own heading. Write what you saw, what the game is supposed to do, and where it showed up.
+4. Leave it. Fixing is a separate ask.
+
+## How a fix session starts
+
+1. Read this file.
+2. In the reply, name the open headings in the words written here, before changing the game.
+3. Fix only the ones you pick. If you do not pick, ask which open bugs to take.
+4. After you sign off the Play, move those headings under **Fixed** and note the date. Leave the write-up.
+
+## Open
+
+## Shrubs are missing the bottom right corner
+
+**Status:** Open.
+
+**Found:** 2026-10-28
+
+**What you saw:** On the moss, the berry bushes have a bite out of the bottom-right. The rest of the shrub is there. That corner is empty, so the bush reads as a curl instead of a full shrub. It shows on more than one bush in the same look.
+
+**What the game should do:** A bakeapple or blueberry bush is a whole shrub. The bottom-right corner is part of the plant, the same as the other three corners.
+
+**Where:** Coastal woods, on the ground. The hole is already in the pictures the game draws: `game/art/coastal_north/forage_bakeapple.png` and `game/art/coastal_north/forage_blueberry.png`. Both files leave that corner empty.
+
+## Running on a diagonal is choppy
+
+**Status:** Open.
+
+**Found:** 2026-10-28
+
+**What you saw:** Jog on a diagonal — NE, NW, SE, or SW — and the world moves in little chops. It feels like the view is taking turns: left, down, left, down. It does not feel like one smooth slide along that diagonal.
+
+**What the game should do:** A diagonal jog is one movement. The woods should slide on the diagonal the way a straight jog slides along a line. Walk stays 70. Jog stays 100, and only while the double-tapped key is still held. The camera stays on Leif. An earlier decision turned camera smoothing off, because a smoothed camera would sit further behind him.
+
+**Where:** In the woods, while jogging on a diagonal. The camera is a child of Leif with smoothing off (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
+
+## Minimap shows too much
+
+**Status:** Open.
+
+**Found:** 2026-10-28
+
+**What you saw:** The bottom-left circle is not helpful. You can already see almost all of it. In the current picture the circle is about 95% uncovered: green and brown ground, a cream pip in the middle, and only a thin black edge left. One glance at the woods fills the map.
+
+**What the game should do:** Match the other picture. Zoom the same circle out. Most of it stays black. The bit his walking uncovers is a smaller patch around the cream pip, with black fog around that patch. The map still sits in the bottom-left. It is still not a map he holds. **R** still wipes it.
+
+An earlier decision opened every tile on the 480×270 screen. That is the picture you do not want. This bug replaces that feel. The fix session writes the new choice into the decision log when you sign the Play off.
+
+**Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile, and a look reveals the whole play view. That view is almost as wide as the circle, which is why the black disappears.
+
+## Fixed
+
+None yet.
+
+## From you
+
+- **2026-10-28 — Backlog opened.** Nothing filed yet.
+- **2026-10-28 — Shrubs are missing the bottom right corner.** Open. Not this Play.
+- **2026-10-28 — Running on a diagonal is choppy.** Open. Not this Play.
+- **2026-10-28 — Minimap shows too much.** Open. The picture with the black ring is the target. Not this Play.

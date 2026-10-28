@@ -19,6 +19,8 @@ jobs:
           test -f docs/STATUS.md
           test -f docs/SLICE_0.md
           test -f docs/REVIEW.md
+          test -f docs/IDEAS.md
+          test -f docs/BUGS.md
           test -f docs/research/biomes/_template.md
           test -f docs/research/biomes/coastal_north.md
           test -f docs/research/biomes/river_valley.md

@@ -13,6 +13,8 @@ GitHub `main` is the brain. Chat memory is not.
 | [docs/STATUS.md](docs/STATUS.md) | What exists, what is blocked, what is next. |
 | [docs/SLICE_0.md](docs/SLICE_0.md) | Current playable cut only. |
 | [docs/REVIEW.md](docs/REVIEW.md) | Do not call work done until these gates pass. |
+| [docs/IDEAS.md](docs/IDEAS.md) | Wishes. Talk each one through. Building is a separate ask. |
+| [docs/BUGS.md](docs/BUGS.md) | Breaks that are not the current Play. Log them. A fix session names the open headings before changing the game. |
 | [docs/research/biomes/](docs/research/biomes/) | Flora and fauna with sources. |
 
 Before doing project work, read `MISSION.md`, the latest `DECISIONS.md` and `STATUS.md`, and any biome research file you will touch.
@@ -31,6 +33,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Inland is the discovery/fantasy spine; sensation and sitting still also count. “Leif moved” is not enough.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
 6. When the owner signs off a Play, commit that work in the same session. Do not ask whether to commit. A signed-off change left only in the working tree is not on GitHub, and GitHub `main` is the brain.
+7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`.
 
 ## Parallel lanes (do not collide)
 

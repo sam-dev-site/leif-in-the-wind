@@ -12,6 +12,7 @@ process.stdin.on("end", () => {
         "Before any work, read AGENTS.md, docs/MISSION.md, docs/DECISIONS.md, and docs/STATUS.md.",
         "Do not invent flora or fauna. Species must come from docs/research/biomes/.",
         "If you make a lasting decision, append docs/DECISIONS.md in the same session. Update docs/STATUS.md before you finish.",
+        "Bugs that are not the current Play go in docs/BUGS.md. When the owner asks for bug fixes, name the open headings in that file before changing the game.",
         "Prefer cloud/PR work. This PC is for playtest.",
         "sessionStart does not run on Cursor cloud agents — AGENTS.md and .cursor/rules still do.",
       ].join("\n"),

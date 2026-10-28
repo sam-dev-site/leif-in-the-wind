@@ -44,7 +44,7 @@ static func status_text(world_seed: int, biome_name: String, supplies: Supplies,
 	var lines := (
 		"hearts %s/%s   wood %s   forage %d   %s\n"
 		+ "seed %d   %s\n"
-		+ "Space pick, chop, or clear    E eat    F campfire (%s wood)    C sleep    R new woods\n"
+		+ "Space pick, chop, or clear    E eat (%d forage)    F campfire (%s wood)    C sleep    R new woods\n"
 		+ "WASD walk    double-tap a key to jog\n"
 		+ "Water behind you. The trail leads inland."
 	) % [
@@ -55,6 +55,7 @@ static func status_text(world_seed: int, biome_name: String, supplies: Supplies,
 		phase,
 		world_seed,
 		biome_name,
+		Supplies.EAT_FORAGE,
 		Supplies.wood_label(Supplies.CAMPFIRE_WOOD),
 	]
 	if hint != "":

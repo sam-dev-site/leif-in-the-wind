@@ -28,6 +28,10 @@ var _sleep_t := 0.0
 var _fog := FogMap.new()
 var _minimap_cell := Vector2i(99999, 99999)
 var _minimap_view := Vector2i(99999, 99999)
+var _staged := false
+var _stage_keys: Array[Vector2i] = []
+var _stage_index := 0
+var _stage_phase := 0
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
@@ -37,7 +41,7 @@ const PROP_EDGE := 24.0
 
 
 func _ready() -> void:
-	_fit_play_window()
+	PlayWindow.fit(get_window())
 	y_sort_enabled = true
 	catalog.load_all()
 	_wang.load_coastal()
@@ -68,7 +72,10 @@ func _ready() -> void:
 	_music.volume_db = -4.0
 	_music.finished.connect(_on_music_finished)
 	add_child(_music)
-	rebuild()
+	if _staged and not _chunks.is_empty():
+		_finish_arrival()
+	else:
+		rebuild()
 
 
 func _process(delta: float) -> void:
@@ -136,9 +143,57 @@ func rebuild() -> void:
 	_chunks.clear()
 	_fires.clear()
 	_chunk = null
+	_staged = false
 	_build_strip()
+	_finish_arrival()
+
+
+## Build the strip a slice at a time so the title walk can play while the coast loads.
+func begin_staged_boot() -> void:
+	if _staged:
+		return
+	_staged = true
+	catalog.load_all()
+	if not _wang.ready():
+		_wang.load_coastal()
+	_stage_keys.clear()
+	for cy in range(STRIP_NORTH, STRIP_SOUTH + 1):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			_stage_keys.append(Vector2i(cx, cy))
+	_stage_index = 0
+	_stage_phase = 0
+
+
+func stage_boot_step() -> bool:
+	if not _staged or _stage_phase > 2:
+		return true
+	if _stage_index >= _stage_keys.size():
+		_stage_phase += 1
+		_stage_index = 0
+		return _stage_phase > 2
+	var key := _stage_keys[_stage_index]
+	if _stage_phase == 0:
+		_make_chunk(key)
+		_stage_index += 1
+	elif _stage_phase == 1:
+		var baking: MapChunk = _chunks[key]
+		if baking.bake_floor_step(8):
+			_stage_index += 1
+	else:
+		var spawning: MapChunk = _chunks[key]
+		spawning.spawn_interactive()
+		_stage_index += 1
+	return false
+
+
+func boot_chunk_count() -> int:
+	return _chunks.size()
+
+
+func _finish_arrival() -> void:
 	var landing: MapChunk = _chunks.get(Vector2i(0, 0))
-	add_child(_player)
+	if _player.get_parent() != self:
+		add_child(_player)
 	_player.global_position = landing.position + landing.spawn_local()
 	_reparent_player()
 	_cull_far_chunks()
@@ -283,9 +338,9 @@ func _try_eat() -> void:
 		return
 	var result := supplies.try_eat()
 	if result == "eat":
-		_hint = "Ate a berry. +%s heart." % Supplies.wood_label(Supplies.HEART_STEP)
-	elif result == "empty":
-		_hint = "No berries to eat."
+		_hint = "Ate. +%s heart." % Supplies.wood_label(Supplies.HEART_STEP)
+	elif result == "short":
+		_hint = "Need %d forage to eat." % Supplies.EAT_FORAGE
 	elif result == "full":
 		_hint = "Hearts are already full."
 	_refresh_hud()
@@ -337,35 +392,13 @@ func _campfire_block_reason(world_cell: Vector2i) -> String:
 	return ""
 
 
-## Keep 480×270. Size the play window to the largest 16:9 that fits this screen.
-## Integer 3× needs 1440px; this Surface's desktop is 1368px, so fractional fill is how F5 gets bigger.
-func _fit_play_window() -> void:
-	if Engine.is_embedded_in_editor():
-		return
-	if DisplayServer.get_name() == "headless":
-		return
-	var win := get_window()
-	if win == null:
-		return
-	if win.mode == Window.MODE_FULLSCREEN or win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
-		return
-	var usable := DisplayServer.screen_get_usable_rect(win.current_screen)
-	var scale := minf(float(usable.size.x) / 480.0, float(usable.size.y) / 270.0)
-	scale = maxf(scale, 1.0)
-	var size := Vector2i(int(480.0 * scale), int(270.0 * scale))
-	win.mode = Window.MODE_WINDOWED
-	win.size = size
-	var extra := usable.size - size
-	win.position = usable.position + Vector2i(extra.x / 2, extra.y / 2)
-
-
 func _toggle_fullscreen() -> void:
 	var win := get_window()
 	if win == null:
 		return
 	if win.mode == Window.MODE_FULLSCREEN or win.mode == Window.MODE_EXCLUSIVE_FULLSCREEN:
 		win.mode = Window.MODE_WINDOWED
-		_fit_play_window()
+		PlayWindow.fit(win)
 	else:
 		win.mode = Window.MODE_FULLSCREEN
 

@@ -8,7 +8,7 @@ process.stdin.on("end", () => {
   process.stdout.write(
     JSON.stringify({
       user_message:
-        "Context is compacting. Lasting decisions belong in docs/DECISIONS.md and docs/STATUS.md — chat memory will lose them.",
+        "Context is compacting. Lasting decisions belong in docs/DECISIONS.md and docs/STATUS.md. Open bugs belong in docs/BUGS.md. Chat memory will lose them.",
     })
   );
 });

@@ -29,7 +29,7 @@ These are implied by the ground, not a crafting tree.
 
 | Need | Why | When |
 |---|---|---|
-| Walk, forage, chop, eat, fire | Night on the shore; a berry heals half a heart | Slice 0 (in now). A hunger meter is not |
+| Walk, forage, chop, eat, fire | Night on the shore; 3 berries heal half a heart | Slice 0 (in now). A hunger meter is not |
 | Raft or timber bridge | The Saint John / Miramichi main stem is not a brook | First time `river_valley` is playable |
 | Later boat | Southbound rivers, then larger water | After the first crossing exists |
 | Iron as a travel tool | Interior hills in the mission ladder | `inland_plains` research, not now |

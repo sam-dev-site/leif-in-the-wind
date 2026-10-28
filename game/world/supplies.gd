@@ -1,12 +1,13 @@
 class_name Supplies
 extends RefCounted
 
-## What Leif is carrying. Wood buys a fire. A berry in hand heals half a heart.
+## What Leif is carrying. Wood buys a fire. Three berries buy half a heart.
 ## Night away from a fire spends hearts slowly. There is no hunger bar.
 
 const WOOD_PER_TREE := 3.0
 const WOOD_PER_BRANCH := 0.5
 const CAMPFIRE_WOOD := 3.0
+const EAT_FORAGE := 3
 const HEART_STEP := 0.5
 const COLD_SECONDS := 5.0
 const HEAL_SECONDS := 10.0
@@ -47,14 +48,14 @@ func try_spend_wood(amount: float) -> bool:
 	return true
 
 
-## Eat one berry already in hand. Half a heart back, never past max.
-## "empty" and "full" spend nothing. Day heal and night cold are untouched.
+## Spend 3 berries for half a heart. Short hands and full hearts spend nothing.
+## Day heal and night cold are untouched.
 func try_eat() -> String:
-	if forage <= 0:
-		return "empty"
+	if forage < EAT_FORAGE:
+		return "short"
 	if hearts >= hearts_max:
 		return "full"
-	forage -= 1
+	forage -= EAT_FORAGE
 	hearts = snappedf(minf(hearts_max, hearts + HEART_STEP), HEART_STEP)
 	return "eat"
 

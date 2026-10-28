@@ -2,6 +2,54 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Three berries heal half a heart
+
+**Decision:** A pick still grants **1** forage. **E** spends **3** forage to heal half a heart, the same price shape as 3 wood for a fire. Fewer than 3 refuses and spends nothing. Full hearts refuse and spend nothing. A bite still never goes past max. There is no hunger bar.
+
+**Why:** One berry for half a heart made the handful too strong next to the fire, which already asks for three of a thing. Berries stay a way to sit the night or keep walking (submission, fantasy). They are not a grind, a cook, or a skill.
+
+**Rejected:** Healing on one berry. Spending a partial handful. A hunger meter.
+
+## 2026-10-28 — Ideas is a dump, not an interview
+
+**Decision:** `docs/IDEAS.md` keeps one line per idea, in the owner’s words. Logging it does not start a design conversation. Dig into an idea only when they ask to open that one.
+
+**Why:** The owner uses that file as a dumping ground. Writing options and questions on the way in was getting ahead of them.
+
+**Rejected:** A design brief, a build order, or follow-up questions for every dump.
+
+## 2026-10-28 — Bugs that are not this Play go in a backlog
+
+**Decision:** Breaks the owner finds that are not the current playtest go in `docs/BUGS.md`. Each one is its own heading: what they saw, what the game is supposed to do, and where it showed up. Logging a bug does not start the fix. A later “do some bug fixes” session reads that file and names the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Feedback on the feature being signed off stays in that session. GitHub Actions requires `docs/BUGS.md` and `docs/IDEAS.md` to exist.
+
+**Why:** The owner will keep finding breaks while playing other things. Those need a home that does not take over the current slice, and a later fix session has to quote what was written.
+
+**Rejected:** Fixing a parked bug in the same turn it was reported. Parking breaks inside the slice doc, in status as next work, or as ideas. Treating chat memory as the bug list.
+
+## 2026-10-28 — The coast fills the title; the menu is a box on top
+
+**Decision:** The title background is the coastal still from the top of the screen to the water. A green box sits on that picture and holds **New Game** and **Continue**. There is no Start button. **New Game** starts building the woods at once: the box fades, then Leif turns so his back faces you and walks inland. That walk is the loading screen. **Continue** opens the three file boxes. An empty box does nothing. Choosing a file that exists leaves the same way New Game does.
+
+**Why:** The flat green was covering the woods. The owner wants to see the coast behind the menu, then watch that menu leave as Leif walks into the trees.
+
+**Rejected:** A full-width green slab. A Start button in front of New Game and Continue. Turning him around before the box has faded.
+
+## 2026-10-28 — Title coast, hover only, walk while the woods load
+
+**Decision:** The menu sits on a flat green block. Behind and below it is a coastal still made from the existing shore tiles, fir, spruce, granite, bakeapple, blueberry, sphagnum, needles, a branch, and a fallen fir. Buttons stay plain until the pointer is on them. **New Game** hides that block, turns Leif so his back faces the camera, and he walks inland while the coast is built a slice at a time. Then the real woods appear. Empty Continue boxes still do nothing.
+
+**Why:** The first button was lit just because it was first. New Game sat on a blank wait of several seconds. The still he leaves should be the same kind of shore the game starts on, so the walk reads as entering the woods.
+
+**Rejected:** A keyboard highlight on the first row. A separate loading caption. Building the whole strip in one freeze before he can move.
+
+## 2026-10-28 — Title screen, then New Game or Continue
+
+**Decision:** Play opens on a title. One button, **Start**, then **New Game** or **Continue**. Continue shows three boxes that say **No save file**. Nothing is saved or loaded. New Game opens the same woods as before (seed 11). The picture behind the menu is the existing Leif (facing the camera, half scale), one fir, one spruce, and a short water-and-shore band from the Wang sheets. The title is silent. Escape steps back on the menu and does nothing on the title. Escape in the woods is reserved for a pause screen, which is not built. There is no options menu and no way back to the title from the woods.
+
+**Why:** The owner wanted a front door before saves exist, so the next cut has somewhere to hang three files. The art is already in the game (sensation). Each empty box says “No save file,” with no second line. Pause stays a later idea so this cut is only the launch menu.
+
+**Rejected:** A settings menu. Writing a save in this cut. Opening pause from the woods now. A generated chunk behind the title. New PixelLab art. Title music. The line “No shore saved yet.”
+
 ## 2026-10-28 — A Play sign-off is the commit
 
 **Decision:** When the owner signs off a Play, commit that work in the same session. Do not ask whether to commit. GitHub `main` is the brain. A signed-off change left only in the working tree is not done.

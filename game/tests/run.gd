@@ -43,6 +43,8 @@ func _init() -> void:
 	_test_fog_reveals_the_visible_view()
 	_test_minimap_paints_revealed_tiles()
 	_test_chop_leaves_named_stump()
+	_test_title_menu()
+	_test_world_loads_in_slices()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -414,7 +416,7 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	_expect(text.contains("forage 2"), "forage count is on the hud")
 	_expect(text.contains("night"), "the phase is on the hud")
 	_expect(text.contains("Space pick, chop, or clear"), "pick, chop, and clear are labeled")
-	_expect(text.contains("E eat"), "eat is labeled")
+	_expect(text.contains("E eat (3 forage)"), "eat costs 3 forage")
 	_expect(text.contains("F campfire"), "the campfire key is labeled")
 	_expect(text.contains("C sleep"), "sleep is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
@@ -424,36 +426,41 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 func _test_eat_forage_heals_half_a_heart() -> void:
 	print("eat forage heals half a heart")
 	var supplies := Supplies.new()
-	supplies.forage = 2
+	supplies.forage = 3
 	supplies.hearts = 2.0
 	supplies.wood = 1.5
 	supplies.cold_acc = 1.5
 	supplies.heal_acc = 2.0
-	_expect(supplies.try_eat() == "eat", "a berry is eaten")
-	_expect(supplies.forage == 1, "eating spends one forage")
+	_expect(supplies.try_eat() == "eat", "three berries are eaten")
+	_expect(supplies.forage == 0, "eating spends three forage")
 	_expect(is_equal_approx(supplies.hearts, 2.5), "eating heals half a heart")
 	_expect(is_equal_approx(supplies.wood, 1.5), "eating does not spend wood")
 	_expect(is_equal_approx(supplies.cold_acc, 1.5), "eating does not reset the night")
 	_expect(is_equal_approx(supplies.heal_acc, 2.0), "eating does not reset day heal")
+	supplies.forage = 2
+	supplies.hearts = 1.0
+	_expect(supplies.try_eat() == "short", "two berries are short of a heal")
+	_expect(supplies.forage == 2, "a short handful is not spent")
+	_expect(is_equal_approx(supplies.hearts, 1.0), "a short handful does not heal")
+	supplies.forage = 3
 	supplies.hearts = supplies.hearts_max
-	var held: int = supplies.forage
-	_expect(supplies.try_eat() == "full", "full hearts refuse the berry")
-	_expect(supplies.forage == held, "a full heart keeps the forage")
+	_expect(supplies.try_eat() == "full", "full hearts refuse the berries")
+	_expect(supplies.forage == 3, "a full heart keeps the forage")
 	_expect(is_equal_approx(supplies.hearts, supplies.hearts_max), "hearts stay at max")
 	supplies.forage = 0
 	supplies.hearts = 1.0
-	_expect(supplies.try_eat() == "empty", "empty hands refuse")
+	_expect(supplies.try_eat() == "short", "empty hands refuse")
 	_expect(supplies.forage == 0, "empty forage stays empty")
 	_expect(is_equal_approx(supplies.hearts, 1.0), "refusing does not heal")
-	supplies.forage = 1
+	supplies.forage = 4
 	supplies.hearts = 2.5
-	_expect(supplies.try_eat() == "eat", "a short heart still takes a berry")
+	_expect(supplies.try_eat() == "eat", "a short heart still takes three berries")
 	_expect(is_equal_approx(supplies.hearts, 3.0), "the bite stops at max hearts")
-	_expect(supplies.forage == 0, "the capped bite still spends the berry")
-	_expect(supplies.try_eat() == "empty", "nothing left after that bite")
-	supplies.forage = 1
+	_expect(supplies.forage == 1, "one berry is left, short of another heal")
+	_expect(supplies.try_eat() == "short", "the leftover berry is not eaten")
+	supplies.forage = 3
 	supplies.hearts = 2.0
-	_expect(supplies.try_eat() == "eat", "another berry before the cold")
+	_expect(supplies.try_eat() == "eat", "three berries before the cold")
 	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "night cold still spends a heart")
 	_expect(is_equal_approx(supplies.hearts, 2.0), "cold still takes half a heart after eating")
 
@@ -887,3 +894,76 @@ func _open_cell(chunk: MapChunk) -> Vector2i:
 				continue
 			return cell
 	return Vector2i(-1, -1)
+
+
+func _test_title_menu() -> void:
+	print("title menu")
+	var menu := TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	_expect(ProjectSettings.get_setting("application/run/main_scene") == "res://title/title.tscn", "play opens on the title")
+	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "title opens on New Game and Continue")
+	_expect(menu.get_node_or_null("Shore") != null, "the coast fills the title")
+	_expect(menu.get_node_or_null("Menu/MenuPlate") != null, "the menu is a green box on the coast")
+	var opening := menu.get_node("Menu/Buttons")
+	_expect(opening.get_child_count() == 2, "there is no Start button")
+	_expect((opening.get_child(0) as Button).text == "New Game", "New Game is on the title")
+	_expect((opening.get_child(1) as Button).text == "Continue", "Continue is on the title")
+	var picture := menu.get_node_or_null("Picture")
+	_expect(picture != null and picture.get_node_or_null("Leif") != null, "leif stands on the coast")
+	_expect(picture != null and picture.get_child_count() > 3, "the coast has trees and ground junk")
+	_expect(FileAccess.file_exists(TitleMenu.ART_LEIF), "leif south sprite is in the project")
+	_expect(FileAccess.file_exists(TitleMenu.ART_FIR), "fir sprite is in the project")
+	_expect(FileAccess.file_exists(TitleMenu.ART_SPRUCE), "spruce sprite is in the project")
+	menu.press_back()
+	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "Escape on the title stays there")
+	var first := menu.get_node("Menu/Buttons").get_child(0) as Button
+	_expect(first != null and not first.has_focus(), "new game is not highlighted until the pointer is on it")
+	_click_title(menu, "Continue")
+	_expect(menu.screen == TitleMenu.Screen.SLOTS, "Continue opens the slots")
+	_expect(menu.slot_count() == 3, "three save slots")
+	for i in 3:
+		_expect(menu.slot_label(i) == "No save file", "slot says No save file")
+		_expect(not menu.can_load_slot(i), "empty slot cannot load")
+	_click_title(menu, "No save file")
+	_expect(menu.screen == TitleMenu.Screen.SLOTS, "an empty slot stays on the menu")
+	_expect(menu.new_game_scene() == "res://world/world.tscn", "New Game opens the woods")
+	_click_title(menu, "Back")
+	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "Back from the files returns to New Game and Continue")
+	_click_title(menu, "New Game")
+	_expect(menu.is_departing(), "new game starts loading at once")
+	var leif := menu.get_node("Picture/Leif") as Sprite2D
+	_expect(leif != null and leif.position.y <= 190.0, "leif stands on the bank, not in the water")
+	_expect(TitleMenu.DEPART_SPEED < Player.WALK_SPEED, "the loading stroll is slower than his woods walk")
+	_expect(leif != null and str(leif.texture.resource_path).find("north") < 0, "leif still faces you while the menu fades")
+	_expect(menu.get_node("Menu").visible, "the menu is still up at the start of the fade")
+	menu._process(TitleMenu.FADE_SEC)
+	_expect(str(leif.texture.resource_path).find("north") >= 0, "after the fade, leif turns his back and walks")
+	_expect(not menu.get_node("Menu").visible, "the menu box is gone once he walks")
+	_expect(menu.is_departing(), "he keeps walking while the woods are still loading")
+	menu._process(6.0)
+	_expect(leif.position.y < 0.0, "leif walks off the top instead of stopping there")
+	_expect(menu.is_departing(), "walking off does not open the woods before the seed is ready")
+	menu.free()
+
+
+func _test_world_loads_in_slices() -> void:
+	print("world loads in slices")
+	var world := World.new()
+	world.begin_staged_boot()
+	var done := false
+	for _i in 16:
+		done = world.stage_boot_step()
+	_expect(not done, "a few slices are not the whole coast")
+	_expect(world.boot_chunk_count() > 0, "a slice builds a chunk")
+	world.free()
+
+
+func _click_title(menu: TitleMenu, text: String) -> void:
+	var column := menu.get_node("Menu/Buttons")
+	for child in column.get_children():
+		var button := child as Button
+		if button != null and button.text == text:
+			button.pressed.emit()
+			return
+	_expect(false, "no title button %s" % text)
