@@ -1,11 +1,12 @@
 class_name FogMap
 extends RefCounted
 
-## Local circle around Leif. One pixel per tile. Fog opens the play view, not one cell.
+## Local circle around Leif. One pixel per tile.
+## A look opens a small circle. Ground he has uncovered stays clear.
 
 const VIEW := 41
 const RADIUS := 20
-const PLAY_SIZE := Vector2(480, 270)
+const SIGHT := 6
 const FOG_COLOR := Color8(10, 15, 10, 240)
 const LEIF_COLOR := Color8(245, 230, 184, 255)
 const RIM_COLOR := Color8(42, 32, 22, 255)
@@ -21,21 +22,14 @@ func reveal(cell: Vector2i) -> bool:
 	return true
 
 
-## Tiles currently on the 480×270 play view, centered on camera.
-static func view_rect(center_px: Vector2, view_size: Vector2 = PLAY_SIZE) -> Rect2i:
-	var half := view_size * 0.5
-	var a := ChunkGenerator.world_cell_at(center_px - half)
-	var b := ChunkGenerator.world_cell_at(center_px + half - Vector2(1, 1))
-	var minc := Vector2i(mini(a.x, b.x), mini(a.y, b.y))
-	var maxc := Vector2i(maxi(a.x, b.x), maxi(a.y, b.y))
-	return Rect2i(minc, maxc - minc + Vector2i.ONE)
-
-
-func reveal_rect(rect: Rect2i) -> bool:
+## Tiles inside the small circle around him. The square corners stay fog.
+func reveal_circle(center: Vector2i) -> bool:
 	var opened := false
-	for y in range(rect.position.y, rect.position.y + rect.size.y):
-		for x in range(rect.position.x, rect.position.x + rect.size.x):
-			if reveal(Vector2i(x, y)):
+	for dy in range(-SIGHT, SIGHT + 1):
+		for dx in range(-SIGHT, SIGHT + 1):
+			if dx * dx + dy * dy > SIGHT * SIGHT:
+				continue
+			if reveal(Vector2i(center.x + dx, center.y + dy)):
 				opened = true
 	return opened
 

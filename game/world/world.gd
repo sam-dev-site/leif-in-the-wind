@@ -27,7 +27,6 @@ var _sleep_phase := ""
 var _sleep_t := 0.0
 var _fog := FogMap.new()
 var _minimap_cell := Vector2i(99999, 99999)
-var _minimap_view := Vector2i(99999, 99999)
 var _staged := false
 var _stage_keys: Array[Vector2i] = []
 var _stage_index := 0
@@ -230,7 +229,6 @@ func _finish_arrival() -> void:
 	_hint = ""
 	_fog.clear()
 	_minimap_cell = Vector2i(99999, 99999)
-	_minimap_view = Vector2i(99999, 99999)
 	_reveal_visible_view()
 	_refresh_hud()
 	_ensure_music()
@@ -494,15 +492,10 @@ func _refresh_hud() -> void:
 func _reveal_visible_view() -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
-	var center := _player.global_position
-	if _camera != null and is_instance_valid(_camera):
-		center = _camera.get_screen_center_position()
-	var rect := FogMap.view_rect(center)
-	var opened := _fog.reveal_rect(rect)
 	var cell := ChunkGenerator.world_cell_at(_player.global_position)
-	if opened or cell != _minimap_cell or rect.position != _minimap_view:
+	var opened := _fog.reveal_circle(cell)
+	if opened or cell != _minimap_cell:
 		_minimap_cell = cell
-		_minimap_view = rect.position
 		_refresh_minimap()
 
 

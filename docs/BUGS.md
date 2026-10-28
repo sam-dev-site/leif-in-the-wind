@@ -20,19 +20,7 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## Open
 
-## Minimap shows too much
-
-**Status:** Open.
-
-**Found:** 2026-10-28
-
-**What you saw:** The bottom-left circle is not helpful. You can already see almost all of it. In the current picture the circle is about 95% uncovered: green and brown ground, a cream pip in the middle, and only a thin black edge left. One glance at the woods fills the map.
-
-**What the game should do:** Match the other picture. Zoom the same circle out. Most of it stays black. The bit his walking uncovers is a smaller patch around the cream pip, with black fog around that patch. The map still sits in the bottom-left. It is still not a map he holds. **R** still wipes it.
-
-An earlier decision opened every tile on the 480×270 screen. That is the picture you do not want. This bug replaces that feel. The fix session writes the new choice into the decision log when you sign the Play off.
-
-**Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile, and a look reveals the whole play view. That view is almost as wide as the circle, which is why the black disappears.
+None.
 
 ## Later
 
@@ -53,6 +41,22 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 **Where:** In the woods, while jogging on a diagonal. The camera follows Leif with smoothing off, from outside the y-sorted woods (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
 
 ## Fixed
+
+## Minimap shows too much
+
+**Status:** Fixed. 2026-10-28.
+
+**Found:** 2026-10-28
+
+**Play:** Signed off. A look opens a small circle. The trail stays clear. **R** still wipes it.
+
+**What you saw:** The bottom-left circle is not helpful. You can already see almost all of it. In the current picture the circle is about 95% uncovered: green and brown ground, a cream pip in the middle, and only a thin black edge left. One glance at the woods fills the map.
+
+**What the game should do:** Match the other picture. Zoom the same circle out. Most of it stays black. The bit his walking uncovers is a smaller patch around the cream pip, with black fog around that patch. The map still sits in the bottom-left. It is still not a map he holds. **R** still wipes it.
+
+An earlier decision opened every tile on the 480×270 screen. That is the picture you do not want. This bug replaces that feel. The fix session writes the new choice into the decision log when you sign the Play off.
+
+**Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile. A look opens a circle of 6 tiles, and the trail stays clear.
 
 ## Sphagnum is larger than Leif
 
@@ -87,5 +91,5 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 - **2026-10-28 — Backlog opened.** Nothing filed yet.
 - **2026-10-28 — Shrubs are missing the bottom right corner.** Fixed. The next ground tile no longer covers the cushion’s right edge.
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
-- **2026-10-28 — Minimap shows too much.** Open. The picture with the black ring is the target. Not this Play.
+- **2026-10-28 — Minimap shows too much.** Fixed. A look opens a 6-tile circle, and the trail stays clear.
 - **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Minimap opens a small circle
+
+**Decision:** The corner map stays 41×41, one pixel per tile, bottom-left. A look opens a circle of **6 tiles** around Leif. Ground he has uncovered stays clear when he walks on. **R** wipes the walk. He stays the cream pip.
+
+**Why:** Opening every tile on the screen drew a rectangle that filled the circle in one glance. The wanted picture is a smaller circle, with the trail left behind.
+
+**Rejected:** Opening the whole play view. Opening only the cell under his feet. One pixel covering several tiles.
+
 ## 2026-10-28 — Sign-off words run git
 
 **Decision:** `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, and `push` are the order to commit in that turn. The reply’s hash comes from `git log -1` after the command succeeds. `push` also pushes. A follow-on note (`good, but…`) is still notes, not a sign-off.

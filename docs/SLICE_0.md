@@ -26,12 +26,12 @@ These are how Leif stays in the woods after dark: berries he can eat, a fire for
 4. **F** spends 3 wood to place and light a campfire on the tile in front of him. It burns **one night**, then goes out — **in now**
 5. Night is **60 seconds** of cold (six hearts if you stand it). Dusk eases in; dawn eases back to day. Away from a fire, night spends **half a heart every 5 seconds**. Day or warmth heals **half a heart every 10 seconds**. The last half-heart stays — **in now**
 6. **C** by a fire at dusk or night fades to black, then wakes at dawn as it gets light. Sleeping the night spends the fire — **in now**
-7. Tiny bottom-left map: tiles that have been on the 480×270 screen; **R** wipes it — **in now**
+7. Tiny bottom-left map: a small circle around him, and the trail stays clear; **R** wipes it — **in now**
 8. **E** spends 3 forage to heal half a heart. A pick still grants 1. Fewer than 3, and full hearts, refuse and spend nothing. A bite never goes past max. No hunger bar — **in now**
 
 Press **R** in-game for a new seed (mission test: different woods). Wood and forage stay in hand. Fires were on the old ground.
 
-HUD: hearts (half-pips), wood count, forage count, and a line that says **E** eats. Tiny bottom-left minimap: the play view as he sees it; **R** wipes it.
+HUD: hearts (half-pips), wood count, forage count, and a line that says **E** eats. Tiny bottom-left minimap: a small circle around him, and the trail stays clear; **R** wipes it.
 
 Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut.
 
