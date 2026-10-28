@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Ground is painted before the cushions
+
+**Decision:** For each slice of a chunk, the moss, shore, and trail are painted first. Sphagnum and needles are stamped after that. A cushion stays wider than one tile.
+
+**Why:** Each cushion hangs eight pixels into the next tile. Painting that tile’s ground afterwards covered the right edge, so every yellow cushion looked bitten on the bottom-right.
+
+**Rejected:** Editing only the cushion picture. The picture was already on screen, and the next tile was covering it.
+
 ## 2026-10-28 — The view is not stacked with the trees
 
 **Decision:** The camera stays on Leif with smoothing off, but it is no longer his child. It follows his position from outside the y-sorted woods. Walk stays 70. Jog stays 100. Bumping a rock slides along it by this frame’s small step. The picture stays the scaled 480×270.

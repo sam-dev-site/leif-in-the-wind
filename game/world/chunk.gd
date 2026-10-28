@@ -58,13 +58,16 @@ func bake_floor_step(rows: int) -> bool:
 		_floor_img = Image.create(w, h, false, Image.FORMAT_RGBA8)
 	var end := mini(_bake_ty + maxi(rows, 1), ChunkGenerator.HEIGHT)
 	var tiles: PackedInt32Array = data["tiles"]
-	for ty in range(_bake_ty, end):
+	var row_from := _bake_ty
+	for ty in range(row_from, end):
 		for tx in ChunkGenerator.WIDTH:
 			if not _wang.blit_to_image(_floor_img, tx, ty, _sample_ground):
 				_floor_img.fill_rect(
 					Rect2i(tx * ChunkGenerator.TILE, ty * ChunkGenerator.TILE, ChunkGenerator.TILE, ChunkGenerator.TILE),
 					_color_for(tiles[ty * ChunkGenerator.WIDTH + tx])
 				)
+	for ty in range(row_from, end):
+		for tx in ChunkGenerator.WIDTH:
 			_stamp_paint_clutter(_floor_img, tx, ty)
 	_bake_ty = end
 	if _bake_ty < ChunkGenerator.HEIGHT:

@@ -20,18 +20,6 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## Open
 
-## Shrubs are missing the bottom right corner
-
-**Status:** Open.
-
-**Found:** 2026-10-28
-
-**What you saw:** On the moss, the berry bushes have a bite out of the bottom-right. The rest of the shrub is there. That corner is empty, so the bush reads as a curl instead of a full shrub. It shows on more than one bush in the same look.
-
-**What the game should do:** A bakeapple or blueberry bush is a whole shrub. The bottom-right corner is part of the plant, the same as the other three corners.
-
-**Where:** Coastal woods, on the ground. The hole is already in the pictures the game draws: `game/art/coastal_north/forage_bakeapple.png` and `game/art/coastal_north/forage_blueberry.png`. Both files leave that corner empty.
-
 ## Minimap shows too much
 
 **Status:** Open.
@@ -45,6 +33,18 @@ Each heading below is one break in the game you already have. It stays open unti
 An earlier decision opened every tile on the 480×270 screen. That is the picture you do not want. This bug replaces that feel. The fix session writes the new choice into the decision log when you sign the Play off.
 
 **Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile, and a look reveals the whole play view. That view is almost as wide as the circle, which is why the black disappears.
+
+## Sphagnum is larger than Leif
+
+**Status:** Open.
+
+**Found:** 2026-10-28
+
+**What you saw:** The yellow sphagnum cushions are larger than Leif. They read as bushes sitting on the moss, not as something on the ground.
+
+**What the game should do:** Sphagnum is smaller. It is occasional patchy ground cover. It stays scenery: not firewood, and it does not block the walk. The corner that Play already signed off stays whole.
+
+**Where:** Coastal woods, baked into the ground. The picture is `game/art/coastal_north/clutter_sphagnum.png`, 32×32, stamped at that size onto 16×16 tiles (`game/world/chunk.gd`). Leif is about two tiles tall and narrower than that stamp.
 
 ## Later
 
@@ -66,11 +66,24 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 
 ## Fixed
 
-None yet.
+## Shrubs are missing the bottom right corner
+
+**Status:** Fixed. 2026-10-28.
+
+**Found:** 2026-10-28
+
+**Play:** Signed off. The yellow cushions on the moss keep their bottom-right corner.
+
+**What you saw:** On the moss, the berry bushes have a bite out of the bottom-right. The rest of the shrub is there. That corner is empty, so the bush reads as a curl instead of a full shrub. It shows on more than one bush in the same look.
+
+**What the game should do:** A yellow cushion on the moss is a whole plant. The bottom-right corner is part of it, the same as the other three corners.
+
+**Where:** Coastal woods, on the ground. The plants in that look are sphagnum, `game/art/coastal_north/clutter_sphagnum.png`. Each cushion is wider than a ground tile. The next tile’s moss was painted over the right edge. Ground for a slice is painted first, then the cushions. Bakeapple and blueberry were already whole.
 
 ## From you
 
 - **2026-10-28 — Backlog opened.** Nothing filed yet.
-- **2026-10-28 — Shrubs are missing the bottom right corner.** Open. Not this Play.
+- **2026-10-28 — Shrubs are missing the bottom right corner.** Fixed. The next ground tile no longer covers the cushion’s right edge.
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Open. The picture with the black ring is the target. Not this Play.
+- **2026-10-28 — Sphagnum is larger than Leif.** Open. Not this Play.

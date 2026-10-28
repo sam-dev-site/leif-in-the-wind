@@ -47,6 +47,7 @@ func _init() -> void:
 	_test_chop_leaves_named_stump()
 	_test_title_menu()
 	_test_world_loads_in_slices()
+	_test_sphagnum_cushion_is_whole()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -976,6 +977,23 @@ func _test_title_menu() -> void:
 	_expect(leif.position.y < 0.0, "leif walks off the top instead of stopping there")
 	_expect(menu.is_departing(), "walking off does not open the woods before the seed is ready")
 	menu.free()
+
+
+func _test_sphagnum_cushion_is_whole() -> void:
+	print("sphagnum cushion keeps its bottom-right")
+	var tex := load("res://art/coastal_north/clutter_sphagnum.png") as Texture2D
+	_expect(tex != null, "sphagnum picture loads")
+	if tex == null:
+		return
+	var img := tex.get_image()
+	_expect(img != null, "sphagnum picture can be read")
+	if img == null:
+		return
+	var whole := true
+	for px in [Vector2i(20, 22), Vector2i(16, 24), Vector2i(12, 25)]:
+		if img.get_pixel(px.x, px.y).a <= 0.5:
+			whole = false
+	_expect(whole, "the bottom-right of the cushion is part of the plant")
 
 
 func _test_world_loads_in_slices() -> void:
