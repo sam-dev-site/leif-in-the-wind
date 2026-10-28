@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Coastal SFX list is a plan; the grove bed stays
+
+**Decision:** `docs/SFX.md` is the shopping list for this coast: peat and shore steps, berry pick, fir/spruce chop, fallen-log chop, branch clear, campfire light / burn / die, dusk-to-dawn wind, the sleep blink, and shore wind at the landing. It is a plan. No audio files come with it. **The First Grove** stays the only music, still looped on `coastal_north`. No second track.
+
+**Why:** Sensation is a current aesthetic. The list is short enough to record or find later, and it names only verbs and places that already exist. Writing it down keeps the next pass on this shore.
+
+**Rejected:** Replacing or restarting the grove. Generating or committing new audio in this pass. A night theme. Animal calls. Wiring sounds in `game/` before the files exist.
+
 ## 2026-10-27 — First grove loops on coastal_north
 
 **Decision:** The first biome bed is `The First Grove` (`game/art/coastal_north/the_first_grove.mp3`), about three minutes, **looped**. It lives on the `Biome` resource as `music_path`, not hardcoded to World, so a later biome can bring its own track. Pressing R does not restart it. Sleep does not stop it.
