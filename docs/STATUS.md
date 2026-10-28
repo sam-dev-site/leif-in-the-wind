@@ -6,7 +6,7 @@ Updated: 2026-10-27
 
 Godot scaffold is in `game/`. A **seed-generated** `coastal_north` coast: shore on the south, caribou trail inland, a prebuilt strip north. Hold WASD/arrows to walk; double-tap the same key and hold to jog. Leif has 8-direction idle **and walk** (jog plays the walk cycle faster). **Space** picks bakeapple/blueberry or chops fir/spruce (stone axe already in hand). **F** spends 3 wood to light a campfire that lasts **one night**, then burns out. Night is **60 seconds** of cold (six hearts if you stand it). Away from a fire, hearts drop **half every 5 seconds**; they heal **half every 10 seconds** when he is warm or it is day. The last half-heart stays. **C** by a fire at dusk or night fades to black, then wakes at dawn — the fire may be ash. Fallen logs block their full length. Press R for a new seed (wood and forage stay).
 
-How this serves the mission: the trail does not end at a fake wall (discovery). Food and a fire are so he can sit the night or keep walking (sensation, submission). The camp is a rest, not the win. Inland is still the spine; “Leif moved” is not the whole point.
+How this serves the mission: the trail does not end at a fake wall (discovery). Food and a fire are so he can sit the night or keep walking (sensation, submission). The camp is a rest, not the win. Inland is still the spine; “Leif moved” is not the whole point. Forage is still carried, not eaten. Hunger is a later plan only: `docs/HUNGER.md`.
 
 PixelLab trial: **9 / 40** generations left. Then 5/day (stack to 20). Paid floor is Pixel Apprentice **$12/mo for 2,000 gens**.
 
@@ -32,7 +32,7 @@ Two lanes (see `AGENTS.md`). Play cut is on `main`: longer night, log spans, fir
 
 1. **This PC / play:** Reload from disk, F5. The First Grove should start with the woods and loop. Confirm night, log ends, and a fire dying after one night.
 2. **This PC / art:** Stump sprite if chop looks empty. Trial gens until empty, then owner upgrades.
-3. **Later / enhancements:** Grow the strip past the quiet edge. Push rocks. Seasonality. A world map he can hold. More hearts. Skills: see `docs/SKILLS.md`.
+3. **Later / enhancements:** Grow the strip past the quiet edge. Push rocks. Seasonality. A world map he can hold. More hearts. Skills: see `docs/SKILLS.md`. Hunger: see `docs/HUNGER.md` (plan only; not this Play).
 4. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
 
 ## Local machine

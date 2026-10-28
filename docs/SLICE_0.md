@@ -17,7 +17,7 @@ A **seed-generated** `coastal_north` strip, built once at Play. The landing is c
 
 ## Verbs
 
-These are how Leif stays in the woods after dark: berries in hand, a fire for light, warmth, and sleep. The camp is a rest, not the destination. Hunger stays later. Skills stay later (`docs/SKILLS.md`).
+These are how Leif stays in the woods after dark: berries in hand, a fire for light, warmth, and sleep. The camp is a rest, not the destination. Hunger stays later (`docs/HUNGER.md`). Skills stay later (`docs/SKILLS.md`).
 
 1. Walk in 8 directions (keyboard); double-tap the same key and hold to jog — **in now**
 2. **Space** facing bakeapple or blueberry picks it (forage +1, bush gone) — **in now**
@@ -50,4 +50,4 @@ Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth and sleep are in. Next on this coast if Play wants them: grow the strip past the quiet edge, push rocks, a stump sprite. Hunger and skills wait. Still `coastal_north`.
+Warmth and sleep are in. Next on this coast if Play wants them: grow the strip past the quiet edge, push rocks, a stump sprite. Hunger and skills wait (`docs/HUNGER.md`, `docs/SKILLS.md`). Still `coastal_north`.
