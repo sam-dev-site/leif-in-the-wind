@@ -32,18 +32,6 @@ Each heading below is one break in the game you already have. It stays open unti
 
 **Where:** Coastal woods, on the ground. The hole is already in the pictures the game draws: `game/art/coastal_north/forage_bakeapple.png` and `game/art/coastal_north/forage_blueberry.png`. Both files leave that corner empty.
 
-## Running on a diagonal is choppy
-
-**Status:** Open.
-
-**Found:** 2026-10-28
-
-**What you saw:** Jog on a diagonal — NE, NW, SE, or SW — and the world moves in little chops. It feels like the view is taking turns: left, down, left, down. It does not feel like one smooth slide along that diagonal.
-
-**What the game should do:** A diagonal jog is one movement. The woods should slide on the diagonal the way a straight jog slides along a line. Walk stays 70. Jog stays 100, and only while the double-tapped key is still held. The camera stays on Leif. An earlier decision turned camera smoothing off, because a smoothed camera would sit further behind him.
-
-**Where:** In the woods, while jogging on a diagonal. The camera is a child of Leif with smoothing off (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
-
 ## Minimap shows too much
 
 **Status:** Open.
@@ -58,6 +46,24 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 
 **Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile, and a look reveals the whole play view. That view is almost as wide as the circle, which is why the black disappears.
 
+## Later
+
+Passing is good enough to keep. The heading stays on this list. A later pass is a separate ask.
+
+## Running on a diagonal is choppy
+
+**Status:** Passing. Kept for later. 2026-10-28.
+
+**Found:** 2026-10-28
+
+**Play:** Good enough. The view follows Leif from outside the tree stack, smoothing still off. Walk stays 70. Jog stays 100. A diagonal is still not a perfect slide. Do not start another pass unless asked.
+
+**What you saw:** Jog on a diagonal — NE, NW, SE, or SW — and the world moves in little chops. It feels like the view is taking turns: left, down, left, down. It does not feel like one smooth slide along that diagonal.
+
+**What the game should do:** A diagonal jog is one movement. The woods should slide on the diagonal the way a straight jog slides along a line. Walk stays 70. Jog stays 100, and only while the double-tapped key is still held. The camera stays on Leif. An earlier decision turned camera smoothing off, because a smoothed camera would sit further behind him.
+
+**Where:** In the woods, while jogging on a diagonal. The camera follows Leif with smoothing off, from outside the y-sorted woods (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
+
 ## Fixed
 
 None yet.
@@ -66,5 +72,5 @@ None yet.
 
 - **2026-10-28 — Backlog opened.** Nothing filed yet.
 - **2026-10-28 — Shrubs are missing the bottom right corner.** Open. Not this Play.
-- **2026-10-28 — Running on a diagonal is choppy.** Open. Not this Play.
+- **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Open. The picture with the black ring is the target. Not this Play.

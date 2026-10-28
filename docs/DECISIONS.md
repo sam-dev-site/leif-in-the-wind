@@ -2,6 +2,38 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — The view is not stacked with the trees
+
+**Decision:** The camera stays on Leif with smoothing off, but it is no longer his child. It follows his position from outside the y-sorted woods. Walk stays 70. Jog stays 100. Bumping a rock slides along it by this frame’s small step. The picture stays the scaled 480×270.
+
+**Why:** Leif is restacked among the trees whenever his height changes. The view was on him, so up, down, and diagonals hitched. Left and right do not change that order, which is why they felt fine. Stepping in whole pixels did not remove the hitch, and a bump then threw him forward.
+
+**Rejected:** Whole-pixel steps. Camera smoothing. Drawing at the window’s own size.
+
+## 2026-10-28 — A diagonal jog steps both ways at once
+
+**Decision:** Leif moves in whole pixels. On a diagonal, horizontal and vertical step by the same count in the same moment. Walk stays 70. Jog stays 100, and only while the double-tapped key is still held. The camera stays on him with smoothing off. The picture stays the scaled 480×270.
+
+**Why:** The clip shows a straight jog sliding on one line, and a diagonal jog lurching: a bit more sideways, then a bit more up or down. The chunky picture can only move a whole pixel at a time, and those two pixels were not landing together.
+
+**Rejected:** Drawing at the window’s own size (that smoothed the font and made up-and-down chug). Camera smoothing.
+
+## 2026-10-28 — The chunky picture stays
+
+**Decision:** The game draws a **480×270** picture and scales that picture to the window (`viewport`, keep, fractional). The font is that same picture, so the letters stay blocky. Walk stays 70. Jog stays 100. The camera stays on Leif with smoothing off.
+
+**Why:** Drawing at the window’s own size replaced the blocky font with a smooth one, and up-and-down movement chugged from spot to spot. Left and right were fine. That was worse than the diagonal chop.
+
+**Rejected:** `canvas_items` stretch. Keeping the smooth font.
+
+## 2026-10-28 — A diagonal jog is one slide
+
+**Decision:** The 480×270 play size stays. The picture is drawn at the window’s own size (`canvas_items`), still kept in proportion, still fractional. The camera stays on Leif with smoothing off. Walk stays 70. Jog stays 100, and only while the double-tapped key is still held.
+
+**Why:** The game was painting a 480×270 picture and then enlarging it. On that coarse grid a diagonal jog steps sideways, then down. A straight jog hid it, because the whole picture stepped along one line. Turning pixel snap off did not change the feel. The grid was the picture itself.
+
+**Rejected:** Camera smoothing. Changing walk or jog speed. Pixel snap as the fix. Integer scale (this screen cannot fit 3× without black bars).
+
 ## 2026-10-28 — Three berries heal half a heart
 
 **Decision:** A pick still grants **1** forage. **E** spends **3** forage to heal half a heart, the same price shape as 3 wood for a fire. Fewer than 3 refuses and spends nothing. Full hearts refuse and spend nothing. A bite still never goes past max. There is no hunger bar.

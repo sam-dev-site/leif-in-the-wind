@@ -50,9 +50,9 @@ func _ready() -> void:
 	_player = Player.new()
 	_player.world = self
 	_player.y_sort_enabled = true
-	_camera = Camera2D.new()
-	_camera.position_smoothing_enabled = false
-	_player.add_child(_camera)
+	# Leif is restacked among the trees when his height changes. A camera on him
+	# hitches up, down, and on a diagonal. Left and right do not change that order.
+	attach_camera(get_tree().root)
 	_night = CanvasModulate.new()
 	add_child(_night)
 	_clock = DayClock.new()
@@ -76,6 +76,33 @@ func _ready() -> void:
 		_finish_arrival()
 	else:
 		rebuild()
+
+
+func _exit_tree() -> void:
+	if _camera != null and is_instance_valid(_camera):
+		_camera.queue_free()
+		_camera = null
+
+
+func attach_camera(viewport_root: Node) -> void:
+	_camera = Camera2D.new()
+	_camera.position_smoothing_enabled = false
+	_camera.top_level = true
+	viewport_root.add_child(_camera)
+
+
+func stick_camera() -> void:
+	if _camera == null or _player == null:
+		return
+	if not is_instance_valid(_camera) or not is_instance_valid(_player):
+		return
+	_camera.global_position = _player.global_position
+
+
+func camera_is_outside_the_woods() -> bool:
+	if _camera == null or _player == null or not is_instance_valid(_camera):
+		return false
+	return _camera.top_level and _camera.get_parent() != _player
 
 
 func _process(delta: float) -> void:
@@ -198,6 +225,7 @@ func _finish_arrival() -> void:
 	_reparent_player()
 	_cull_far_chunks()
 	_fit_camera()
+	stick_camera()
 	_camera.make_current()
 	_hint = ""
 	_fog.clear()
@@ -306,6 +334,7 @@ func _reparent_player() -> void:
 	host.add_child(_player)
 	_player.global_position = keep
 	_chunk = host
+	stick_camera()
 
 
 func _sync_interact() -> void:

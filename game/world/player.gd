@@ -80,10 +80,11 @@ func _process(delta: float) -> void:
 			global_position = slide_x
 		elif not world.is_blocked_pixel(slide_y):
 			global_position = slide_y
-		_notify_chunk()
-		return
-	global_position = next
+	else:
+		global_position = next
 	_notify_chunk()
+	if world != null:
+		world.stick_camera()
 
 
 func _notify_chunk() -> void:

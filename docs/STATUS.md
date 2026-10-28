@@ -26,7 +26,7 @@ PixelLab trial: **7 / 40** generations left. Then 5/day (stack to 20). Paid floo
 - Ground props: granite rocks, sphagnum/needle/branch clutter, fallen fir/spruce (wood; logs block their full length)
 - Slice 0 verbs: `game/world/supplies.gd`, `interact.gd`, `campfire.gd`, `day_clock.gd` (E spends 3 forage for half a heart)
 - Launch menu: `game/title/title.gd` is the main scene. The coast fills the screen. A green box holds New Game and Continue. New Game fades the box, then Leif walks inland while the strip loads in slices. No save files. Escape in the woods is not bound (pause is an idea in `docs/IDEAS.md`)
-- Bug backlog: `docs/BUGS.md` has three open bugs. Shrubs are missing the bottom-right corner. Running on a diagonal is choppy. The minimap shows too much. Fixing them is a separate ask.
+- Bug backlog: `docs/BUGS.md` has two open bugs. Shrubs are missing the bottom-right corner. The minimap shows too much. Running on a diagonal is choppy is passing and kept for later: the view follows Leif from outside the tree stack.
 - Coastal bed: `The First Grove` loops on `coastal_north` (`game/art/coastal_north/the_first_grove.mp3`)
 
 ## Blocked / next
@@ -36,7 +36,7 @@ Two lanes (see `AGENTS.md`). This PC cut is signed off: view-sized fog, ringed s
 1. **Next cut:** wire real save files to the three Continue boxes. They say “No save file” until then.
 2. **Ideas:** one line each in `docs/IDEAS.md`. Dig in when asked. Not in build.
 3. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
-4. **Bug backlog:** three open bugs in `docs/BUGS.md` — shrubs are missing the bottom right corner, running on a diagonal is choppy, and the minimap shows too much. When you ask for bug fixes, name those headings before changing the game.
+4. **Bug backlog:** two open bugs in `docs/BUGS.md` — shrubs are missing the bottom right corner, and the minimap shows too much. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
 
 ## Local machine
 
@@ -44,4 +44,4 @@ Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.Go
 
 ## Checks
 
-Headless tests cover the title menu (Start, Continue’s three “No save file” boxes, Escape stepping back), eat / refuse-when-full / refuse-when-empty, half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, blocking, the coastal grove track, view-sized fog, and scaled ringed stumps. Owner Play: sleep blink signed off. Corner map signed off. Stumps signed off after a fir/spruce swap. Eating one berry was signed off; spending 3 forage for half a heart is not signed off in Play yet. The title menu is not signed off yet.
+Headless tests cover the title menu (Start, Continue’s three “No save file” boxes, Escape stepping back), eat / refuse-when-full / refuse-when-empty, half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, blocking, the coastal grove track, view-sized fog, and scaled ringed stumps. Owner Play: sleep blink signed off. Corner map signed off. Stumps signed off after a fir/spruce swap. Diagonal jog is good enough and kept on the bug list for later. Eating one berry was signed off; spending 3 forage for half a heart is not signed off in Play yet. The title menu is not signed off yet.

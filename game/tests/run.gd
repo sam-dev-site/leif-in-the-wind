@@ -14,6 +14,8 @@ func _init() -> void:
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
 	_test_player_reports_facing()
+	_test_picture_stays_a_scaled_pixel_view()
+	_test_camera_is_not_stacked_with_the_trees()
 	_test_facing_gates_the_tile_in_front()
 	_test_pick_forage_in_front()
 	_test_chop_tree_in_front()
@@ -175,6 +177,35 @@ func _test_player_reports_facing() -> void:
 	_expect(player.facing_name() == "south", "leif starts facing south")
 	_expect(not player.is_jogging(), "leif starts at a walk")
 	player.free()
+
+
+func _test_picture_stays_a_scaled_pixel_view() -> void:
+	print("picture stays a scaled pixel view")
+	_expect(Player.WALK_SPEED == 70.0, "walk stays 70")
+	_expect(Player.RUN_SPEED == 100.0, "jog stays 100")
+	_expect(
+		str(ProjectSettings.get_setting("display/window/stretch/mode")) == "viewport",
+		"the woods are a 480×270 picture scaled up"
+	)
+	_expect(
+		str(ProjectSettings.get_setting("display/window/stretch/aspect")) == "keep",
+		"the picture keeps its shape"
+	)
+	_expect(
+		str(ProjectSettings.get_setting("display/window/stretch/scale_mode")) == "fractional",
+		"the picture fills the window"
+	)
+
+
+func _test_camera_is_not_stacked_with_the_trees() -> void:
+	print("camera is not stacked with the trees")
+	var world := World.new()
+	world._player = Player.new()
+	world.attach_camera(root)
+	_expect(world.camera_is_outside_the_woods(), "the view follows him from outside the tree stack")
+	world._camera.free()
+	world._player.free()
+	world.free()
 
 
 func _test_facing_gates_the_tile_in_front() -> void:
