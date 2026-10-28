@@ -13,10 +13,10 @@ PixelLab trial: **9 / 40** generations left. Then 5/day (stack to 20). Paid floo
 ## What exists
 
 - Knowledge harness (mission names MDA fun: sensation / fantasy / discovery / submission now; expression and challenge later)
-- `docs/research/biomes/river_valley.md` draft is in **PR #2**. Owner said it looks right. Merge after this Play cut is on `main`. No spawn tables or art.
-- `docs/research/journey.md` is a schematic world map (Newfoundland → rivers south → west). Not in the game. Cloud launch from this chat could not see the git remote, so the draft is here.
+- `docs/research/biomes/river_valley.md` is on `main` (Saint John and inner Miramichi). Owner said it looks right. No spawn tables or art.
+- `docs/research/journey.md` is a schematic world map (Newfoundland → rivers south → west). Not in the game.
 - `game/` Godot 4.7 project: World, Biome resources, ChunkGenerator, Player, HUD
-- Four biome resources; only `coastal_north` has spawn tables
+- Four biome resources; only `coastal_north` has spawn tables. `river_valley.tres` stays empty.
 - Headless tests in `game/tests/run.gd` (seed, species, pick, chop, campfire, night, HUD)
 - GitHub Actions: knowledge files + Godot tests
 - PixelLab Leif: character `327ed41b-0289-49cb-bcd8-787b17f963ea`, 8 idle rotations + 8-dir walk in `game/art/leif/`
@@ -32,7 +32,7 @@ Two lanes (see `AGENTS.md`). Play cut is on `main`: longer night, log spans, fir
 1. **This PC / play:** Reload from disk, F5. Confirm the longer night, log ends, and a fire dying after one night.
 2. **This PC / art:** Stump sprite if chop looks empty. Trial gens until empty, then owner upgrades.
 3. **Later / enhancements:** Grow the strip past the quiet edge. Push rocks. Seasonality. A world map he can hold. More hearts. Skills: see `docs/SKILLS.md`.
-4. **Cloud + PR:** Merge PR #2 (`river_valley` research only) now that this PC is on `main`. Do not start another biome.
+4. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
 
 ## Local machine
 
