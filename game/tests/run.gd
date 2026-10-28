@@ -22,6 +22,7 @@ func _init() -> void:
 	_test_campfire_on_open_ground_only()
 	_test_night_falls_without_freezing()
 	_test_hud_shows_hearts_wood_forage()
+	_test_eat_forage_heals_half_a_heart()
 	_test_wang_corners()
 	_test_wang_sheets_load()
 	_test_granite_is_a_rock_not_a_floor()
@@ -413,10 +414,48 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	_expect(text.contains("forage 2"), "forage count is on the hud")
 	_expect(text.contains("night"), "the phase is on the hud")
 	_expect(text.contains("Space pick, chop, or clear"), "pick, chop, and clear are labeled")
+	_expect(text.contains("E eat"), "eat is labeled")
 	_expect(text.contains("F campfire"), "the campfire key is labeled")
 	_expect(text.contains("C sleep"), "sleep is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
 	_expect(supplies.hearts == 3, "the hud line does not spend hearts")
+
+
+func _test_eat_forage_heals_half_a_heart() -> void:
+	print("eat forage heals half a heart")
+	var supplies := Supplies.new()
+	supplies.forage = 2
+	supplies.hearts = 2.0
+	supplies.wood = 1.5
+	supplies.cold_acc = 1.5
+	supplies.heal_acc = 2.0
+	_expect(supplies.try_eat() == "eat", "a berry is eaten")
+	_expect(supplies.forage == 1, "eating spends one forage")
+	_expect(is_equal_approx(supplies.hearts, 2.5), "eating heals half a heart")
+	_expect(is_equal_approx(supplies.wood, 1.5), "eating does not spend wood")
+	_expect(is_equal_approx(supplies.cold_acc, 1.5), "eating does not reset the night")
+	_expect(is_equal_approx(supplies.heal_acc, 2.0), "eating does not reset day heal")
+	supplies.hearts = supplies.hearts_max
+	var held: int = supplies.forage
+	_expect(supplies.try_eat() == "full", "full hearts refuse the berry")
+	_expect(supplies.forage == held, "a full heart keeps the forage")
+	_expect(is_equal_approx(supplies.hearts, supplies.hearts_max), "hearts stay at max")
+	supplies.forage = 0
+	supplies.hearts = 1.0
+	_expect(supplies.try_eat() == "empty", "empty hands refuse")
+	_expect(supplies.forage == 0, "empty forage stays empty")
+	_expect(is_equal_approx(supplies.hearts, 1.0), "refusing does not heal")
+	supplies.forage = 1
+	supplies.hearts = 2.5
+	_expect(supplies.try_eat() == "eat", "a short heart still takes a berry")
+	_expect(is_equal_approx(supplies.hearts, 3.0), "the bite stops at max hearts")
+	_expect(supplies.forage == 0, "the capped bite still spends the berry")
+	_expect(supplies.try_eat() == "empty", "nothing left after that bite")
+	supplies.forage = 1
+	supplies.hearts = 2.0
+	_expect(supplies.try_eat() == "eat", "another berry before the cold")
+	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "night cold still spends a heart")
+	_expect(is_equal_approx(supplies.hearts, 2.0), "cold still takes half a heart after eating")
 
 
 func _test_wang_corners() -> void:

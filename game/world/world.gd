@@ -98,6 +98,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		world_seed = (world_seed * 1103515245 + 12345) & 0x7fffffff
 		rebuild()
 		get_viewport().set_input_as_handled()
+	elif key.keycode == KEY_E:
+		_try_eat()
+		get_viewport().set_input_as_handled()
 	elif key.keycode == KEY_F:
 		_try_place_campfire()
 		get_viewport().set_input_as_handled()
@@ -273,6 +276,19 @@ func _sample_world_tile(world_tx: int, world_ty: int) -> int:
 		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS:
 			return ChunkGenerator.TILE_SHORE
 	return ChunkGenerator.TILE_MOSS
+
+
+func _try_eat() -> void:
+	if _sleep_phase != "":
+		return
+	var result := supplies.try_eat()
+	if result == "eat":
+		_hint = "Ate a berry. +%s heart." % Supplies.wood_label(Supplies.HEART_STEP)
+	elif result == "empty":
+		_hint = "No berries to eat."
+	elif result == "full":
+		_hint = "Hearts are already full."
+	_refresh_hud()
 
 
 func _try_place_campfire() -> void:

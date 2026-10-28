@@ -17,7 +17,7 @@ A **seed-generated** `coastal_north` strip, built once at Play. The landing is c
 
 ## Verbs
 
-These are how Leif stays in the woods after dark: berries in hand, a fire for light, warmth, and sleep. The camp is a rest, not the destination. Hunger stays later. Skills stay later (`docs/SKILLS.md`).
+These are how Leif stays in the woods after dark: berries he can eat, a fire for light, warmth, and sleep. The camp is a rest, not the destination. A hunger bar stays later. Skills stay later (`docs/SKILLS.md`).
 
 1. Walk in 8 directions (keyboard); double-tap the same key and hold to jog — **in now**
 2. **Space** facing bakeapple or blueberry picks it (forage +1, bush gone) — **in now**
@@ -27,10 +27,11 @@ These are how Leif stays in the woods after dark: berries in hand, a fire for li
 5. Night is **60 seconds** of cold (six hearts if you stand it). Dusk eases in; dawn eases back to day. Away from a fire, night spends **half a heart every 5 seconds**. Day or warmth heals **half a heart every 10 seconds**. The last half-heart stays — **in now**
 6. **C** by a fire at dusk or night fades to black, then wakes at dawn as it gets light. Sleeping the night spends the fire — **in now**
 7. Tiny bottom-left map: tiles that have been on the 480×270 screen; **R** wipes it — **in now**
+8. **E** eats 1 forage already in hand and heals half a heart. Empty hands and full hearts refuse. A bite never goes past max. No hunger bar — **in now**
 
 Press **R** in-game for a new seed (mission test: different woods). Wood and forage stay in hand. Fires were on the old ground.
 
-HUD: hearts (half-pips), wood count, forage count. Tiny bottom-left minimap: the play view as he sees it; **R** wipes it.
+HUD: hearts (half-pips), wood count, forage count, and a line that says **E** eats. Tiny bottom-left minimap: the play view as he sees it; **R** wipes it.
 
 Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut.
 
@@ -45,10 +46,10 @@ Species come from the `coastal_north` biome resource, which matches the slice 0 
 
 ## Explicitly not in this cut
 
-Hunger, death at 0 hearts, wolves, inventory screen, crafting, skill XP, rafts, weather sim, other biomes as playable land, Steam page.
+A hunger bar or starve clock, death at 0 hearts, wolves, inventory screen, crafting, skill XP, rafts, weather sim, other biomes as playable land, Steam page.
 
 Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth, sleep, the corner fog map, and smaller ringed stumps are in. Next on this coast if Play wants it: grow the strip past the quiet edge. Hunger and skills wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, smaller ringed stumps, and eating a berry for half a heart are in. Next on this coast if Play wants it: grow the strip past the quiet edge. A hunger meter and skills wait. Still `coastal_north`.

@@ -2,6 +2,46 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — E eats one berry for half a heart
+
+**Decision:** Press **E** to eat 1 forage already in hand and heal **half a heart**. Bakeapple and blueberry share that one count. Empty hands refuse. Hearts already at max refuse, and a bite never goes past max. There is no hunger bar and no starve clock. Day heal, fire heal, and night cold stay as they are. **E** during the sleep blink does nothing.
+
+**Why:** The berries were carried and did nothing. Eating one is survival that lets him stay: a cold night still costs hearts, and a berry buys half of one back. That serves **submission** (sit the night, or keep the walk going) and **fantasy** (these are the coastal berries, eaten as picked). It is not a grind, not cooking, and not a skill.
+
+**Rejected:** A hunger meter that ticks while walking. A starve clock. Cooking. Death. Healing a full heart per bite. Eating past max. Remembering which berry is which.
+
+## 2026-10-28 — Each dumped idea stays open until we talk it through
+
+**Decision:** Home screen, profile, death and respawn, skills and leveling, animals, and NPCs are separate ideas in `docs/IDEAS.md`. A longer coast is its own idea too. None of them is in build. Draft answers from this chat (one local save, a Continue / New shore screen, waking at the last fire, chop-and-fire with no level number, a caribou you can see) are notes inside those ideas, not locked choices. An idea is pulled into a slice only after its own conversation, when you say it is ready.
+
+**Why:** The owner asked for them to be fleshed out as separate ideas. The backlog had collapsed them into one sequence and treated the drafts as decisions.
+
+**Rejected:** A build order that chains them. Starting the save, the start screen, or a longer strip before that idea has been talked through. Keeping animals and NPCs as one item.
+
+## 2026-10-28 — A longer coast is not a gate
+
+**Decision:** Growing the `coastal_north` strip and adding a local save are both ready. Either can be the next Play. The save may come first. Skills and death still wait: skills because the first chops get clumsier and fires start failing, death because three hearts cannot buy a cold night. “A place you would stay” means the current camping is worth keeping, not that the map got bigger.
+
+**Why:** The owner asked why fun had to wait on more map. It does not. The quiet north edge is one hole. Losing the walk on quit is another. A long strip with no save is how an evening disappears.
+
+**Rejected:** Holding the save, the start screen, and the caribou until the strip grows. Treating map size as the reason skills and death wait.
+
+## 2026-10-28 — A profile is one local save; the first creature is a caribou
+
+**Decision:** A profile is one save on this PC (name, seed, place, supplies, hearts, fog, time of day). No account. The start screen is Continue and New shore, and it comes after that save loads. Death, when it exists, wakes Leif at the last fire he slept by, or on the landing if he never slept, on the same seed. Skills stay woodcutting and fire-making in `docs/SKILLS.md`, with no character level. The first animal is a coastal caribou you can see on the trail. People you talk to stay unscheduled. None of this jumps ahead of growing the coastal strip.
+
+**Why:** Home, save, death, skills, and creatures arrived as one dump. The save is what the others hang on. A login, a level number, or a quest giver would be a different game. A caribou matches the trail that is already in the woods. Wolves and a talking person would need systems this coast does not have.
+
+**Rejected:** A user account. Several save slots in the first save cut. A skill-tree level. A quest NPC as the first “animal.” Building any of this before the strip grows inland.
+
+## 2026-10-28 — Ideas live in a backlog
+
+**Decision:** Brain-dump ideas go in `docs/IDEAS.md`, sequenced coast-first, one playable change at a time. `docs/SLICE_0.md` stays the current cut. Pulling an idea into a slice is a separate choice.
+
+**Why:** The owner will keep a running ideas chat. The coast is already a game. New wishes need a home that does not turn the playable cut into a wishlist, and one change per Play so we can tell what helped.
+
+**Rejected:** Appending every idea to the slice doc or to status as if it were next. Building from a dump in the same turn it was said.
+
 ## 2026-10-27 — Fir and spruce stump sprites swapped
 
 **Decision:** `stump_fir.png` and `stump_spruce.png` swapped. The larger leftover sits under the larger tree.
