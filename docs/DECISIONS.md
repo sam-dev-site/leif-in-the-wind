@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-27 — Hunger is planned; it stays off this Play
+
+**Decision:** Hunger has a plan in `docs/HUNGER.md` and stays later. Slice 0 forage is still carried, not eaten: bakeapple and blueberry only. Cranberry stays in the research file and off the ground. When hunger comes, it must not spend the same night cold or sleep already paid for. Sitting by a fire stays valid play.
+
+**Why:** Cold, sleep, and fires that burn one night just signed off. Another drain now would hide which change hurt. The plan is written so a later cut does not invent a hunger spreadsheet, death, or plants from another biome.
+
+**Rejected:** Implementing hunger in this slice. A bar that punishes lingering. Eating as the unlock for the river valley. Death at 0. Grapes, butternut, or cranberry as food on this coast.
+
 ## 2026-10-27 — First grove loops on coastal_north
 
 **Decision:** The first biome bed is `The First Grove` (`game/art/coastal_north/the_first_grove.mp3`), about three minutes, **looped**. It lives on the `Biome` resource as `music_path`, not hardcoded to World, so a later biome can bring its own track. Pressing R does not restart it. Sleep does not stop it.
