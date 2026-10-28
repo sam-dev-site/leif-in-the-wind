@@ -48,6 +48,7 @@ func _init() -> void:
 	_test_title_menu()
 	_test_world_loads_in_slices()
 	_test_sphagnum_cushion_is_whole()
+	_test_sphagnum_is_smaller_than_leif()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -994,6 +995,24 @@ func _test_sphagnum_cushion_is_whole() -> void:
 		if img.get_pixel(px.x, px.y).a <= 0.5:
 			whole = false
 	_expect(whole, "the bottom-right of the cushion is part of the plant")
+
+
+func _test_sphagnum_is_smaller_than_leif() -> void:
+	print("sphagnum is smaller than leif")
+	var source := load("res://art/coastal_north/clutter_sphagnum.png") as Texture2D
+	_expect(source != null and source.get_width() == 32 and source.get_height() == 32, "the cushion picture stays 32")
+	var chunk := MapChunk.new()
+	var stamp := chunk._stamp_image("clutter", "sphagnum")
+	_expect(stamp != null, "sphagnum stamps onto the ground")
+	if stamp != null and source != null:
+		var drawn := int(round(float(source.get_width()) * MapChunk.SPHAGNUM_SCALE))
+		_expect(stamp.get_width() == drawn and stamp.get_height() == drawn, "the cushion is stamped at half size")
+		_expect(stamp.get_width() <= ChunkGenerator.TILE, "a cushion fits on one tile")
+		_expect(stamp.get_height() < int(64.0 * Player.SPRITE_SCALE), "a cushion is shorter than leif")
+		_expect(stamp.get_pixel(10, 11).a > 0.5, "the bottom-right of the small cushion is still the plant")
+	var needles := chunk._stamp_image("clutter", "needles")
+	_expect(needles != null and needles.get_width() == 32, "needles keep their own size")
+	chunk.free()
 
 
 func _test_world_loads_in_slices() -> void:

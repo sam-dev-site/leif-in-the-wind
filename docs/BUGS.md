@@ -34,18 +34,6 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 
 **Where:** The corner map, `game/world/fog_map.gd`. The circle is 41 pixels across, one pixel per tile, and a look reveals the whole play view. That view is almost as wide as the circle, which is why the black disappears.
 
-## Sphagnum is larger than Leif
-
-**Status:** Open.
-
-**Found:** 2026-10-28
-
-**What you saw:** The yellow sphagnum cushions are larger than Leif. They read as bushes sitting on the moss, not as something on the ground.
-
-**What the game should do:** Sphagnum is smaller. It is occasional patchy ground cover. It stays scenery: not firewood, and it does not block the walk. The corner that Play already signed off stays whole.
-
-**Where:** Coastal woods, baked into the ground. The picture is `game/art/coastal_north/clutter_sphagnum.png`, 32×32, stamped at that size onto 16×16 tiles (`game/world/chunk.gd`). Leif is about two tiles tall and narrower than that stamp.
-
 ## Later
 
 Passing is good enough to keep. The heading stays on this list. A later pass is a separate ask.
@@ -65,6 +53,20 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 **Where:** In the woods, while jogging on a diagonal. The camera follows Leif with smoothing off, from outside the y-sorted woods (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
 
 ## Fixed
+
+## Sphagnum is larger than Leif
+
+**Status:** Fixed. 2026-10-28.
+
+**Found:** 2026-10-28
+
+**Play:** Signed off. The yellow cushions sit on the moss, smaller than Leif. The bottom-right stays whole.
+
+**What you saw:** The yellow sphagnum cushions are larger than Leif. They read as bushes sitting on the moss, not as something on the ground.
+
+**What the game should do:** Sphagnum is smaller. It is occasional patchy ground cover. It stays scenery: not firewood, and it does not block the walk. The corner that Play already signed off stays whole.
+
+**Where:** Coastal woods, baked into the ground. The picture stays `game/art/coastal_north/clutter_sphagnum.png`, 32×32, stamped at half size onto one 16×16 tile (`game/world/chunk.gd`). Leif is about two tiles tall.
 
 ## Shrubs are missing the bottom right corner
 
@@ -86,4 +88,4 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 - **2026-10-28 — Shrubs are missing the bottom right corner.** Fixed. The next ground tile no longer covers the cushion’s right edge.
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Open. The picture with the black ring is the target. Not this Play.
-- **2026-10-28 — Sphagnum is larger than Leif.** Open. Not this Play.
+- **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.

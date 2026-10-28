@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Sphagnum is a small patch on the moss
+
+**Decision:** The sphagnum picture stays 32×32, including the bottom-right of the cushion. It is stamped at half size (16×16, nearest neighbor) onto its tile after the ground is painted. It stays scenery: not firewood, and it does not block the walk. Needles stay at the picture’s own size. The title still uses the same half size.
+
+**Why:** At full size the yellow cushion was as wide as Leif is tall, so it read as a bush sitting on the moss. Half size fits one tile and sits under him as patchy ground cover.
+
+**Rejected:** A new picture. Cropping the cushion. Shrinking needles and branches with it.
+
 ## 2026-10-28 — Ground is painted before the cushions
 
 **Decision:** For each slice of a chunk, the moss, shore, and trail are painted first. Sphagnum and needles are stamped after that. A cushion stays wider than one tile.

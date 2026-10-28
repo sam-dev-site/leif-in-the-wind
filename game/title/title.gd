@@ -253,7 +253,7 @@ func _build_picture() -> void:
 	_add_prop(picture, ART_SPRUCE, 312, 64)
 	_add_prop(picture, ART_FIR, 196, 140)
 	_add_prop(picture, ART_SPRUCE, 292, 128)
-	_add_prop(picture, ART_MOSS, 48, 130)
+	_add_prop(picture, ART_MOSS, 48, 130, false, "", MapChunk.SPHAGNUM_SCALE)
 	_add_prop(picture, ART_NEEDLES, 430, 124)
 	_add_prop(picture, ART_BRANCH, 120, 150)
 	# The shore in front of the menu.
@@ -265,14 +265,14 @@ func _build_picture() -> void:
 	_add_prop(picture, ART_ROCK, 390, 208)
 	_add_prop(picture, ART_BAKEAPPLE, 150, 204)
 	_add_prop(picture, ART_BLUEBERRY, 318, 206)
-	_add_prop(picture, ART_MOSS, 186, 212)
+	_add_prop(picture, ART_MOSS, 186, 212, false, "", MapChunk.SPHAGNUM_SCALE)
 	_add_prop(picture, ART_NEEDLES, 286, 214)
 	_add_prop(picture, ART_BRANCH, 200, 218)
 	_add_prop(picture, ART_FALLEN, 130, 210)
 	_add_prop(picture, ART_LEIF, 240, 190, true, "Leif")
 
 
-func _add_prop(parent: Node2D, path: String, x: float, y: float, player_scale: bool = false, node_name: String = "") -> void:
+func _add_prop(parent: Node2D, path: String, x: float, y: float, player_scale: bool = false, node_name: String = "", draw_scale: float = 1.0) -> void:
 	if not ResourceLoader.exists(path):
 		return
 	var tex := load(path) as Texture2D
@@ -287,6 +287,7 @@ func _add_prop(parent: Node2D, path: String, x: float, y: float, player_scale: b
 		sprite.offset = Vector2(0, Player.FEET_OFFSET_Y)
 		_leif = sprite
 	else:
+		sprite.scale = Vector2(draw_scale, draw_scale)
 		sprite.offset = Vector2(0, -float(tex.get_height()) * 0.5)
 	sprite.position = Vector2(x, y)
 	if node_name != "":

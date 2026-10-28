@@ -20,6 +20,8 @@ static var _tex_cache: Dictionary = {}
 static var _stamp_cache: Dictionary = {}
 ## Keep the 32×32 ringed stump PNG. Draw it smaller so it fits a tile without flattening the rings.
 const STUMP_SCALE := 0.6
+## Keep the 32×32 cushion. Stamp it at half size so it sits on one tile, under Leif.
+const SPHAGNUM_SCALE := 0.5
 
 
 func use_wang(shared: WangTiles) -> void:
@@ -390,6 +392,12 @@ func _stamp_image(kind: String, species: String) -> Image:
 	var img := tex.get_image()
 	if img != null and img.is_compressed():
 		img.decompress()
+	if species == "sphagnum" and img != null:
+		var side := maxi(1, int(round(float(img.get_width()) * SPHAGNUM_SCALE)))
+		var tall := maxi(1, int(round(float(img.get_height()) * SPHAGNUM_SCALE)))
+		if side != img.get_width() or tall != img.get_height():
+			img = img.duplicate()
+			img.resize(side, tall, Image.INTERPOLATE_NEAREST)
 	_stamp_cache[path] = img
 	return img
 

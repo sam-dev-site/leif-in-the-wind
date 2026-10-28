@@ -20,13 +20,13 @@ PixelLab trial: **7 / 40** generations left. Then 5/day (stack to 20). Paid floo
 - Headless tests in `game/tests/run.gd` (seed, species, pick, chop, campfire, night, HUD, fog / minimap)
 - GitHub Actions: knowledge files + Godot tests
 - PixelLab Leif: character `327ed41b-0289-49cb-bcd8-787b17f963ea`, 8 idle rotations + 8-dir walk in `game/art/leif/`
-- PixelLab coastal props: fir, spruce, bakeapple, blueberry, stump_fir, stump_spruce in `game/art/coastal_north/` (chunk uses the PNGs; ColorRect fallback if a file is missing). Chop leftover is the 32×32 ringed stump drawn at 0.6.
+- PixelLab coastal props: fir, spruce, bakeapple, blueberry, stump_fir, stump_spruce in `game/art/coastal_north/` (chunk uses the PNGs; ColorRect fallback if a file is missing). Chop leftover is the 32×32 ringed stump drawn at 0.6. Sphagnum stays the 32×32 cushion, stamped at half size onto one tile.
 - Tiny fog-of-war minimap (bottom-left): opens the 480×270 play view; `game/world/fog_map.gd`
 - PixelLab Wang floor: water/shore/moss/trail (granite is no longer a floor tile)
 - Ground props: granite rocks, sphagnum/needle/branch clutter, fallen fir/spruce (wood; logs block their full length)
 - Slice 0 verbs: `game/world/supplies.gd`, `interact.gd`, `campfire.gd`, `day_clock.gd` (E spends 3 forage for half a heart)
 - Launch menu: `game/title/title.gd` is the main scene. The coast fills the screen. A green box holds New Game and Continue. New Game fades the box, then Leif walks inland while the strip loads in slices. No save files. Escape in the woods is not bound (pause is an idea in `docs/IDEAS.md`)
-- Bug backlog: `docs/BUGS.md` has two open bugs. The minimap shows too much. Sphagnum is larger than Leif. Shrubs are missing the bottom-right corner is fixed: the next ground tile no longer covers the cushion. Running on a diagonal is choppy is passing and kept for later: the view follows Leif from outside the tree stack.
+- Bug backlog: `docs/BUGS.md` has one open bug. The minimap shows too much. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom-right corner is fixed: the next ground tile no longer covers the cushion. Running on a diagonal is choppy is passing and kept for later: the view follows Leif from outside the tree stack.
 - Coastal bed: `The First Grove` loops on `coastal_north` (`game/art/coastal_north/the_first_grove.mp3`)
 
 ## Blocked / next
@@ -36,7 +36,7 @@ Two lanes (see `AGENTS.md`). This PC cut is signed off: view-sized fog, ringed s
 1. **Next cut:** wire real save files to the three Continue boxes. They say “No save file” until then.
 2. **Ideas:** one line each in `docs/IDEAS.md`. Dig in when asked. Not in build.
 3. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
-4. **Bug backlog:** two open bugs in `docs/BUGS.md` — the minimap shows too much, and sphagnum is larger than Leif. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
+4. **Bug backlog:** one open bug in `docs/BUGS.md` — the minimap shows too much. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
 
 ## Local machine
 
@@ -44,4 +44,4 @@ Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.Go
 
 ## Checks
 
-Headless tests cover the title menu (Start, Continue’s three “No save file” boxes, Escape stepping back), eat / refuse-when-full / refuse-when-empty, half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, blocking, the coastal grove track, view-sized fog, and scaled ringed stumps. Owner Play: sleep blink signed off. Corner map signed off. Stumps signed off after a fir/spruce swap. Diagonal jog is good enough and kept on the bug list for later. Eating one berry was signed off; spending 3 forage for half a heart is not signed off in Play yet. The title menu is not signed off yet.
+Headless tests cover the title menu (Start, Continue’s three “No save file” boxes, Escape stepping back), eat / refuse-when-full / refuse-when-empty, half-heart cold/heal, 60s night / 6 hearts, log span, fire lifetime, sleep-to-dawn, blocking, the coastal grove track, view-sized fog, scaled ringed stumps, and sphagnum stamped at half size. Owner Play: sleep blink signed off. Corner map signed off. Stumps signed off after a fir/spruce swap. Sphagnum size signed off. Diagonal jog is good enough and kept on the bug list for later. Eating one berry was signed off; spending 3 forage for half a heart is not signed off in Play yet. The title menu is not signed off yet.
