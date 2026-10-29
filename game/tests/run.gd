@@ -46,6 +46,7 @@ func _init() -> void:
 	_test_minimap_paints_revealed_tiles()
 	_test_chop_leaves_named_stump()
 	_test_title_menu()
+	_test_shore_saves()
 	_test_world_loads_in_slices()
 	_test_sphagnum_cushion_is_whole()
 	_test_sphagnum_is_smaller_than_leif()
@@ -930,6 +931,7 @@ func _open_cell(chunk: MapChunk) -> Vector2i:
 
 func _test_title_menu() -> void:
 	print("title menu")
+	_use_empty_saves()
 	var menu := TitleMenu.new()
 	root.add_child(menu)
 	menu.assemble()
@@ -964,6 +966,8 @@ func _test_title_menu() -> void:
 	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "Back from the files returns to New Game and Continue")
 	_click_title(menu, "New Game")
 	_expect(menu.is_departing(), "new game starts loading at once")
+	_expect(menu.departing_slot() == 0, "new game claims the first empty box")
+	_expect(not ShoreSave.has_slot(0), "the box stays empty until the floppy")
 	var leif := menu.get_node("Picture/Leif") as Sprite2D
 	_expect(leif != null and leif.position.y <= 190.0, "leif stands on the bank, not in the water")
 	_expect(TitleMenu.DEPART_SPEED < Player.WALK_SPEED, "the loading stroll is slower than his woods walk")
@@ -1024,6 +1028,374 @@ func _test_world_loads_in_slices() -> void:
 	_expect(not done, "a few slices are not the whole coast")
 	_expect(world.boot_chunk_count() > 0, "a slice builds a chunk")
 	world.free()
+
+
+func _use_empty_saves() -> void:
+	ShoreSave.use_directory("user://test_saves")
+	ShoreSave.wipe()
+	ShoreSave.unix_override = -1
+
+
+func _test_shore_saves() -> void:
+	print("shore saves")
+	_use_empty_saves()
+	var afternoon := int(Time.get_unix_time_from_datetime_dict({
+		"year": 2026, "month": 10, "day": 28, "hour": 22, "minute": 57, "second": 0,
+	}))
+	_expect(ShoreSave.format_cst(afternoon) == "Oct 28, 4:57 PM CST", "a save time reads as Costa Rica CST")
+	var midnight := int(Time.get_unix_time_from_datetime_dict({
+		"year": 2026, "month": 10, "day": 29, "hour": 6, "minute": 0, "second": 0,
+	}))
+	_expect(ShoreSave.format_cst(midnight) == "Oct 29, 12:00 AM CST", "Costa Rica midnight is 12 AM")
+	_test_chop_grows_back_from_the_seed()
+	_test_continue_uses_the_saved_seed()
+	_test_floppy_writes_the_walk()
+	_test_continue_boxes_and_overwrite()
+	_test_delete_save()
+
+
+func _test_chop_grows_back_from_the_seed() -> void:
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var biome := catalog.get_biome(&"coastal_north")
+	var chunk := MapChunk.new()
+	chunk.setup(11, 0, 0, biome, true)
+	var tree := _first_tree(chunk)
+	_expect(tree != null, "the shore has a tree to chop")
+	if tree == null:
+		chunk.free()
+		return
+	var species := str(tree.get_meta("species"))
+	var cell := chunk.cell_of_prop(tree)
+	chunk.release_prop(tree)
+	_expect(_tree_on(chunk, cell) == null, "the chop takes the tree down")
+	var again := MapChunk.new()
+	again.setup(11, 0, 0, biome, true)
+	var back := _tree_on(again, cell)
+	_expect(back != null, "the same seed grows that tree again")
+	if back != null:
+		_expect(str(back.get_meta("species")) == species, "it is the same kind of tree")
+	chunk.free()
+	again.free()
+
+
+func _test_continue_uses_the_saved_seed() -> void:
+	var world := World.new()
+	world.prepare_run(0, {"seed": 21, "name": "Seed"})
+	_expect(world.world_seed == 21, "continue picks the saved seed before the coast is built")
+	world.begin_staged_boot()
+	_expect(world.stage_boot_step() == false, "the first slice makes a chunk")
+	var chunk: MapChunk = null
+	for child in world.get_children():
+		if child is MapChunk:
+			chunk = child
+			break
+	_expect(chunk != null, "a slice has a chunk")
+	if chunk == null:
+		world.free()
+		return
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var biome := catalog.get_biome(catalog.biome_id_at(chunk.chunk_x * ChunkGenerator.WIDTH, chunk.chunk_y * ChunkGenerator.HEIGHT))
+	var gen := ChunkGenerator.new()
+	var expected: PackedInt32Array = gen.generate(21, chunk.chunk_x, chunk.chunk_y, biome)["tiles"]
+	var other: PackedInt32Array = gen.generate(11, chunk.chunk_x, chunk.chunk_y, biome)["tiles"]
+	var tiles: PackedInt32Array = chunk.data["tiles"]
+	var matches := true
+	var differs := false
+	for i in tiles.size():
+		if tiles[i] != expected[i]:
+			matches = false
+		if tiles[i] != other[i]:
+			differs = true
+	_expect(matches, "the chunk is the saved seed")
+	_expect(differs, "seed 11 would have been a different coast")
+	world.free()
+
+
+func _test_floppy_writes_the_walk() -> void:
+	var world := _boot_run(0, {})
+	var hud := _hud_of(world)
+	var clock := _clock_of(world)
+	_expect(hud != null and hud.get_node_or_null("SaveFloppy") != null, "the floppy is on the hud")
+	if hud == null or clock == null:
+		world.free()
+		return
+	if hud != null:
+		var floppy := hud.get_node("SaveFloppy") as Control
+		_expect(floppy.position.x >= 440.0 and floppy.position.y <= 8.0, "the floppy sits in the top right")
+		_expect(floppy.size.x >= 24.0 and floppy.size.y >= 24.0, "the save mark has a corner-sized click")
+		_expect(floppy.has_point(Vector2(1, 1)), "the corner of the save mark clicks")
+		_expect(floppy.has_point(floppy.size * 0.5), "the gap between the bars clicks")
+		_expect(floppy.mouse_filter == Control.MOUSE_FILTER_STOP, "the save mark takes the click")
+		var tex := (floppy as TextureButton).texture_normal
+		_expect(tex != null and _is_pause_mark(tex), "the save mark is two vertical bars")
+		floppy.pressed.emit()
+		_expect(world.is_naming(), "clicking the bars asks for a name")
+		world.cancel_save_name()
+	_expect(not ShoreSave.has_slot(0), "a new shore has no file yet")
+	world.try_save()
+	_expect(world.is_naming(), "the first floppy asks for a name")
+	_expect(clock != null and not clock.is_processing(), "the night waits while he types")
+	_expect(not world.submit_save_name("   "), "a blank name does not write")
+	_expect(world.is_naming() and not ShoreSave.has_slot(0), "the name box stays open")
+	var escape := InputEventKey.new()
+	escape.pressed = true
+	escape.keycode = KEY_ESCAPE
+	hud._input(escape)
+	_expect(not world.is_naming(), "escape closes the name")
+	_expect(clock.is_processing(), "the night moves again")
+	world.try_save()
+	ShoreSave.unix_override = 1000
+	_expect(world.submit_save_name("North trail"), "the first save keeps the name")
+	_expect(not world.is_naming(), "the name box closes")
+	var first := ShoreSave.read_slot(0)
+	_expect(str(first["name"]) == "North trail", "the file has the name")
+	_expect(int(first["saved_unix"]) == 1000, "the file has the first time")
+	world.apply_walk({
+		"name": "North trail",
+		"seed": world.world_seed,
+		"x": 200.0,
+		"y": 120.0,
+		"facing": "north",
+		"wood": 1.5,
+		"forage": 4,
+		"hearts": 2.0,
+		"hearts_max": 3.0,
+		"cold_acc": 1.25,
+		"heal_acc": 0.5,
+		"elapsed": 55.0,
+		"fog": [[3, 4], [3, 5]],
+	})
+	ShoreSave.unix_override = 2000
+	world.try_save()
+	_expect(not world.is_naming(), "a later floppy does not ask again")
+	var saved := ShoreSave.read_slot(0)
+	_expect(str(saved["name"]) == "North trail", "the second save keeps the name")
+	_expect(int(saved["saved_unix"]) == 2000, "the second save moves the time")
+	_expect(is_equal_approx(float(saved["wood"]), 1.5), "wood is in the file")
+	_expect(int(saved["forage"]) == 4, "forage is in the file")
+	_expect(is_equal_approx(float(saved["hearts"]), 2.0), "hearts are in the file")
+	_expect(is_equal_approx(float(saved["cold_acc"]), 1.25), "a partial cold count is in the file")
+	_expect(str(saved["facing"]) == "north", "facing is in the file")
+	_expect(is_equal_approx(float(saved["x"]), 200.0), "where he stands is in the file")
+	_expect(is_equal_approx(float(saved["elapsed"]), 55.0), "the time of day is in the file")
+	_expect(clock.phase() == "night", "dusk and night come back with the file")
+	_expect(not saved.has("harvested"), "the file does not list chopped trees")
+	var saw_fog := false
+	for cell in saved["fog"]:
+		if int(cell[0]) == 3 and int(cell[1]) == 4:
+			saw_fog = true
+	_expect(saw_fog, "the map he uncovered is in the file")
+	_expect(hud.lines().find("Saved.") >= 0, "the woods say Saved")
+	var spot := _open_fire_cell(world)
+	_expect(spot.x >= 0, "open ground for a fire")
+	_expect(world.place_saved_fire(spot, 22.5), "a fire is lit with time left")
+	ShoreSave.unix_override = 2001
+	world.try_save()
+	var with_fire := ShoreSave.read_slot(0)
+	var saw_fire := false
+	for item in with_fire["fires"]:
+		if int(item[0]) == spot.x and int(item[1]) == spot.y and is_equal_approx(float(item[2]), 22.5):
+			saw_fire = true
+	_expect(saw_fire, "the lit fire is frozen in the file")
+	world.apply_walk({"fires": []})
+	_expect(_campfire_at(world, spot) == null, "a save with no fire leaves the ground cold")
+	world.apply_walk(with_fire)
+	var back := _campfire_at(world, spot)
+	_expect(back != null and is_equal_approx(back.burn_left, 22.5), "the fire comes back with the time it had left")
+	world.free()
+
+
+func _test_continue_boxes_and_overwrite() -> void:
+	_use_empty_saves()
+	ShoreSave.write_slot(0, _named_save("First shore", 11, 3000))
+	var menu := TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	menu.press_new_game()
+	_expect(menu.departing_slot() == 1, "new game skips a box that already has a file")
+	_expect(not ShoreSave.has_slot(1), "the new box is still empty")
+	_expect(str(ShoreSave.read_slot(0)["name"]) == "First shore", "the first file is untouched")
+	menu.free()
+	_use_empty_saves()
+	for i in 3:
+		ShoreSave.write_slot(i, _named_save("Shore %d" % (i + 1), 11 + i, 4000 + i))
+	_expect(ShoreSave.label(0) == "Shore 1\n" + ShoreSave.format_cst(4000), "continue shows the name and the time")
+	menu = TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	menu.press_continue()
+	_expect(menu.can_load_slot(2), "a filled box can load")
+	menu.press_slot(2)
+	_expect(menu.is_departing(), "continue leaves the way new game does")
+	_expect(menu.departing_slot() == 2, "continue opens that box")
+	_expect(menu.booting_world().world_seed == 13, "continue carries that shore's seed")
+	menu.free()
+	menu = TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	menu.press_new_game()
+	_expect(menu.screen == TitleMenu.Screen.OVERWRITE_ASK, "a full set asks before it overwrites")
+	_expect(not menu.is_departing(), "the ask does not leave yet")
+	menu.press_overwrite_no()
+	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "no returns to new game and continue")
+	menu.press_new_game()
+	menu.press_overwrite_yes()
+	_expect(menu.screen == TitleMenu.Screen.OVERWRITE_PICK, "yes asks which box")
+	var before := ShoreSave.read_slot(1)
+	menu.press_overwrite_slot(1)
+	_expect(menu.departing_slot() == 1, "the picked box is the one this run will write")
+	var after := ShoreSave.read_slot(1)
+	_expect(str(after["name"]) == str(before["name"]), "the old file stays until the floppy")
+	_expect(int(after["saved_unix"]) == int(before["saved_unix"]), "the old time stays until the floppy")
+	menu.free()
+
+
+func _test_delete_save() -> void:
+	_use_empty_saves()
+	ShoreSave.write_slot(0, _named_save("Kept", 11, 5000))
+	ShoreSave.write_slot(1, _named_save("Gone", 12, 5001))
+	var menu := TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	menu.press_continue()
+	var column := menu.get_node("Menu/Buttons")
+	_expect(column.get_child(0).get_node_or_null("Delete") != null, "a filled save has an x")
+	_expect(column.get_child(2).get_node_or_null("Delete") == null, "an empty box has no x")
+	menu.press_delete(2)
+	_expect(menu.screen == TitleMenu.Screen.SLOTS, "an empty box cannot be deleted")
+	menu.press_delete(1)
+	_expect(menu.screen == TitleMenu.Screen.DELETE_ASK, "the x asks before it deletes")
+	_expect(ShoreSave.has_slot(1), "the file is still there while he decides")
+	menu.press_delete_no()
+	_expect(menu.screen == TitleMenu.Screen.SLOTS, "no leaves the save")
+	_expect(str(ShoreSave.read_slot(1)["name"]) == "Gone", "no does not delete")
+	menu.press_delete(1)
+	menu.press_back()
+	_expect(ShoreSave.has_slot(1), "escape does not delete")
+	menu.press_delete(1)
+	menu.press_delete_yes()
+	_expect(menu.screen == TitleMenu.Screen.SLOTS, "yes returns to the boxes")
+	_expect(not ShoreSave.has_slot(1), "yes deletes that save")
+	_expect(menu.slot_label(1) == "No save file", "the box is empty again")
+	_expect(str(ShoreSave.read_slot(0)["name"]) == "Kept", "the other save stays")
+	menu.free()
+
+
+func _named_save(save_name: String, world_seed: int, unix_time: int) -> Dictionary:
+	return {
+		"version": 1,
+		"name": save_name,
+		"saved_unix": unix_time,
+		"seed": world_seed,
+	}
+
+
+func _is_pause_mark(tex: Texture2D) -> bool:
+	var img := tex.get_image()
+	if img == null or img.get_width() != 16 or img.get_height() != 16:
+		return false
+	var runs := 0
+	var in_bar := false
+	for x in 16:
+		var ink := img.get_pixel(x, 7).a > 0.5
+		if ink and not in_bar:
+			runs += 1
+			in_bar = true
+		elif not ink:
+			in_bar = false
+	return runs == 2
+
+
+func _open_fire_cell(world: World) -> Vector2i:
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		if chunk.chunk_y != 0:
+			continue
+		for ty in range(8, 20):
+			for tx in range(8, 40):
+				var local := Vector2i(tx, ty)
+				if world.generator.is_blocked(chunk.tile_kind(local)):
+					continue
+				if chunk.cell_occupied(local):
+					continue
+				return Vector2i(
+					chunk.chunk_x * ChunkGenerator.WIDTH + tx,
+					chunk.chunk_y * ChunkGenerator.HEIGHT + ty
+				)
+	return Vector2i(-1, -1)
+
+
+func _campfire_at(world: World, cell: Vector2i) -> Campfire:
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		for node in chunk.get_children():
+			if not node is Campfire:
+				continue
+			var local := chunk.cell_of_prop(node)
+			var here := Vector2i(
+				chunk.chunk_x * ChunkGenerator.WIDTH + local.x,
+				chunk.chunk_y * ChunkGenerator.HEIGHT + local.y
+			)
+			if here == cell:
+				return node as Campfire
+	return null
+
+
+func _boot_run(slot: int, snapshot: Dictionary) -> World:
+	var world := World.new()
+	world.prepare_run(slot, snapshot)
+	world.begin_staged_boot()
+	var guard := 0
+	while not world.stage_boot_step():
+		guard += 1
+		if guard > 5000:
+			_expect(false, "the coast finished building")
+			break
+	root.add_child(world)
+	world.open_play()
+	return world
+
+
+func _hud_of(world: World) -> GameHud:
+	for child in world.get_children():
+		if child is GameHud:
+			return child
+	return null
+
+
+func _clock_of(world: World) -> DayClock:
+	for child in world.get_children():
+		if child is DayClock:
+			return child
+	return null
+
+
+func _first_tree(chunk: MapChunk) -> Node2D:
+	for child in chunk.get_children():
+		if not child is Node2D:
+			continue
+		var node := child as Node2D
+		if str(node.get_meta("kind", "")) == "tree":
+			return node
+	return null
+
+
+func _tree_on(chunk: MapChunk, cell: Vector2i) -> Node2D:
+	for child in chunk.get_children():
+		if not child is Node2D:
+			continue
+		var node := child as Node2D
+		if str(node.get_meta("kind", "")) != "tree":
+			continue
+		if chunk.cell_of_prop(node) == cell:
+			return node
+	return null
 
 
 func _click_title(menu: TitleMenu, text: String) -> void:

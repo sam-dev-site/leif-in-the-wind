@@ -31,6 +31,11 @@ var _staged := false
 var _stage_keys: Array[Vector2i] = []
 var _stage_index := 0
 var _stage_phase := 0
+var _slot := -1
+var _save_name := ""
+var _pending_snapshot: Dictionary = {}
+var _naming := false
+var _opened := false
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
@@ -40,18 +45,34 @@ const PROP_EDGE := 24.0
 
 
 func _ready() -> void:
+	open_play()
+
+
+## Headless tests add the world before the tree is ready, so _ready has not run yet.
+## Opening twice would stack a second Leif.
+func open_play() -> void:
+	if _opened:
+		return
+	_opened = true
 	PlayWindow.fit(get_window())
 	y_sort_enabled = true
 	catalog.load_all()
 	_wang.load_coastal()
 	_hud = GameHud.new()
 	add_child(_hud)
+	# Tests add the world before it is inside the tree, so the hud's _ready has not run.
+	if _hud.get_node_or_null("SaveFloppy") == null:
+		_hud._build()
+	_hud.save_pressed.connect(_on_save_pressed)
+	_hud.name_submitted.connect(submit_save_name)
+	_hud.name_cancelled.connect(cancel_save_name)
 	_player = Player.new()
 	_player.world = self
 	_player.y_sort_enabled = true
 	# Leif is restacked among the trees when his height changes. A camera on him
 	# hitches up, down, and on a diagonal. Left and right do not change that order.
-	attach_camera(get_tree().root)
+	if is_inside_tree():
+		attach_camera(get_tree().root)
 	_night = CanvasModulate.new()
 	add_child(_night)
 	_clock = DayClock.new()
@@ -105,6 +126,8 @@ func camera_is_outside_the_woods() -> bool:
 
 
 func _process(delta: float) -> void:
+	if _naming:
+		return
 	if _player == null or _clock == null:
 		return
 	if _sleep_phase != "":
@@ -125,6 +148,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key := event as InputEventKey
 	if not key.pressed or key.echo:
+		return
+	if _naming:
+		if key.keycode == KEY_ESCAPE:
+			cancel_save_name()
+			get_viewport().set_input_as_handled()
 		return
 	if key.keycode == KEY_R:
 		# New coast. Wood and forage stay in hand. Fires were on the old ground.
@@ -160,6 +188,8 @@ func _on_acted(action: String, species: String) -> void:
 
 
 func rebuild() -> void:
+	# R is a new coast. Do not drop him back on the shore he had saved.
+	_pending_snapshot = {}
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
 	for key in _chunks.keys():
@@ -220,18 +250,171 @@ func _finish_arrival() -> void:
 	var landing: MapChunk = _chunks.get(Vector2i(0, 0))
 	if _player.get_parent() != self:
 		add_child(_player)
-	_player.global_position = landing.position + landing.spawn_local()
+	if landing != null:
+		_player.global_position = landing.position + landing.spawn_local()
 	_reparent_player()
+	_fog.clear()
+	_minimap_cell = Vector2i(99999, 99999)
+	var snapshot := _pending_snapshot
+	_pending_snapshot = {}
+	if snapshot.is_empty():
+		_hint = ""
+	else:
+		apply_walk(snapshot)
 	_cull_far_chunks()
 	_fit_camera()
 	stick_camera()
-	_camera.make_current()
-	_hint = ""
+	if _camera != null and _camera.is_inside_tree():
+		_camera.make_current()
+	if snapshot.is_empty():
+		_reveal_visible_view()
+		_refresh_hud()
+	_ensure_music()
+
+
+## Slot is claimed by New Game. The snapshot is a Continue file, or empty for a new shore.
+## Seed is set here, before the coast is built.
+func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
+	_slot = slot
+	_save_name = ""
+	_pending_snapshot = snapshot.duplicate(true)
+	if snapshot.has("name"):
+		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
+	if snapshot.has("seed"):
+		world_seed = int(snapshot["seed"])
+
+
+func run_slot() -> int:
+	return _slot
+
+
+func save_name() -> String:
+	return _save_name
+
+
+func is_naming() -> bool:
+	return _naming
+
+
+func capture_walk() -> Dictionary:
+	var fog_cells: Array = []
+	for key in _fog.revealed:
+		fog_cells.append([int(key.x), int(key.y)])
+	var pos := Vector2.ZERO
+	var facing := "south"
+	if _player != null and is_instance_valid(_player):
+		pos = _player.global_position
+		facing = _player.facing_name()
+	var elapsed := 0.0
+	if _clock != null:
+		elapsed = _clock.elapsed
+	return {
+		"version": 1,
+		"name": _save_name,
+		"seed": world_seed,
+		"x": pos.x,
+		"y": pos.y,
+		"facing": facing,
+		"wood": supplies.wood,
+		"forage": supplies.forage,
+		"hearts": supplies.hearts,
+		"hearts_max": supplies.hearts_max,
+		"cold_acc": supplies.cold_acc,
+		"heal_acc": supplies.heal_acc,
+		"elapsed": elapsed,
+		"fog": fog_cells,
+		"fires": _capture_fires(),
+	}
+
+
+## Puts the saved walk back on a coast that was already built from that seed.
+func apply_walk(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+	if data.has("seed"):
+		world_seed = int(data["seed"])
+	if data.has("name"):
+		_save_name = ShoreSave.clean_name(str(data["name"]))
+	supplies.wood = float(data.get("wood", supplies.wood))
+	supplies.forage = int(data.get("forage", supplies.forage))
+	supplies.hearts_max = float(data.get("hearts_max", supplies.hearts_max))
+	supplies.hearts = float(data.get("hearts", supplies.hearts))
+	supplies.cold_acc = float(data.get("cold_acc", 0.0))
+	supplies.heal_acc = float(data.get("heal_acc", 0.0))
+	if _clock != null and data.has("elapsed"):
+		_clock.elapsed = float(data["elapsed"])
+		DayClock.darkness_now = _clock.darkness()
+		if _night != null:
+			_night.color = _clock.modulate_color()
+	if _player != null and is_instance_valid(_player):
+		if data.has("x") and data.has("y"):
+			_player.global_position = Vector2(float(data["x"]), float(data["y"]))
+		if data.has("facing"):
+			_player.set_facing(str(data["facing"]))
+		_reparent_player()
+		stick_camera()
 	_fog.clear()
+	var cells: Variant = data.get("fog", [])
+	if cells is Array:
+		for item in cells:
+			if item is Array and item.size() >= 2:
+				_fog.reveal(Vector2i(int(item[0]), int(item[1])))
 	_minimap_cell = Vector2i(99999, 99999)
+	if data.has("fires") and data["fires"] is Array:
+		_restore_fires(data["fires"])
 	_reveal_visible_view()
 	_refresh_hud()
-	_ensure_music()
+
+
+func try_save() -> void:
+	if _naming or is_sleeping() or _slot < 0:
+		return
+	if _save_name == "":
+		_set_naming(true)
+		if _hud != null:
+			_hud.show_name_prompt()
+		return
+	_commit_save()
+
+
+func submit_save_name(raw: String) -> bool:
+	var cleaned := ShoreSave.clean_name(raw)
+	if cleaned == "":
+		return false
+	_save_name = cleaned
+	_set_naming(false)
+	if _hud != null:
+		_hud.hide_name_prompt()
+	return _commit_save()
+
+
+func cancel_save_name() -> void:
+	_set_naming(false)
+	if _hud != null:
+		_hud.hide_name_prompt()
+
+
+func _on_save_pressed() -> void:
+	try_save()
+
+
+func _set_naming(active: bool) -> void:
+	_naming = active
+	if _clock != null:
+		_clock.set_process(not active)
+
+
+func _commit_save() -> bool:
+	if _slot < 0 or _save_name == "":
+		return false
+	var data := capture_walk()
+	data["name"] = _save_name
+	data["saved_unix"] = ShoreSave.now_unix()
+	if not ShoreSave.write_slot(_slot, data):
+		return false
+	_hint = "Saved."
+	_refresh_hud()
+	return true
 
 
 func nearby_props() -> Array:
@@ -390,21 +573,69 @@ func _try_place_campfire() -> void:
 		_hint = "The fire does not catch."
 		_refresh_hud()
 		return
-	var key := ChunkGenerator.chunk_of_cell(world_cell)
-	var host := _chunk_at(key)
-	if host == null:
+	if place_saved_fire(world_cell, DayClock.cold_seconds()):
+		_hint = "Campfire lit."
+	else:
 		_hint = "Cannot light a fire there."
-		_refresh_hud()
-		return
-	var local := ChunkGenerator.local_of_cell(world_cell)
+	_refresh_hud()
+
+
+## A fire already paid for, or one the save froze mid-burn. burn_left is the time left.
+func place_saved_fire(world_cell: Vector2i, burn_left: float) -> bool:
+	if burn_left <= 0.0 or _campfire_block_reason(world_cell) != "":
+		return false
+	var host := _chunk_at(ChunkGenerator.chunk_of_cell(world_cell))
+	if host == null:
+		return false
 	var fire := Campfire.new()
-	fire.position = MapChunk.anchor_for_cell(local)
+	fire.burn_left = burn_left
+	fire.lifetime = DayClock.cold_seconds()
+	fire.position = MapChunk.anchor_for_cell(ChunkGenerator.local_of_cell(world_cell))
+	fire.build_visual()
 	host.add_child(fire)
 	host.register_prop(fire)
 	fire.expired.connect(_on_fire_expired.bind(fire))
 	_fires.append(fire)
-	_hint = "Campfire lit."
-	_refresh_hud()
+	return true
+
+
+func _capture_fires() -> Array:
+	var stored: Array = []
+	for fire in _fires:
+		if fire == null or not is_instance_valid(fire) or not fire is Campfire:
+			continue
+		var camp := fire as Campfire
+		if not camp.lit or camp.burn_left <= 0.0:
+			continue
+		var cell := _fire_world_cell(camp)
+		stored.append([cell.x, cell.y, camp.burn_left])
+	return stored
+
+
+func _fire_world_cell(fire: Node2D) -> Vector2i:
+	var host := fire.get_parent()
+	if host is MapChunk:
+		var chunk := host as MapChunk
+		var local := chunk.cell_of_prop(fire)
+		return Vector2i(
+			chunk.chunk_x * ChunkGenerator.WIDTH + local.x,
+			chunk.chunk_y * ChunkGenerator.HEIGHT + local.y
+		)
+	return ChunkGenerator.world_cell_at(fire.global_position)
+
+
+func _restore_fires(entries: Array) -> void:
+	_drop_fires()
+	for item in entries:
+		if item is Array and item.size() >= 3:
+			place_saved_fire(Vector2i(int(item[0]), int(item[1])), float(item[2]))
+
+
+func _drop_fires() -> void:
+	var held: Array[Node2D] = []
+	held.append_array(_fires)
+	for fire in held:
+		_expire_fire(fire, false)
 
 
 func _campfire_block_reason(world_cell: Vector2i) -> String:
@@ -432,7 +663,7 @@ func _toggle_fullscreen() -> void:
 
 func _fit_camera() -> void:
 	# The clear color is not shaded by the night tint. Keep the view on loaded woods.
-	if _chunks.is_empty():
+	if _camera == null or _chunks.is_empty():
 		return
 	var min_x := 1000000
 	var min_y := 1000000
@@ -454,7 +685,7 @@ func _fit_camera() -> void:
 
 
 func _ensure_music() -> void:
-	if _music == null:
+	if _music == null or not is_inside_tree():
 		return
 	var path := ""
 	if _chunk != null and _chunk.biome != null:

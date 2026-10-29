@@ -44,6 +44,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if world != null and world.is_naming():
+		return
 	if not event is InputEventKey:
 		return
 	var key_event := event as InputEventKey
@@ -59,8 +61,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_run_keycode = 0
 
 
+func set_facing(dir_name: String) -> void:
+	if not DIR_NAMES.has(dir_name):
+		dir_name = "south"
+	_facing = dir_name
+	_walk_time = 0.0
+	_apply_facing()
+
+
 func _process(delta: float) -> void:
-	if world != null and world.is_sleeping():
+	if world != null and (world.is_sleeping() or world.is_naming()):
 		_walk_time = 0.0
 		_apply_facing()
 		return

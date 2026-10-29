@@ -2,6 +2,30 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — The save mark is two bars, and a lit fire waits
+
+**Decision:** The button in the top right is a cassette pause mark: two vertical bars. It still writes the file. A fire that is burning when he saves is stored with the time it has left. Loading that file puts the fire back on the same tile, still burning, with that same time left. The burn does not run while the file sits on disk. Chopped trees and picked bushes still grow back from the seed. A fire that has already gone out is not stored.
+
+**Why:** In Play the floppy read as a bad pause button, and a fire he had lit was gone after load. Sitting by that fire is the night (submission). The rest of the woods still comes from the seed.
+
+**Rejected:** Saving stumps and picked bushes. Letting the fire keep burning after he quits.
+
+## 2026-10-28 — An x deletes one shore
+
+**Decision:** A filled Continue box, and a filled box on the overwrite list, has a small **x**. It asks **Are you sure you want to delete this save?** **No** and Escape leave the file. **Yes** removes that file and the box says **No save file** again. The other two stay.
+
+**Why:** Three shores fill up. He needs a way to drop one without starting a new game over it.
+
+**Rejected:** Deleting on the first click. An x on an empty box.
+
+## 2026-10-28 — Three shores, written by the floppy
+
+**Decision:** Continue’s three boxes are files in Godot’s user folder (`user://saves/slot_0.json` through `slot_2.json`). An empty box still says **No save file** and does nothing. **New Game** claims the first empty box and writes nothing yet. A floppy in the top right of the woods writes that box. The first click asks **Enter save name.** Later clicks keep the name and move the time. Continue shows the name and the save time in Costa Rica, UTC−6, labeled CST. Loading a file leaves the same way New Game does, then he is where he saved: seed, place, facing, wood, forage, hearts, the map he uncovered, and time of day. Chopped trees, picked bushes, and fires come back from the seed. If all three boxes have a file, New Game asks before it overwrites, then which box. The old file stays until that run’s first floppy. Quitting without the floppy leaves the box as it was. There is no account. The same three files are what an export uses, and later Steam Auto-Cloud can watch that folder. The Godot project name stays **Leif in the Wind**, because that is the folder name.
+
+**Why:** The walk was gone on quit. The name and the clock time are how the three shores stay telling apart (discovery, submission). A chopped tree growing back keeps this cut to the walk, not a second copy of the whole woods.
+
+**Rejected:** Writing the file on its own while he plays. Wiping a box the moment New Game is chosen. Showing the seed on the button. Saving stumps and fires in this cut.
+
 ## 2026-10-28 — Minimap opens a small circle
 
 **Decision:** The corner map stays 41×41, one pixel per tile, bottom-left. A look opens a circle of **6 tiles** around Leif. Ground he has uncovered stays clear when he walks on. **R** wipes the walk. He stays the cream pip.

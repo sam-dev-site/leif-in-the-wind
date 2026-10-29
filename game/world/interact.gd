@@ -97,6 +97,8 @@ func use_on(target: Node2D) -> String:
 func _unhandled_input(event: InputEvent) -> void:
 	if player == null or supplies == null:
 		return
+	if world != null and world.is_naming():
+		return
 	if not event is InputEventKey:
 		return
 	var key := event as InputEventKey

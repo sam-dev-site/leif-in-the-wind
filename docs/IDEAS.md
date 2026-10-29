@@ -6,7 +6,7 @@ Dumping ground. One line each, in your words. A longer note when you add to one.
 
 ## In
 
-- **Home screen.** Title with New Game and Continue. Continue shows three empty slots. Saves are not wired yet.
+- **Home screen.** Title with New Game and Continue. Continue shows three files by the name he typed and the Costa Rica time. The two bars in the woods write them. An x on a filled box deletes it after a yes.
 
 ## Dump
 

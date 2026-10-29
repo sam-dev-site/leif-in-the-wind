@@ -1,9 +1,9 @@
 class_name TitleMenu
 extends Control
 
-## Launch menu. Start, then New Game or Continue. Slots stay empty until a save exists.
+## Launch menu. New Game or Continue. A filled box is a shore saved from the woods.
 
-enum Screen { CHOOSE, SLOTS }
+enum Screen { CHOOSE, SLOTS, OVERWRITE_ASK, OVERWRITE_PICK, DELETE_ASK }
 
 const SLOT_COUNT := 3
 const NEW_GAME_SCENE := "res://world/world.tscn"
@@ -37,11 +37,14 @@ const LOAD_SLICE_USEC := 12000
 const CREAM := Color(0.95, 0.93, 0.86)
 
 var screen: Screen = Screen.CHOOSE
+var _delete_slot := -1
+var _delete_return: Screen = Screen.SLOTS
 
 var _menu: Control
 var _buttons: VBoxContainer
 var _plate: Panel
 var _title: Label
+var _prompt: Label
 var _leif: Sprite2D
 var _built := false
 var _departing := false
@@ -129,13 +132,80 @@ func press_continue() -> void:
 func press_back() -> void:
 	if _departing:
 		return
-	if screen == Screen.SLOTS:
+	if screen == Screen.SLOTS or screen == Screen.OVERWRITE_ASK:
 		screen = Screen.CHOOSE
 		_show_screen()
+	elif screen == Screen.OVERWRITE_PICK:
+		screen = Screen.OVERWRITE_ASK
+		_show_screen()
+	elif screen == Screen.DELETE_ASK:
+		press_delete_no()
 
 
 func press_new_game() -> void:
-	_begin_departure()
+	if _departing:
+		return
+	var slot := ShoreSave.first_empty()
+	if slot < 0:
+		screen = Screen.OVERWRITE_ASK
+		_show_screen()
+		return
+	_begin_departure(slot, {})
+
+
+func press_overwrite_no() -> void:
+	if _departing:
+		return
+	screen = Screen.CHOOSE
+	_show_screen()
+
+
+func press_overwrite_yes() -> void:
+	if _departing:
+		return
+	screen = Screen.OVERWRITE_PICK
+	_show_screen()
+
+
+func press_overwrite_slot(index: int) -> void:
+	if _departing:
+		return
+	if index < 0 or index >= SLOT_COUNT:
+		return
+	if not can_load_slot(index):
+		return
+	# The old file stays until this run's first floppy.
+	_begin_departure(index, {})
+
+
+func press_delete(index: int) -> void:
+	if _departing:
+		return
+	if index < 0 or index >= SLOT_COUNT:
+		return
+	if not can_load_slot(index):
+		return
+	_delete_slot = index
+	_delete_return = screen
+	screen = Screen.DELETE_ASK
+	_show_screen()
+
+
+func press_delete_yes() -> void:
+	if _departing:
+		return
+	ShoreSave.delete_slot(_delete_slot)
+	_delete_slot = -1
+	screen = _delete_return
+	_show_screen()
+
+
+func press_delete_no() -> void:
+	if _departing:
+		return
+	_delete_slot = -1
+	screen = _delete_return
+	_show_screen()
 
 
 func press_slot(index: int) -> void:
@@ -143,11 +213,21 @@ func press_slot(index: int) -> void:
 		return
 	if not can_load_slot(index):
 		return
-	# A real file, when one exists, leaves the same way New Game does.
-	_begin_departure()
+	# A real file leaves the same way New Game does.
+	_begin_departure(index, ShoreSave.read_slot(index))
 
 
-func _begin_departure() -> void:
+func departing_slot() -> int:
+	if _world == null:
+		return -1
+	return _world.run_slot()
+
+
+func booting_world() -> World:
+	return _world
+
+
+func _begin_departure(slot: int, snapshot: Dictionary) -> void:
 	if _departing:
 		return
 	_departing = true
@@ -155,6 +235,7 @@ func _begin_departure() -> void:
 	_fade_t = 0.0
 	_booted = false
 	_world = World.new()
+	_world.prepare_run(slot, snapshot)
 	_world.begin_staged_boot()
 
 
@@ -181,13 +262,12 @@ func slot_count() -> int:
 	return SLOT_COUNT
 
 
-## The next cut replaces this when a file exists for the slot.
-func slot_label(_index: int) -> String:
-	return SLOT_EMPTY
+func slot_label(index: int) -> String:
+	return ShoreSave.label(index)
 
 
-func can_load_slot(_index: int) -> bool:
-	return false
+func can_load_slot(index: int) -> bool:
+	return ShoreSave.has_slot(index)
 
 
 func _turn_leif_north() -> void:
@@ -322,6 +402,18 @@ func _build_ui() -> void:
 	_title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	_title.add_theme_constant_override("outline_size", 5)
 	_menu.add_child(_title)
+	_prompt = Label.new()
+	_prompt.name = "Prompt"
+	_prompt.visible = false
+	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_prompt.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_prompt.focus_mode = Control.FOCUS_NONE
+	_prompt.modulate = CREAM
+	_prompt.add_theme_font_size_override("font_size", 12)
+	_prompt.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	_prompt.add_theme_constant_override("outline_size", 4)
+	_menu.add_child(_prompt)
 	_buttons = VBoxContainer.new()
 	_buttons.name = "Buttons"
 	_buttons.add_theme_constant_override("separation", 4)
@@ -337,34 +429,94 @@ func _show_screen() -> void:
 		var child := _buttons.get_child(0)
 		_buttons.remove_child(child)
 		child.queue_free()
+	var wide := false
+	_prompt.visible = false
+	_prompt.text = ""
 	match screen:
 		Screen.CHOOSE:
 			_add_action("New Game", press_new_game)
 			_add_action("Continue", press_continue)
 		Screen.SLOTS:
+			wide = true
 			for i in SLOT_COUNT:
-				_add_action(slot_label(i), press_slot.bind(i))
-			_add_action("Back", press_back)
-	_layout_menu()
+				_add_save_row(i, press_slot.bind(i))
+			_add_action("Back", press_back, true)
+		Screen.OVERWRITE_ASK:
+			_prompt.text = "Starting a new game will overwrite an existing save. Do you want to continue?"
+			_prompt.visible = true
+			_add_action("Yes", press_overwrite_yes)
+			_add_action("No", press_overwrite_no)
+		Screen.OVERWRITE_PICK:
+			wide = true
+			_prompt.text = "Choose which save to overwrite."
+			_prompt.visible = true
+			for i in SLOT_COUNT:
+				_add_save_row(i, press_overwrite_slot.bind(i))
+			_add_action("Back", press_back, true)
+		Screen.DELETE_ASK:
+			_prompt.text = "Are you sure you want to delete this save?"
+			_prompt.visible = true
+			_add_action("Yes", press_delete_yes)
+			_add_action("No", press_delete_no)
+	_layout_menu(wide)
 
 
-func _layout_menu() -> void:
+func _layout_menu(wide: bool) -> void:
 	if _plate == null or _buttons == null or _title == null:
 		return
-	var rows := _buttons.get_child_count()
-	var height := 36 + rows * 28 + 12
+	var button_w := 248.0 if wide else 168.0
+	var prompt_h := 0.0
+	if _prompt != null and _prompt.visible:
+		if screen == Screen.OVERWRITE_ASK:
+			prompt_h = 48.0
+		elif screen == Screen.DELETE_ASK:
+			prompt_h = 40.0
+		else:
+			prompt_h = 20.0
+		_prompt.position = Vector2((VIEW_W - (PLATE_W - 24)) / 2.0, 40)
+		_prompt.size = Vector2(PLATE_W - 24, prompt_h)
+	var buttons_y := 42.0 + prompt_h
+	var content_h := 0.0
+	var n := _buttons.get_child_count()
+	for i in n:
+		var child := _buttons.get_child(i) as Control
+		content_h += child.custom_minimum_size.y
+	if n > 1:
+		content_h += float(n - 1) * 4.0
 	var x := (VIEW_W - PLATE_W) / 2.0
 	_plate.position = Vector2(x, 12)
-	_plate.size = Vector2(PLATE_W, height)
+	_plate.size = Vector2(PLATE_W, buttons_y + content_h + 10.0 - 12.0)
 	_title.position = Vector2(x, 16)
 	_title.size = Vector2(PLATE_W, 24)
-	_buttons.position = Vector2((VIEW_W - 168) / 2.0, 42)
+	_buttons.position = Vector2((VIEW_W - button_w) / 2.0, buttons_y)
+	_buttons.size = Vector2(button_w, content_h)
 
 
-func _add_action(text: String, callback: Callable) -> void:
+func _add_save_row(index: int, on_pick: Callable) -> void:
+	if not can_load_slot(index):
+		_add_action(slot_label(index), on_pick, true)
+		return
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	row.custom_minimum_size = Vector2(248, 40)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(_make_button(slot_label(index), on_pick, Vector2(222, 40)))
+	var delete := _make_button("x", press_delete.bind(index), Vector2(22, 40))
+	delete.name = "Delete"
+	row.add_child(delete)
+	_buttons.add_child(row)
+
+
+func _add_action(text: String, callback: Callable, wide: bool = false) -> void:
+	var size := Vector2(248, 40) if wide else Vector2(168, 22)
+	_buttons.add_child(_make_button(text, callback, size))
+
+
+func _make_button(text: String, callback: Callable, size: Vector2) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(168, 22)
+	button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.custom_minimum_size = size
 	# Hover lights the box. Nothing is lit just because it is first.
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", 12)
@@ -380,7 +532,7 @@ func _add_action(text: String, callback: Callable) -> void:
 	button.add_theme_stylebox_override("pressed", lit)
 	button.add_theme_stylebox_override("focus", normal)
 	button.pressed.connect(callback)
-	_buttons.add_child(button)
+	return button
 
 
 func _box(border: Color) -> StyleBoxFlat:

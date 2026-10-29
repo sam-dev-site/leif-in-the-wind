@@ -4,7 +4,7 @@ This is **not** the game. The game is [MISSION.md](MISSION.md). This file is the
 
 ## Playable content
 
-Play opens on a title. The coastal still fills the screen. A green box on top offers **New Game** and **Continue**. Buttons light only under the pointer. **New Game** fades that box, turns Leif so his back faces you, and he walks inland while the **seed-generated** `coastal_north` strip is built a slice at a time. Then you are on it. The landing is chunk (0,0). Walking inland is the same forest, already there. The sea stays south. **Continue** shows three boxes that say “No save file.” Nothing is written or loaded. A file that exists leaves the same way New Game does. Escape steps back from those boxes to the menu, and does nothing on the title itself. Escape in the woods is reserved for pause and does nothing yet. The title is silent; the grove starts with the woods.
+Play opens on a title. The coastal still fills the screen. A green box on top offers **New Game** and **Continue**. Buttons light only under the pointer. **New Game** fades that box, turns Leif so his back faces you, and he walks inland while the **seed-generated** `coastal_north` strip is built a slice at a time. Then you are on it. The landing is chunk (0,0). Walking inland is the same forest, already there. The sea stays south. **Continue** shows three boxes. An empty one says “No save file” and does nothing. A file shows the name he typed and the Costa Rica time, and it leaves the same way New Game does. He comes back where he saved: seed, place, facing, wood, forage, hearts, the map he uncovered, and time of day. Chopped trees grow back from the seed. A fire that was still burning comes back on the same tile, with the time it had left. The two bars in the top right write the file. The first click asks for a name. Quitting without that click leaves the box as it was. If all three already have a file, New Game asks before it overwrites, then which box. The old file stays until the new run’s first floppy. A filled box has a small **x**. It asks before it deletes that file. **No** leaves it. **Yes** clears that box. Escape steps back from those boxes to the menu, and does nothing on the title itself. Escape closes the name box when it is open, and otherwise does nothing in the woods. The title is silent; the grove starts with the woods.
 
 - Shore on one edge (crash-landing)
 - Researched boreal forest inland
@@ -46,10 +46,10 @@ Species come from the `coastal_north` biome resource, which matches the slice 0 
 
 ## Explicitly not in this cut
 
-A hunger bar or starve clock, death at 0 hearts, wolves, inventory screen, crafting, skill XP, rafts, weather sim, other biomes as playable land, Steam page, save files, loading a slot, a pause screen, an options menu.
+A hunger bar or starve clock, death at 0 hearts, wolves, inventory screen, crafting, skill XP, rafts, weather sim, other biomes as playable land, Steam page, a pause screen, an options menu.
 
 Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth, sleep, the corner fog map, smaller ringed stumps, three berries for half a heart, and the launch title are in. The three Continue boxes are empty on purpose. Next, if Play wants it: wire save files to those boxes. A hunger meter, skills, and pause wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, smaller ringed stumps, three berries for half a heart, the launch title, and the three save files are in. A hunger meter, skills, and pause wait. Still `coastal_north`.
