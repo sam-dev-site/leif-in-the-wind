@@ -20,3 +20,5 @@ Never invent biome species. If it is not in `docs/research/biomes/`, research it
 Prefer cloud agent + PR over loading this Surface Pro. Local machine is for playtest.
 
 Slice docs do not override `docs/MISSION.md`. Features serve the named aesthetics (sensation, fantasy, discovery, submission), not only inland movement.
+
+Do not recommend growing the coast or starting the next biome as the next step. Skills on this shore come first (woodcutting, fire-making, leveling). See the latest entry in `docs/DECISIONS.md`.

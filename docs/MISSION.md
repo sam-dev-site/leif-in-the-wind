@@ -18,13 +18,16 @@ We design from **aesthetics** (the feelings) back to **dynamics** (what play doe
 
 1. **Sensation** — the woods as sense-pleasure. Pixel firs, moss underfoot, dusk, a warm pool of firelight. If it looks or sounds like a spreadsheet, it failed.
 2. **Fantasy** — you are Leif on Vinland. Journey length is compressed; the plants are not. Fake trees on a real shore break this.
-3. **Discovery** — uncharted land. A new seed, a trail that keeps going, a biome that changes underfoot. The continent is the toy.
+3. **Discovery** — uncharted land. A new seed, a trail that keeps going, a biome that changes underfoot. The continent is the toy. More of this same shore is not the next discovery. A few steps already show its whole vocabulary.
 4. **Submission** — the game as a pastime. Walking without a quest marker. Sitting the night out. Chilling in the woods is valid play, not wasted time.
+
+**Next, on this coast, before more land:**
+
+5. **Challenge** — woodcutting and fire-making, and the leveling curve in `docs/IDEAS.md`. They appear here first, in the biome that suits them: trees and fallen wood to chop, cold that makes a fire matter. A new biome is where something new is learned. That waits until this place is worth staying in. Getting better at the work is not a grind loop dressed as survival.
 
 **Later (named, not this slice):**
 
-5. **Expression** — leave a mark: a house, a town, crafting. The camp may become a place you made. It is not a win condition now.
-6. **Challenge** — skill mastery (woodcutting, fire, cooking) that makes work faster or unlocks better output. Not a grind loop dressed as survival.
+6. **Expression** — leave a mark: a house, a town, crafting. The camp may become a place you made. It is not a win condition now.
 
 **Not for this game:** authored plot as the hook (**Narrative**), other players (**Fellowship**). Single-player. The story is the walk and the land.
 
@@ -33,7 +36,7 @@ Getting Leif to move is not the goal. Movement is one way to feel the place. A f
 ## Pillars (every slice must serve these)
 
 1. **A generated continent** — a seed, chunks, and land that can grow. Not a painted one-off level.
-2. **Biomes that change the land** — researched flora and fauna. Walking far enough should feel like a different place.
+2. **Biomes that change the land** — researched flora and fauna. Walking far enough should feel like a different place. That change waits. This coast is practiced first.
 3. **Survival that lets you stay and go** — chop, forage, fire, later warmth, tools, rafts. These exist so you can linger after dark and so you can keep going inland.
 4. **The pull inland, and the right to linger** — shore behind you, trail away from the water. The camp is a rest, not the destination and not a waste of time.
 

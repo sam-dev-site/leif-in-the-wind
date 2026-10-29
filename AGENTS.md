@@ -30,7 +30,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 1. Prefer a cloud agent + pull request for research, code, tests, and review.
 2. This PC is for PixelLab, `git pull`, and pressing Play. Do not treat it as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
-4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Inland is the discovery/fantasy spine; sensation and sitting still also count. “Leif moved” is not enough.
+4. Every feature must serve a named aesthetic in `docs/MISSION.md`. The next work is skills on this coast (woodcutting, fire-making, leveling), not a longer strip and not the river. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
 6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — commit if needed, then push, in that same turn. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc`.
 7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`.
@@ -43,7 +43,7 @@ Art and code can run at the same time if they do not edit the same files. **Push
 |---|---|---|---|
 | **Art** | This PC, PixelLab MCP | `art/`, `game/art/`, player sprites/animations, swapping ColorRects for named PNGs | Slice verbs, HUD counts, other biomes’ research |
 | **Verbs** | Cloud agent + PR | Pick, chop, campfire, night, HUD numbers, tests for those. New scripts under `game/world/` (interact, time, fire). Props keep `set_meta("species")` / `set_meta("kind")` | PixelLab, tokens, generating or replacing PNGs |
-| **Research** | Cloud agent + PR | `docs/research/biomes/` with sources (next: `river_valley`) | Spawn tables and art until the owner skims the doc |
+| **Research** | Cloud agent + PR | `docs/research/biomes/` with sources. `river_valley` is already researched. Do not start another biome. | Spawn tables and art. Skills on this coast come before more map. |
 
 Player movement lives on this PC until art is done with it. Verbs should read facing/position, not rewrite walk/run.
 

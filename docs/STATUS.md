@@ -34,10 +34,14 @@ PixelLab trial: **7 / 40** generations left. Then 5/day (stack to 20). Paid floo
 
 Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off.
 
-1. **Next:** press Play on spending 3 forage for half a heart. Not signed off yet. The three save files are signed off: the two bars take the click, the name and Costa Rica time show on Continue, and a fire that was still burning comes back with the time it had left. Chopped trees grow back.
-2. **Ideas:** one line each in `docs/IDEAS.md`. Dig in when asked. Not in build.
-3. **Cloud + PR:** `river_valley` research is on `main`. Do not start another biome. No spawn tables or art until you ask.
-4. **Bug backlog:** no open bugs. Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass.
+Trajectory: stay on this coast. The next mechanic is leveling here (woodcutting and fire-making). A longer strip is not a priority. Do not suggest growing the map or starting the river as the next step.
+
+1. **Open Play check:** press Play on spending 3 forage for half a heart. Not signed off yet. The three save files are signed off: the two bars take the click, the name and Costa Rica time show on Continue, and a fire that was still burning comes back with the time it had left. Chopped trees grow back.
+2. **Next mechanic:** open leveling on `coastal_north`. Woodcutting and fire-making, because this shore is trees, fallen branches, and cold. A skill shows up in the biome that suits it. Not built. Curve and open questions live in `docs/IDEAS.md` and `docs/SKILLS.md`.
+3. **After that, still not next:** a caribou you can see on the trail. Then the river as different ground, once this biome is worth staying in. A longer coast stays off the list.
+4. **Ideas:** one line each in `docs/IDEAS.md`. Dig in when asked. Not in build.
+5. **Cloud + PR:** `river_valley` research is on `main`. Leave it there. No spawn tables, no art, no second biome, until this coast has the skills and you ask.
+6. **Bug backlog:** no open bugs. Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass.
 
 ## Local machine
 

@@ -4,6 +4,15 @@ Dumping ground. One line each, in your words. A longer note when you add to one.
 
 [SLICE_0.md](SLICE_0.md) is what you can play now.
 
+## Order
+
+Set 2026-10-28. Do not propose a longer coast or a new biome as the next step.
+
+1. **Leveling** on this coast. Woodcutting and fire-making first. This shore is trees, branches, and cold, so those skills belong here. Not built.
+2. **Caribou** on the trail. A possible next option after the skills.
+3. **River valley** as different ground, after this biome is worth staying in.
+4. **Longer coast.** Not a priority.
+
 ## In
 
 - **Home screen.** Title with New Game and Continue. Continue shows three files by the name he typed and the Costa Rica time. The two bars in the woods write them. An x on a filled box deletes it after a yes.
@@ -12,12 +21,12 @@ Dumping ground. One line each, in your words. A longer note when you add to one.
 
 - **Profile.** Create and save a user so a run still exists after you quit.
 - **Death and respawn.**
-- **Leveling.** Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. See consumables economy and forage skill. The older chop-and-fire picture is still in [SKILLS.md](SKILLS.md). It is not this curve.
+- **Leveling.** Next mechanic, on this coast, not built. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. See consumables economy and forage skill. The older chop-and-fire picture is still in [SKILLS.md](SKILLS.md). It is not this curve.
 - **Forage skill.** More efficient gathering.
 - **Consumables economy.** A fire costs 3 wood. A tree always gives 1 wood at first. As the level rises, a tree gives a range: 1–3, then 2–5, and so on.
 - **Animals.**
 - **NPCs.**
-- **Longer coast.** Inland stops at the north edge of the strip.
+- **Longer coast.** Inland stops at the north edge of the strip. Not a priority. More of this shore is not the next step.
 - **Pause.** Escape in the woods pauses the game.
 - **Push rocks.**
 - **Seasonality.**

@@ -1,14 +1,14 @@
-# Skills (later — Challenge)
+# Skills (next on this coast — Challenge)
 
-Status: **earlier sketch. Not this slice.** The later note is **Leveling** in [IDEAS.md](IDEAS.md): an Old School RuneScape-style curve from 0 to 99, at half the effort, with the effects on other systems still open. The “no level 99” line below is this sketch, not that note.
+Status: **next mechanic to open. Not built.** Woodcutting and fire-making are the first skills, and they show up on `coastal_north` before any new ground. This shore is the biome that suits them: trees and fallen branches to chop, cold that makes a fire matter. The curve is **Leveling** in [IDEAS.md](IDEAS.md): Old School RuneScape’s shape from 0 to 99, at half the effort. What a level changes is still open. The “no level 99” line below is this earlier sketch, not that note.
 
-Woodcutting and fire-making as **skill** come after the coast has body (rocks/logs block), night is cold, and sleep at the fire is in. The mission names that fun as **Challenge**. It is not the next Play.
+Do not grow the strip or start `river_valley` instead of this.
 
-## Why not now
+## Why this shore
 
-The signed-off verbs are: one Space fells a tree for 3 wood; **F** always lights if you paid 3 wood. That is how we are teaching the forest. If we add taps and fail-chance in the same cut as blocking and cold, we will not know which change made Play feel worse.
+Rocks and logs already block. Night is already cold. Sleep at the fire is already in. The first steps already show every tree, bush, and branch. The next reason to stay is getting better at the work this place asks for.
 
-When the loop is “I know how to camp, I want the work to get better,” that is the time.
+The signed-off verbs are still: one Space fells a tree for 3 wood; **F** always lights if you paid 3 wood. The feel table below is a sketch. Talk it through before it is built. Say out loud, before it is turned on, that the first chops get slower than what is signed off today.
 
 ## What it should feel like (when we do it)
 
@@ -32,4 +32,4 @@ Today’s 1-tap / 3-wood / sure fire is the **middle** of that table, not the st
 
 ## How this helps the woods
 
-Challenge is later so lingering has a second reason: you get better at staying. It does not replace sitting by the fire, and it does not unlock the river valley.
+Getting better at the chop and the fire is why this shore stays interesting after the first few steps. It does not replace sitting by the fire, and it does not unlock the river valley. A caribou, and then the river, come after this coast is worth staying in.

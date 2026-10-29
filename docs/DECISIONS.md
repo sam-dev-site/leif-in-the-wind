@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Skills on this coast come before more map
+
+**Decision:** Growing the coastal strip is not the next priority. The shore he can already walk is enough land. The first steps show the whole vocabulary of this forest, so more of the same ground is not the next discovery and is not the default suggestion. The next mechanic to open is leveling on `coastal_north`: woodcutting and fire-making. A skill shows up first in the biome that suits it. This one is trees, fallen branches, and cold. A caribou on the trail is a possible later option. The river valley stays researched and unbuilt until this coast is worth staying in. Do not recommend a longer coast, a new biome, or spawn tables as the next step.
+
+**Why:** He can wander the strip and there is nothing new to do. He wants to enjoy this place before a biome with new things to learn. Agents had been biased toward expanding the map.
+
+**Rejected:** Growing the quiet north edge as the next Play. Introducing woodcutting in a later forest. Starting `river_valley` so there is something new to see. Putting the caribou ahead of these skills.
+
 ## 2026-10-28 — A sign-off pushes
 
 **Decision:** `perfect`, `everything is working`, `save and commit`, `all set`, `good`, `done`, and `push` commit if needed and then push. The reply says the hash is on GitHub only after `git push` succeeds. `perfect. everything is working. save and commit` is one sign-off.

@@ -52,4 +52,4 @@ Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth, sleep, the corner fog map, smaller ringed stumps, three berries for half a heart, the launch title, and the three save files are in. A hunger meter, skills, and pause wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, smaller ringed stumps, three berries for half a heart, the launch title, and the three save files are in. The next cut on this same coast is woodcutting and fire-making as skills. A longer strip is not that cut. A hunger meter, a caribou, the river, and pause wait. Still `coastal_north`.
