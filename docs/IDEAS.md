@@ -8,7 +8,7 @@ Dumping ground. One line each, in your words. A longer note when you add to one.
 
 Set 2026-10-28. Do not propose a longer coast or a new biome as the next step.
 
-1. **Leveling** on this coast. Woodcutting and fire-making first. This shore is trees, branches, and cold, so those skills belong here. Not built.
+1. **Leveling** on this coast. Woodcutting is in. Fire-making next. This shore is trees, branches, and cold, so those skills belong here.
 2. **Caribou** on the trail. A possible next option after the skills.
 3. **River valley** as different ground, after this biome is worth staying in.
 4. **Longer coast.** Not a priority.

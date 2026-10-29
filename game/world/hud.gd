@@ -6,6 +6,8 @@ signal name_submitted(save_name: String)
 signal name_cancelled
 
 const FLOPPY := "res://art/ui/save_floppy.png"
+const SKILLS := "res://art/ui/skills.png"
+const WOODCUTTING := "res://art/ui/skill_woodcutting.png"
 const CREAM := Color(0.95, 0.93, 0.86)
 const _SAVE_DIM := Color(0.72, 0.7, 0.64)
 const _SAVE_LIT := Color(1.45, 1.35, 1.1)
@@ -18,6 +20,12 @@ var _pips: Array[ColorRect] = []
 var _minimap: TextureRect
 var _minimap_tex: ImageTexture
 var _floppy: TextureButton
+var _skills_btn: TextureButton
+var _skills_shadow: ColorRect
+var _skills_panel: Control
+var _skill_icon: TextureRect
+var _skill_level: Label
+var _skill_hover: Label
 var _name_box: Control
 var _name_line: LineEdit
 
@@ -26,10 +34,11 @@ func _ready() -> void:
 	_build()
 
 
-func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: String, hint: String) -> void:
+func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: String, hint: String, skills: Skills = null) -> void:
 	if _label == null:
 		_build()
 	_paint_hearts(supplies)
+	_paint_skills(skills)
 	var body := status_text(world_seed, biome_name, supplies, phase, hint)
 	_label.text = body
 	_shadow.text = body
@@ -107,6 +116,7 @@ func _build() -> void:
 	add_child(_fade)
 	_build_minimap()
 	_build_floppy()
+	_build_skills()
 
 
 func _paint_hearts(supplies: Supplies) -> void:
@@ -118,6 +128,12 @@ func _paint_hearts(supplies: Supplies) -> void:
 		move_child(_name_box, get_child_count() - 1)
 	if _floppy != null:
 		move_child(_floppy, get_child_count() - 1)
+	if _skills_shadow != null:
+		move_child(_skills_shadow, get_child_count() - 1)
+	if _skills_btn != null:
+		move_child(_skills_btn, get_child_count() - 1)
+	if _skills_panel != null and _skills_panel.visible:
+		move_child(_skills_panel, get_child_count() - 1)
 	var on := Color(0.75, 0.18, 0.16)
 	var off := Color(0.28, 0.16, 0.16)
 	for i in _pips.size():
@@ -207,6 +223,167 @@ func _build_floppy() -> void:
 	_floppy.pressed.connect(func() -> void: save_pressed.emit())
 	add_child(_floppy)
 	_floppy.size = Vector2(28, 28)
+
+
+func _build_skills() -> void:
+	if _skills_btn != null:
+		return
+	# 3px right and bottom. The 32×32 tile used to draw past the 28×28 button and hide this.
+	_skills_shadow = ColorRect.new()
+	_skills_shadow.name = "SkillsMarkShadow"
+	_skills_shadow.position = Vector2(416, 2)
+	_skills_shadow.size = Vector2(31, 31)
+	_skills_shadow.color = Color(0.0, 0.0, 0.0, 0.72)
+	_skills_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_skills_shadow)
+	_skills_btn = TextureButton.new()
+	_skills_btn.name = "SkillsMark"
+	_skills_btn.position = Vector2(416, 2)
+	_skills_btn.custom_minimum_size = Vector2(28, 28)
+	_skills_btn.size = Vector2(28, 28)
+	_skills_btn.ignore_texture_size = true
+	_skills_btn.stretch_mode = TextureButton.STRETCH_SCALE
+	_skills_btn.clip_contents = true
+	_skills_btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_skills_btn.focus_mode = Control.FOCUS_NONE
+	_skills_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	_skills_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_skills_btn.modulate = _SAVE_DIM
+	if ResourceLoader.exists(SKILLS):
+		_skills_btn.texture_normal = load(SKILLS) as Texture2D
+	else:
+		var mark := ColorRect.new()
+		mark.size = Vector2(10, 10)
+		mark.position = Vector2(9, 9)
+		mark.color = Color(0.55, 0.5, 0.38)
+		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_skills_btn.add_child(mark)
+	_skills_btn.mouse_entered.connect(func() -> void: _skills_btn.modulate = _SAVE_LIT)
+	_skills_btn.mouse_exited.connect(func() -> void: _skills_btn.modulate = _SAVE_DIM)
+	_skills_btn.pressed.connect(_toggle_skills)
+	add_child(_skills_btn)
+	_skills_btn.size = Vector2(28, 28)
+	# Sit under the skills mark and the two bars (416–476). Later skills stack down this column.
+	_skills_panel = Panel.new()
+	_skills_panel.name = "SkillsPanel"
+	_skills_panel.visible = false
+	_skills_panel.position = Vector2(382, 32)
+	_skills_panel.size = Vector2(96, 22)
+	_skills_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_skills_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	var plate := StyleBoxFlat.new()
+	plate.bg_color = PLATE_COLOR
+	plate.set_border_width_all(1)
+	plate.border_color = Color(0.55, 0.66, 0.42, 1)
+	plate.content_margin_left = 2
+	plate.content_margin_top = 2
+	plate.content_margin_right = 2
+	plate.content_margin_bottom = 2
+	_skills_panel.add_theme_stylebox_override("panel", plate)
+	_skill_icon = TextureRect.new()
+	_skill_icon.position = Vector2(2, 3)
+	_skill_icon.size = Vector2(16, 16)
+	_skill_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_skill_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_skill_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_skill_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(WOODCUTTING):
+		_skill_icon.texture = load(WOODCUTTING) as Texture2D
+	_skills_panel.add_child(_skill_icon)
+	var name_label := Label.new()
+	name_label.text = "Woodcutting"
+	name_label.position = Vector2(18, 1)
+	name_label.size = Vector2(58, 20)
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.modulate = CREAM
+	name_label.add_theme_font_size_override("font_size", 10)
+	name_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	name_label.add_theme_constant_override("outline_size", 2)
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(name_label)
+	_skill_level = Label.new()
+	_skill_level.text = "1"
+	_skill_level.position = Vector2(74, 1)
+	_skill_level.size = Vector2(20, 20)
+	_skill_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_skill_level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_skill_level.modulate = CREAM
+	_skill_level.add_theme_font_size_override("font_size", 10)
+	_skill_level.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	_skill_level.add_theme_constant_override("outline_size", 2)
+	_skill_level.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(_skill_level)
+	add_child(_skills_panel)
+	_skill_hover = Label.new()
+	_skill_hover.name = "SkillHover"
+	_skill_hover.visible = false
+	_skill_hover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skill_hover.modulate = CREAM
+	_skill_hover.add_theme_font_size_override("font_size", 8)
+	_skill_hover.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_skill_hover.add_theme_constant_override("outline_size", 2)
+	_skill_hover.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skill_hover.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var hover_style := StyleBoxFlat.new()
+	hover_style.bg_color = Color(0.05, 0.07, 0.04, 0.88)
+	hover_style.set_content_margin_all(2)
+	_skill_hover.add_theme_stylebox_override("normal", hover_style)
+	add_child(_skill_hover)
+
+
+func _process(_delta: float) -> void:
+	_follow_skill_hover()
+
+
+func _follow_skill_hover() -> void:
+	if _skill_hover == null or _skills_panel == null:
+		return
+	if not _skills_panel.visible or is_naming():
+		_skill_hover.visible = false
+		return
+	var mouse := get_viewport().get_mouse_position()
+	if not _skills_panel.get_global_rect().has_point(mouse):
+		_skill_hover.visible = false
+		return
+	place_skill_hover(mouse)
+
+
+func place_skill_hover(mouse: Vector2) -> void:
+	if _skill_hover == null:
+		return
+	_skill_hover.visible = true
+	_skill_hover.reset_size()
+	var size := _skill_hover.size
+	if size.x < 8.0:
+		size = Vector2(28, 12)
+	var pos := Vector2(mouse.x - size.x * 0.5, mouse.y + 8.0)
+	pos.x = clampf(pos.x, 2.0, 480.0 - size.x - 2.0)
+	pos.y = clampf(pos.y, 2.0, 270.0 - size.y - 2.0)
+	_skill_hover.position = pos
+	move_child(_skill_hover, get_child_count() - 1)
+
+
+func _toggle_skills() -> void:
+	if _skills_panel == null:
+		_build_skills()
+	_skills_panel.visible = not _skills_panel.visible
+	if _skills_panel.visible:
+		move_child(_skills_panel, get_child_count() - 1)
+	elif _skill_hover != null:
+		_skill_hover.visible = false
+
+
+func _paint_skills(skills: Skills) -> void:
+	if _skills_panel == null:
+		_build_skills()
+	if skills == null:
+		return
+	_skill_level.text = str(skills.level())
+	var tip := skills.step_label()
+	_skills_panel.tooltip_text = ""
+	if _skill_hover != null:
+		_skill_hover.text = tip
+		_skill_hover.reset_size()
 
 
 func _ensure_name_box() -> void:

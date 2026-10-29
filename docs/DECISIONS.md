@@ -2,6 +2,18 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — Woodcutting is a skill on this shore
+
+**Decision:** Woodcutting is the first skill, on `coastal_north`. Fir, spruce, and fallen logs share it. A branch stays one tap, half a wood, and grants no XP. XP is granted only when the tree falls, 25 per fell. A bite that leaves it standing grants nothing.
+
+A level-1 tree rolls **3 or 4** Spaces and pays **0.5 wood**. Yield is **3 at level 30** and **10 at 99**. Chops stay a range until level 80 (1–19: 3–4, 20–49: 2–3, 50–79: 1–2, 80–99: 1). A fire still costs 3 wood and always lights. Fire-making is not in this Play.
+
+Levels 1–30 use Old School RuneScape’s XP table uncut. After 30 each step costs 3% more than the last. Level 92 is not half of 99. The two bars write `woodcutting_xp` in that shore’s file. Level is derived from it. Old files with no key load as 0. **R** keeps the XP. Continue still shows name and time. A skills mark sits left of the bars and opens a short panel with the level. Hover on the icon or number shows the step (`25/83`). A level-up drops green leaves around Leif and says **Woodcutting is now 2.**
+
+**Why:** Today’s one-tap for 3 wood was the comfortable middle, not the start. The first hour should be clumsy. Kindling (branches) is how he lives; trees are the work. The OSRS late tail made 99 a grind for almost no extra wood. Half the early table would have stolen the part of that curve that feels good.
+
+**Rejected:** Halving the whole OSRS table. Keeping 92 as half of 99. Capping yield at 5. A sure one-tap at 30. XP on a bite. Printing the level on Continue. A skill-tree screen. Fire-making in this Play.
+
 ## 2026-10-28 — Skills on this coast come before more map
 
 **Decision:** Growing the coastal strip is not the next priority. The shore he can already walk is enough land. The first steps show the whole vocabulary of this forest, so more of the same ground is not the next discovery and is not the default suggestion. The next mechanic to open is leveling on `coastal_north`: woodcutting and fire-making. A skill shows up first in the biome that suits it. This one is trees, fallen branches, and cold. A caribou on the trail is a possible later option. The river valley stays researched and unbuilt until this coast is worth staying in. Do not recommend a longer coast, a new biome, or spawn tables as the next step.

@@ -1,35 +1,43 @@
-# Skills (next on this coast — Challenge)
+# Skills (Challenge, on this coast)
 
-Status: **next mechanic to open. Not built.** Woodcutting and fire-making are the first skills, and they show up on `coastal_north` before any new ground. This shore is the biome that suits them: trees and fallen branches to chop, cold that makes a fire matter. The curve is **Leveling** in [IDEAS.md](IDEAS.md): Old School RuneScape’s shape from 0 to 99, at half the effort. What a level changes is still open. The “no level 99” line below is this earlier sketch, not that note.
+Status: **woodcutting is in.** Fire-making is not. They show up on `coastal_north` before any new ground. This shore is the biome that suits them: trees and fallen branches to chop, cold that makes a fire matter.
 
 Do not grow the strip or start `river_valley` instead of this.
 
 ## Why this shore
 
-Rocks and logs already block. Night is already cold. Sleep at the fire is already in. The first steps already show every tree, bush, and branch. The next reason to stay is getting better at the work this place asks for.
+Rocks and logs already block. Night is already cold. Sleep at the fire is already in. The first steps already show every tree, bush, and branch. Getting better at the chop is why this place stays interesting after those first steps.
 
-The signed-off verbs are still: one Space fells a tree for 3 wood; **F** always lights if you paid 3 wood. The feel table below is a sketch. Talk it through before it is built. Say out loud, before it is turned on, that the first chops get slower than what is signed off today.
+## Woodcutting (in)
 
-## What it should feel like (when we do it)
+Fir, spruce, and fallen logs share one skill. A branch is still one Space, half a wood, and does not train it. Kindling is the easy fire. Trees are the work.
 
-The first hour is clumsy. The long stay is competent. Not a grind bar for its own sake.
+XP is granted **only when the tree falls**, 25 per fell. One Space and walk away is 0 XP. The remaining chops sit on that standing prop until it falls, **R**, or a load.
 
-| Skill | First uses | Comfortable (today’s feel) | Maxed |
+Levels 1–30 use Old School RuneScape’s table uncut. After 30 each step costs 3% more than the last. Level 99 is 341,036 XP. Level 92 is about 79% of that, not half.
+
+A workbench mark sits left of the two bars. It opens a short row under those marks: Woodcutting and the level. Later skills stack down that column. Hover anywhere on the row for a small step chip (`0/83`, then `25/83`) that sits just under the pointer and follows it. Continue still shows name and time. The two bars write `woodcutting_xp` in that shore’s file. **R** keeps it.
+
+A level-up drops green leaves around Leif and says **Woodcutting is now 2.**
+
+| | First uses | Comfortable | Maxed |
 |---|---|---|---|
-| Woodcutting | 2–5 Spaces to fell; **0.5–1** wood | 1 Space; **3** wood | 1 Space; **5** wood |
-| Fire-making | Wood is spent; **~50%** the fire catches | Wood is spent; fire always lights | Wood is spent; **~99%** it lights |
+| Spaces to fell | 3–4 | 2–3 (level 30) | 1 (level 80+) |
+| Wood | 0.5 | 3 | 10 |
 
-Failing a fire still spends the wood. The hint is already “The fire does not catch.”
+A fire still costs 3. The first fire is six trees, or six branches.
 
-Today’s 1-tap / 3-wood / sure fire is the **middle** of that table, not the start. Adding skills means the first chops get slower than what you just signed off. Say that out loud when we flip it on.
+## Fire-making (not built)
+
+Wood is spent. Catch chance later. Failing still spends the wood. The hint is already “The fire does not catch.”
 
 ## What we will not do with this
 
-- No XP numbers on the HUD until the verbs feel right
-- No skill tree screen
-- No “level 99” label. The axe just gets sure.
-- No other skills until these two are fun
+- No XP total on the bottom HUD line
+- No skill tree
+- No other skills until fire-making is fun
+- No printing the level on Continue
 
 ## How this helps the woods
 
-Getting better at the chop and the fire is why this shore stays interesting after the first few steps. It does not replace sitting by the fire, and it does not unlock the river valley. A caribou, and then the river, come after this coast is worth staying in.
+Getting better at the chop is why this shore stays interesting after the first few steps. It does not replace sitting by the fire, and it does not unlock the river valley. A caribou, and then the river, come after this coast is worth staying in.

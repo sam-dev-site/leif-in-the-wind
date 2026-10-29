@@ -27,10 +27,14 @@ func pick_forage(species: String, biome: Biome) -> bool:
 	return true
 
 
-func chop_tree(species: String, biome: Biome) -> bool:
-	if not _listed(species, biome, true):
+func can_chop_tree(species: String, biome: Biome) -> bool:
+	return _listed(species, biome, true)
+
+
+func chop_tree(species: String, biome: Biome, amount: float = WOOD_PER_TREE) -> bool:
+	if not can_chop_tree(species, biome):
 		return false
-	_add_wood(WOOD_PER_TREE)
+	_add_wood(amount)
 	return true
 
 

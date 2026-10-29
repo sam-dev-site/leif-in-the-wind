@@ -11,6 +11,7 @@ const STRIP_NORTH := -3
 var catalog: BiomeCatalog = BiomeCatalog.new()
 var generator: ChunkGenerator = ChunkGenerator.new()
 var supplies: Supplies = Supplies.new()
+var skills: Skills = Skills.new()
 var _wang := WangTiles.new()
 var _chunks: Dictionary = {}
 var _chunk: MapChunk
@@ -84,6 +85,7 @@ func open_play() -> void:
 	_interact = Interact.new()
 	_interact.player = _player
 	_interact.supplies = supplies
+	_interact.skills = skills
 	_interact.world = self
 	_interact.acted.connect(_on_acted)
 	add_child(_interact)
@@ -155,7 +157,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if key.keycode == KEY_R:
-		# New coast. Wood and forage stay in hand. Fires were on the old ground.
+		# New coast. Wood, forage, and woodcutting stay. Fires were on the old ground.
 		world_seed = (world_seed * 1103515245 + 12345) & 0x7fffffff
 		rebuild()
 		get_viewport().set_input_as_handled()
@@ -180,8 +182,17 @@ func _on_phase_changed(_next: String) -> void:
 func _on_acted(action: String, species: String) -> void:
 	if action == "forage":
 		_hint = "Picked %s." % species
+	elif action == "bite":
+		_hint = "The tree holds."
 	elif action == "chop":
-		_hint = "Chopped %s. +%s wood." % [species, Supplies.wood_label(Supplies.WOOD_PER_TREE)]
+		if _interact != null and _interact.last_levels > 0:
+			_hint = "Woodcutting is now %d." % skills.level()
+			_spawn_leaves()
+		else:
+			var pay := skills.wood_at()
+			if _interact != null:
+				pay = _interact.last_wood
+			_hint = "Chopped %s. +%s wood." % [species, Supplies.wood_label(pay)]
 	elif action == "clear":
 		_hint = "Cleared a branch. +%s wood." % Supplies.wood_label(Supplies.WOOD_PER_BRANCH)
 	_refresh_hud()
@@ -278,6 +289,10 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 	_slot = slot
 	_save_name = ""
 	_pending_snapshot = snapshot.duplicate(true)
+	if snapshot.is_empty():
+		skills.woodcutting_xp = 0
+	else:
+		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 	if snapshot.has("name"):
 		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
 	if snapshot.has("seed"):
@@ -321,6 +336,7 @@ func capture_walk() -> Dictionary:
 		"hearts_max": supplies.hearts_max,
 		"cold_acc": supplies.cold_acc,
 		"heal_acc": supplies.heal_acc,
+		"woodcutting_xp": skills.woodcutting_xp,
 		"elapsed": elapsed,
 		"fog": fog_cells,
 		"fires": _capture_fires(),
@@ -341,6 +357,7 @@ func apply_walk(data: Dictionary) -> void:
 	supplies.hearts = float(data.get("hearts", supplies.hearts))
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
 	supplies.heal_acc = float(data.get("heal_acc", 0.0))
+	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
 	if _clock != null and data.has("elapsed"):
 		_clock.elapsed = float(data["elapsed"])
 		DayClock.darkness_now = _clock.darkness()
@@ -710,6 +727,12 @@ func _on_music_finished() -> void:
 		_music.play()
 
 
+func _spawn_leaves() -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	_player.add_child(LeafBurst.new())
+
+
 func _refresh_hud() -> void:
 	var biome_name := "?"
 	if _chunk != null and _chunk.biome != null:
@@ -717,7 +740,7 @@ func _refresh_hud() -> void:
 	var phase := "day"
 	if _clock != null:
 		phase = _clock.phase()
-	_hud.show_play(world_seed, biome_name, supplies, phase, _hint)
+	_hud.show_play(world_seed, biome_name, supplies, phase, _hint, skills)
 
 
 func _reveal_visible_view() -> void:

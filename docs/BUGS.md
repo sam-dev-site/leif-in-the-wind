@@ -20,7 +20,29 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## Open
 
-None.
+## Save button overlaps the name field
+
+**Status:** Open.
+
+**Found:** 2026-10-29
+
+**What you saw:** On “Enter save name.” the Save button is transparent and sits too high. It covers the bottom edge of the text box. The field’s border runs through the button.
+
+**What the game should do:** The text box is clear. Save sits under it, on the green plate, and does not cover the field.
+
+**Where:** The name box in the woods, `game/world/hud.gd`. The field is at (116, 112), 248×22. Save is at (196, 142), 88×22, on that same plate.
+
+## The save mark is two pause bars
+
+**Status:** Open.
+
+**Found:** 2026-10-29
+
+**What you saw:** The top-right save mark is two vertical bars, like a pause icon.
+
+**What the game should do:** That mark is a floppy disc, in pixel art. It stays in the top right. A click still saves. The first click still asks for a name.
+
+**Where:** `game/art/ui/save_floppy.png` is a 16×16 picture of two cream bars. The woods draw it on the top-right button (`game/world/hud.gd`). The headless test still requires those two bars.
 
 ## Later
 
@@ -93,3 +115,5 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Fixed. A look opens a 6-tile circle, and the trail stays clear.
 - **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.
+- **2026-10-29 — Save button overlaps the name field.** Open. Not this Play.
+- **2026-10-29 — The save mark is two pause bars.** Open. It should be a floppy disc. Not this Play.

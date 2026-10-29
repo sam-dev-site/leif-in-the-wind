@@ -19,6 +19,7 @@ func _init() -> void:
 	_test_facing_gates_the_tile_in_front()
 	_test_pick_forage_in_front()
 	_test_chop_tree_in_front()
+	_test_woodcutting_skill()
 	_test_verbs_honor_biome_lists()
 	_test_campfire_spends_wood_and_lights()
 	_test_campfire_on_open_ground_only()
@@ -299,9 +300,9 @@ func _test_chop_tree_in_front() -> void:
 	for node in chops:
 		var species := str(node.get_meta("species"))
 		var cell := chunk.cell_of_prop(node)
-		var before: int = interact.supplies.wood
-		_expect(interact.use_on(node) == "chop", "chop %s" % species)
-		_expect(interact.supplies.wood == before + Supplies.WOOD_PER_TREE, "%s adds wood" % species)
+		var before: float = interact.supplies.wood
+		_expect(_fell(interact, node) == "chop", "chop %s" % species)
+		_expect(is_equal_approx(interact.supplies.wood, before + Skills.new().wood_at(1)), "%s adds wood" % species)
 		chunk.release_prop(node)
 		var i := cell.y * ChunkGenerator.WIDTH + cell.x
 		_expect(str(chunk.data["trees"][i]) == "", "%s is gone from the woods" % species)
@@ -315,10 +316,60 @@ func _test_chop_tree_in_front() -> void:
 		if str(node.get_meta("kind")) == "tree":
 			trees_after += 1
 	_expect(trees_after == trees_before - chops.size(), "chopped trees are not still standing")
-	_expect(interact.supplies.wood == Supplies.WOOD_PER_TREE * 2, "two trees of wood")
+	_expect(is_equal_approx(interact.supplies.wood, Skills.new().wood_at(1) * 2.0), "two trees of wood")
 	_expect(interact.supplies.forage == 0, "chopping does not give forage")
 	_expect(interact.supplies.hearts == interact.supplies.hearts_max, "chopping does not spend hearts")
 	chunk.free()
+	interact.free()
+
+
+func _test_woodcutting_skill() -> void:
+	print("woodcutting skill")
+	var skill := Skills.new()
+	_expect(Skills.xp_for_level(1) == 0, "level 1 starts at zero xp")
+	_expect(Skills.xp_for_level(2) == 83, "level 2 is the old school step")
+	_expect(Skills.xp_for_level(30) == 13363, "level 30 keeps the old school table")
+	_expect(skill.wood_at(1) == 0.5, "a first tree is half a wood")
+	_expect(skill.wood_at(30) == 3.0, "level 30 pays today's three")
+	_expect(skill.wood_at(99) == 10.0, "level 99 pays ten")
+	_expect(Skills.chop_range(1) == Vector2i(3, 4), "the first trees take three or four")
+	_expect(Skills.chop_range(30) == Vector2i(2, 3), "level 30 still rolls a range")
+	_expect(Skills.chop_range(80) == Vector2i(1, 1), "high levels are a sure chop")
+	_expect(skill.step_label() == "0/83", "the hover starts empty")
+	_expect(skill.add_woodcutting_xp(25) == 0, "one fell is not yet a level")
+	_expect(skill.step_label() == "25/83", "the hover counts into the step")
+	skill.add_woodcutting_xp(25)
+	skill.add_woodcutting_xp(25)
+	_expect(skill.level() == 1, "three fells stay level 1")
+	_expect(skill.add_woodcutting_xp(25) == 1, "the fourth fell is level 2")
+	_expect(skill.level() == 2, "woodcutting is now 2")
+	_expect(skill.step_label() == "17/91", "the hover resets into the next step")
+	_expect(float(Skills.xp_for_level(92)) / float(Skills.xp_for_level(99)) > 0.75, "92 is not half of 99")
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	interact.skills = Skills.new()
+	var fir := _prop(Vector2i(2, 2), "tree", "fir")
+	_expect(interact.use_on(fir) == "bite", "the first Space does not fell")
+	_expect(interact.supplies.wood == 0.0, "a bite gives no wood")
+	_expect(interact.skills.woodcutting_xp == 0, "a bite gives no xp")
+	_expect(_fell(interact, fir) == "chop", "the last Space fells the fir")
+	_expect(is_equal_approx(interact.supplies.wood, 0.5), "the fall pays half a wood")
+	_expect(interact.skills.woodcutting_xp == Skills.XP_PER_FELL, "the fall grants xp")
+	var spruce := _prop(Vector2i(3, 2), "tree", "spruce")
+	_expect(_fell(interact, spruce) == "chop", "spruce trains the same skill")
+	_expect(interact.skills.woodcutting_xp == Skills.XP_PER_FELL * 2, "spruce shares the 25")
+	var log := _prop(Vector2i(4, 2), "fallen", "fir")
+	_expect(_fell(interact, log) == "chop", "a fallen log trains woodcutting")
+	_expect(interact.skills.woodcutting_xp == Skills.XP_PER_FELL * 3, "a log shares the 25")
+	var twig := _prop(Vector2i(5, 2), "branch", "fir_branch")
+	var xp_before := interact.skills.woodcutting_xp
+	_expect(interact.use_on(twig) == "clear", "a branch is still one tap")
+	_expect(interact.skills.woodcutting_xp == xp_before, "a branch grants no xp")
+	fir.free()
+	spruce.free()
+	log.free()
+	twig.free()
 	interact.free()
 
 
@@ -336,10 +387,10 @@ func _test_verbs_honor_biome_lists() -> void:
 	narrow.forage_species = PackedStringArray(["blueberry"])
 	_expect(not supplies.chop_tree("fir", narrow), "fir is absent from this biome list")
 	_expect(supplies.chop_tree("spruce", narrow), "spruce is on this biome list")
-	_expect(supplies.wood == Supplies.WOOD_PER_TREE, "wood comes from the listed tree")
+	_expect(is_equal_approx(supplies.wood, Supplies.WOOD_PER_TREE), "wood comes from the listed tree")
 	_expect(not supplies.pick_forage("bakeapple", narrow), "bakeapple is absent from this biome list")
 	_expect(supplies.pick_forage("blueberry", narrow), "blueberry is on this biome list")
-	_expect(Supplies.WOOD_PER_TREE == Supplies.CAMPFIRE_WOOD, "one tree pays for one fire")
+	_expect(is_equal_approx(Supplies.WOOD_PER_TREE, Supplies.CAMPFIRE_WOOD), "a comfortable tree still pays for a fire")
 	var interact := Interact.new()
 	interact.biome = coast
 	interact.supplies = Supplies.new()
@@ -559,12 +610,12 @@ func _test_fallen_tree_gives_wood() -> void:
 	interact.biome = _coast()
 	interact.supplies = Supplies.new()
 	var log := _prop(Vector2i(4, 4), "fallen", "fir")
-	_expect(interact.use_on(log) == "chop", "Space on a fallen fir gives wood")
-	_expect(interact.supplies.wood == Supplies.WOOD_PER_TREE, "a fallen tree pays like a standing one")
+	_expect(_fell(interact, log) == "chop", "Space on a fallen fir gives wood")
+	_expect(is_equal_approx(interact.supplies.wood, Skills.new().wood_at(1)), "a fallen tree pays like a standing one")
 	_expect(interact.use_on(log) == "", "a fallen tree is not chopped twice")
 	var rock := _prop(Vector2i(5, 5), "rock", "granite")
 	_expect(interact.use_on(rock) == "", "rocks do nothing yet")
-	_expect(interact.supplies.wood == Supplies.WOOD_PER_TREE, "a rock adds no wood")
+	_expect(is_equal_approx(interact.supplies.wood, Skills.new().wood_at(1)), "a rock adds no wood")
 	interact.free()
 	log.free()
 	rock.free()
@@ -585,8 +636,8 @@ func _test_branch_gives_half_wood() -> void:
 	_expect(interact.use_on(needles) == "", "needles are not firewood")
 	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH), "litter does not add wood")
 	var tree := _prop(Vector2i(4, 3), "tree", "fir")
-	_expect(interact.use_on(tree) == "chop", "a standing tree still chops")
-	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH + Supplies.WOOD_PER_TREE), "tree wood stays 3")
+	_expect(_fell(interact, tree) == "chop", "a standing tree still chops")
+	_expect(is_equal_approx(interact.supplies.wood, Supplies.WOOD_PER_BRANCH + Skills.new().wood_at(1)), "a level-1 tree pays like a branch")
 	interact.free()
 	twig.free()
 	moss.free()
@@ -875,7 +926,7 @@ func _test_chop_leaves_named_stump() -> void:
 	_expect(tree != null, "seed 11 has a fir to chop")
 	if tree != null:
 		var cell := chunk.cell_of_prop(tree)
-		_expect(interact.use_on(tree) == "chop", "chop the fir")
+		_expect(_fell(interact, tree) == "chop", "chop the fir")
 		chunk.release_prop(tree)
 		var stump := _stump_at(chunk, cell)
 		_expect(stump != null, "the fir left a stump")
@@ -904,6 +955,15 @@ func _stump_at(chunk: MapChunk, cell: Vector2i) -> Node2D:
 		if chunk.cell_of_prop(node) == cell:
 			return node
 	return null
+
+
+func _fell(interact: Interact, node: Node2D) -> String:
+	var last := ""
+	for _i in 8:
+		last = interact.use_on(node)
+		if last != "bite":
+			return last
+	return last
 
 
 func _prop(cell: Vector2i, kind: String, species: String) -> Node2D:
@@ -1125,11 +1185,47 @@ func _test_floppy_writes_the_walk() -> void:
 		var floppy := hud.get_node("SaveFloppy") as Control
 		_expect(floppy.position.x >= 440.0 and floppy.position.y <= 8.0, "the floppy sits in the top right")
 		_expect(floppy.size.x >= 24.0 and floppy.size.y >= 24.0, "the save mark has a corner-sized click")
-		_expect(floppy.has_point(Vector2(1, 1)), "the corner of the save mark clicks")
-		_expect(floppy.has_point(floppy.size * 0.5), "the gap between the bars clicks")
+		var floppy_click := Rect2(Vector2.ZERO, floppy.size)
+		_expect(floppy_click.has_point(Vector2(1, 1)), "the corner of the save mark clicks")
+		_expect(floppy_click.has_point(floppy.size * 0.5), "the gap between the bars clicks")
 		_expect(floppy.mouse_filter == Control.MOUSE_FILTER_STOP, "the save mark takes the click")
 		var tex := (floppy as TextureButton).texture_normal
 		_expect(tex != null and _is_pause_mark(tex), "the save mark is two vertical bars")
+		var skills_mark := hud.get_node_or_null("SkillsMark") as TextureButton
+		_expect(skills_mark != null, "the skills mark is on the hud")
+		if skills_mark != null:
+			_expect(skills_mark.position.x < floppy.position.x, "the skills mark sits left of the bars")
+			_expect(skills_mark.size.x >= 24.0, "the skills mark has a corner-sized click")
+			var shade := hud.get_node_or_null("SkillsMarkShadow") as Control
+			_expect(shade != null, "the brown tile has a drop shadow")
+			if shade != null:
+				_expect((shade.position.x + shade.size.x) - (skills_mark.position.x + skills_mark.size.x) >= 3.0, "the shadow peeks right of the tile")
+				_expect((shade.position.y + shade.size.y) - (skills_mark.position.y + skills_mark.size.y) >= 3.0, "the shadow peeks under the tile")
+				_expect((skills_mark as TextureButton).stretch_mode == TextureButton.STRETCH_SCALE, "the tile stays inside the holder")
+			world.skills.woodcutting_xp = 25
+			world._refresh_hud()
+			skills_mark.pressed.emit()
+			var panel := hud.get_node_or_null("SkillsPanel") as Control
+			_expect(panel != null and panel.visible, "the skills mark opens a panel")
+			_expect(panel.position.y >= 30.0, "the panel sits under the marks")
+			_expect(panel.position.x >= 370.0, "the panel stays in the right column")
+			_expect(panel.size.x <= 100.0 and panel.size.y <= 28.0, "the panel is a small row")
+			_expect((hud._skill_level as Label).text == "1", "the panel shows the level")
+			_expect(str(panel.tooltip_text) == "", "the native tooltip stays off")
+			var hover := hud.get_node_or_null("SkillHover") as Label
+			_expect(hover != null and hover.text == "25/83", "the hover chip has the step")
+			if hover != null:
+				_expect(hover.get_theme_font_size("font_size") == 8, "the hover chip is small")
+				hud.place_skill_hover(Vector2(450, 40))
+				_expect(hover.visible, "the chip shows")
+				_expect(hover.position.y >= 48.0, "the chip sits under the pointer")
+				_expect(hover.position.x >= 420.0, "a right hover stays on the right")
+				var right_x := hover.position.x
+				hud.place_skill_hover(Vector2(400, 40))
+				_expect(hover.position.x < right_x, "the chip follows the pointer across the row")
+			skills_mark.pressed.emit()
+			_expect(not panel.visible, "the skills mark closes the panel")
+			world.skills.woodcutting_xp = 0
 		floppy.pressed.emit()
 		_expect(world.is_naming(), "clicking the bars asks for a name")
 		world.cancel_save_name()
@@ -1164,6 +1260,7 @@ func _test_floppy_writes_the_walk() -> void:
 		"hearts_max": 3.0,
 		"cold_acc": 1.25,
 		"heal_acc": 0.5,
+		"woodcutting_xp": 83,
 		"elapsed": 55.0,
 		"fog": [[3, 4], [3, 5]],
 	})
@@ -1180,6 +1277,8 @@ func _test_floppy_writes_the_walk() -> void:
 	_expect(str(saved["facing"]) == "north", "facing is in the file")
 	_expect(is_equal_approx(float(saved["x"]), 200.0), "where he stands is in the file")
 	_expect(is_equal_approx(float(saved["elapsed"]), 55.0), "the time of day is in the file")
+	_expect(int(saved["woodcutting_xp"]) == 83, "woodcutting is in the file")
+	_expect(world.skills.level() == 2, "the file restores the level")
 	_expect(clock.phase() == "night", "dusk and night come back with the file")
 	_expect(not saved.has("harvested"), "the file does not list chopped trees")
 	var saw_fog := false
@@ -1204,6 +1303,17 @@ func _test_floppy_writes_the_walk() -> void:
 	world.apply_walk(with_fire)
 	var back := _campfire_at(world, spot)
 	_expect(back != null and is_equal_approx(back.burn_left, 22.5), "the fire comes back with the time it had left")
+	world.apply_walk({
+		"name": "North trail",
+		"seed": world.world_seed,
+		"x": 200.0,
+		"y": 120.0,
+	})
+	_expect(world.skills.woodcutting_xp == 0, "an old file with no skill key is level 1")
+	world.skills.woodcutting_xp = 174
+	var kept := world.skills.woodcutting_xp
+	world.rebuild()
+	_expect(world.skills.woodcutting_xp == kept, "a new seed keeps woodcutting")
 	world.free()
 
 

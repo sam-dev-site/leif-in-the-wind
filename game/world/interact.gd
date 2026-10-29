@@ -10,9 +10,14 @@ signal acted(action: String, species: String)
 
 var player: Player
 var supplies: Supplies
+var skills: Skills
 var biome: Biome
 var chunk: MapChunk
 var world: World
+var rng := RandomNumberGenerator.new()
+var last_wood := 0.0
+var last_levels := 0
+var _rng_ready := false
 
 
 static func facing_vector(facing_name: String) -> Vector2:
@@ -83,8 +88,7 @@ func use_on(target: Node2D) -> String:
 		ok = supplies.pick_forage(species, biome)
 		action = "forage"
 	elif kind == "tree" or kind == "fallen":
-		ok = supplies.chop_tree(species, biome)
-		action = "chop"
+		return _chop(target, species)
 	elif kind == "branch" or (kind == "clutter" and Supplies.is_branch(species)):
 		ok = supplies.gather_branch(species)
 		action = "clear"
@@ -110,7 +114,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var species := str(target.get_meta("species"))
 	acted.emit(action, species)
-	_release(target)
+	if action != "bite":
+		_release(target)
 	get_viewport().set_input_as_handled()
 
 
@@ -134,6 +139,36 @@ func _point_of(node: Node2D) -> Vector2:
 	if node.is_inside_tree():
 		return node.global_position
 	return node.position
+
+
+func _skills() -> Skills:
+	if skills == null:
+		skills = Skills.new()
+	return skills
+
+
+func _chop(target: Node2D, species: String) -> String:
+	last_wood = 0.0
+	last_levels = 0
+	if not supplies.can_chop_tree(species, biome):
+		return ""
+	var skill := _skills()
+	if not target.has_meta("chops_left"):
+		if not _rng_ready:
+			rng.randomize()
+			_rng_ready = true
+		var band := Skills.chop_range(skill.level())
+		target.set_meta("chops_left", rng.randi_range(band.x, band.y))
+	var left := int(target.get_meta("chops_left")) - 1
+	target.set_meta("chops_left", left)
+	if left > 0:
+		return "bite"
+	last_wood = skill.wood_at()
+	last_levels = skill.add_woodcutting_xp(Skills.XP_PER_FELL)
+	if not supplies.chop_tree(species, biome, last_wood):
+		return ""
+	target.set_meta("harvested", true)
+	return "chop"
 
 
 func _is_usable(node: Node2D) -> bool:
