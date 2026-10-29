@@ -22,6 +22,8 @@ static var _stamp_cache: Dictionary = {}
 const STUMP_SCALE := 0.6
 ## Keep the 32×32 cushion. Stamp it at half size so it sits on one tile, under Leif.
 const SPHAGNUM_SCALE := 0.5
+## Keep the 32×32 fir branch. Draw it about 30% smaller so it reads as kindling, not a second tree.
+const BRANCH_SCALE := 0.7
 
 
 func use_wang(shared: WangTiles) -> void:
@@ -513,8 +515,12 @@ func _make_named_prop(kind: String, species: String, origin: Vector2, fallback: 
 	node.y_sort_enabled = true
 	var sprite := _prop_sprite(kind, species)
 	if sprite != null:
+		if kind == "branch":
+			sprite.scale = Vector2(BRANCH_SCALE, BRANCH_SCALE)
 		node.add_child(sprite)
 	else:
+		if kind == "branch":
+			size *= BRANCH_SCALE
 		var box := ColorRect.new()
 		box.size = size
 		box.position = Vector2(-size.x * 0.5, -size.y)

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-29 — Fallen branches are drawn smaller
+
+**Decision:** The fallen fir branch picture stays `clutter_fir_branch.png`, 32×32. The woods draw it at **0.7 scale** (about 30% smaller). Space still clears it for half a wood. It still does not block the walk. The title uses the same scale. Needles stay at the picture’s own size.
+
+**Why:** At full size the branch was almost as wide as a standing fir. It should read as kindling on the ground, not a second tree.
+
+**Rejected:** A new picture. Shrinking the PNG. Changing pay or walk-block.
+
 ## 2026-10-29 — Ideas have no order
 
 **Decision:** `docs/IDEAS.md` is an unordered set of slices. A heading only groups slices that belong together. There is no queue. When the owner asks what to work on next, read the mission, the decisions, the status, and that file, and choose one slice. Taking in a new idea includes a pass over the file: combine lines that are the same slice, split a line that is more than one, and drop a duplicate. In that file the land you walk is called the map.

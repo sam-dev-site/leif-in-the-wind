@@ -51,6 +51,7 @@ func _init() -> void:
 	_test_world_loads_in_slices()
 	_test_sphagnum_cushion_is_whole()
 	_test_sphagnum_is_smaller_than_leif()
+	_test_fallen_branch_is_smaller_than_the_trees()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -1076,6 +1077,48 @@ func _test_sphagnum_is_smaller_than_leif() -> void:
 	var needles := chunk._stamp_image("clutter", "needles")
 	_expect(needles != null and needles.get_width() == 32, "needles keep their own size")
 	chunk.free()
+
+
+func _test_fallen_branch_is_smaller_than_the_trees() -> void:
+	print("fallen branch is smaller than the trees")
+	var source := load("res://art/coastal_north/clutter_fir_branch.png") as Texture2D
+	_expect(source != null and source.get_width() == 32 and source.get_height() == 32, "the branch picture stays 32")
+	var chunk := MapChunk.new()
+	var branch := chunk._make_named_prop("branch", "fir_branch", Vector2.ZERO, Color(0.22, 0.28, 0.14), Vector2(6, 3))
+	var sprite: Sprite2D = null
+	for child in branch.get_children():
+		if child is Sprite2D:
+			sprite = child
+	_expect(sprite != null and sprite.texture != null, "the branch uses the named PNG")
+	if sprite != null and sprite.texture != null:
+		_expect(sprite.texture.resource_path.ends_with("clutter_fir_branch.png"), "the woods keep the same branch picture")
+		_expect(is_equal_approx(sprite.scale.x, MapChunk.BRANCH_SCALE), "the branch is drawn about 30 percent smaller")
+		_expect(float(sprite.texture.get_width()) * sprite.scale.x < 48.0, "the branch is narrower than a standing fir")
+	var tree := chunk._make_tree("fir", Vector2.ZERO)
+	var tree_sprite: Sprite2D = null
+	for child in tree.get_children():
+		if child is Sprite2D:
+			tree_sprite = child
+	if tree_sprite != null and tree_sprite.texture != null:
+		_expect(tree_sprite.texture.get_width() == 48 and tree_sprite.texture.get_height() == 64, "standing fir stays 48 by 64")
+		_expect(is_equal_approx(tree_sprite.scale.x, 1.0), "a standing tree is still drawn at full size")
+	chunk.free()
+	var menu := TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	var picture := menu.get_node_or_null("Picture")
+	var title_ok := false
+	if picture != null:
+		for child in picture.get_children():
+			if not child is Sprite2D:
+				continue
+			var drawn := child as Sprite2D
+			if drawn.texture == null or not drawn.texture.resource_path.ends_with("clutter_fir_branch.png"):
+				continue
+			title_ok = true
+			_expect(is_equal_approx(drawn.scale.x, MapChunk.BRANCH_SCALE), "the title draws the branch at the same smaller size")
+	_expect(title_ok, "the title still uses the branch picture")
+	menu.free()
 
 
 func _test_world_loads_in_slices() -> void:

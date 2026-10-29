@@ -335,7 +335,7 @@ func _build_picture() -> void:
 	_add_prop(picture, ART_SPRUCE, 292, 128)
 	_add_prop(picture, ART_MOSS, 48, 130, false, "", MapChunk.SPHAGNUM_SCALE)
 	_add_prop(picture, ART_NEEDLES, 430, 124)
-	_add_prop(picture, ART_BRANCH, 120, 150)
+	_add_prop(picture, ART_BRANCH, 120, 150, false, "", MapChunk.BRANCH_SCALE)
 	# The shore in front of the menu.
 	_add_prop(picture, ART_FIR, 42, 214)
 	_add_prop(picture, ART_SPRUCE, 438, 216)
@@ -347,7 +347,7 @@ func _build_picture() -> void:
 	_add_prop(picture, ART_BLUEBERRY, 318, 206)
 	_add_prop(picture, ART_MOSS, 186, 212, false, "", MapChunk.SPHAGNUM_SCALE)
 	_add_prop(picture, ART_NEEDLES, 286, 214)
-	_add_prop(picture, ART_BRANCH, 200, 218)
+	_add_prop(picture, ART_BRANCH, 200, 218, false, "", MapChunk.BRANCH_SCALE)
 	_add_prop(picture, ART_FALLEN, 130, 210)
 	_add_prop(picture, ART_LEIF, 240, 190, true, "Leif")
 
