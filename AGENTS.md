@@ -32,7 +32,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
 4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Inland is the discovery/fantasy spine; sensation and sitting still also count. “Leif moved” is not enough.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
-6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, or `push` — run git in that same turn. Do not ask. Do not report a commit hash unless `git log -1` printed it. `push` means commit if needed, then push. A signed-off change left only in the working tree is not on GitHub, and GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc`.
+6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — commit if needed, then push, in that same turn. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc`.
 7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`.
 
 ## Parallel lanes (do not collide)

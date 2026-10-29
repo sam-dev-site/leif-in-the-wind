@@ -1,34 +1,37 @@
 ---
-description: Sign-off words are an order to run git commit (and push when they say push)
+description: Sign-off words commit and push so GitHub main matches this machine
 alwaysApply: true
 ---
 
-# Say commit, then commit
+# Sign off, then commit and push
 
-A short sign-off is the commit command. Run git in that same turn. Do not ask. Do not describe a commit you have not made.
+A short sign-off means GitHub `main` matches this machine. Commit if anything is uncommitted, then push, in that same turn. Do not ask. Do not describe a commit you have not made. Do not stop after the local commit.
 
 These close the work:
 
 - `commit`, `save`, `save and commit`
 - `all set`, `good`, `good!`, `done`, `all done`
-- `push` — commit if anything is uncommitted, then push
+- `perfect`, `everything is working`
+- `push`
 
-If the same message also asks for a change, do that change first, then commit.
+`perfect. everything is working. save and commit` is one sign-off. It commits and it pushes.
 
-A sign-off does not ask for another change. `good, but the stump is huge` is still notes. Finish the notes. Commit only when they close it.
+If the same message also asks for a change, do that change first, then commit and push.
+
+A sign-off does not ask for another change. `perfect, but the bars are wrong` is still notes. Finish the notes. Commit and push only when they close it.
 
 ## What to run
 
 1. `git status`, `git diff`, and recent `git log` (match the message style).
 2. Stage the work. Never stage secrets (`PIXELLAB_API_TOKEN`, `.env`).
-3. `git commit`. On PowerShell pass the message with a here-string, not a bash heredoc.
-4. `git status` and `git log -1 --oneline`. The hash in the reply is that output.
-5. If they said **push**, `git push`, then say it is on the remote. If they did not say push, leave it local and say it has not been pushed.
+3. `git commit` when there is something to commit. On PowerShell pass the message with a here-string, not a bash heredoc.
+4. `git push`. Never force-push `main`.
+5. `git status -sb` and `git log -1 --oneline`. The hash in the reply is that log line. Say it is on GitHub only after the push succeeds and `main` matches `origin/main`.
 
-Nothing to commit and they said push: push commits that are already ahead.
+Nothing new to commit, but `main` is ahead: push. Already in sync: say GitHub already matches.
 
 ## Do not
 
 - Invent a hash, or say "committed as …" before the commit command succeeds.
-- End with "has not been pushed" after they said push.
-- Ask "want me to commit?" after these words.
+- End a sign-off with "has not been pushed" or "only on this machine."
+- Ask "want me to commit?" or "want me to push?" after these words.

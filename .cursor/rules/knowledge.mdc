@@ -11,7 +11,7 @@ Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/DECISIONS.md`, a
 
 If you make a lasting decision, append `docs/DECISIONS.md` in the same session. Update `docs/STATUS.md` before you finish.
 
-When the owner signs off (`commit`, `save`, `all set`, `good`, `done`, `push`), run git in that turn. Do not ask, and do not report a hash git did not print. `push` also pushes. See `.cursor/rules/commit-signoff.mdc`.
+When the owner signs off (`perfect`, `everything is working`, `save and commit`, `all set`, `good`, `done`, `push`), commit if needed and push in that turn. Do not ask. Do not report a hash git did not print. Do not say it is only on this machine. See `.cursor/rules/commit-signoff.mdc`.
 
 Bugs that are not the current Play live in `docs/BUGS.md`. Log them there and leave them. When the owner asks to do bug fixes, read that file and name the open headings before changing the game. New wishes stay in `docs/IDEAS.md`.
 

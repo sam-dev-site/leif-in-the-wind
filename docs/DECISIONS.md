@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-28 — A sign-off pushes
+
+**Decision:** `perfect`, `everything is working`, `save and commit`, `all set`, `good`, `done`, and `push` commit if needed and then push. The reply says the hash is on GitHub only after `git push` succeeds. `perfect. everything is working. save and commit` is one sign-off.
+
+**Why:** That sentence was committed as `c594e94` and the reply stopped at “only on this machine.” The owner wants GitHub `main` to match this PC. Stopping at a local commit missed the point of the rule.
+
+**Rejected:** Pushing only when they say the word `push`. Telling them a sign-off is unpushed.
+
 ## 2026-10-28 — The save mark is two bars, and a lit fire waits
 
 **Decision:** The button in the top right is a cassette pause mark: two vertical bars. It still writes the file. A fire that is burning when he saves is stored with the time it has left. Loading that file puts the fire back on the same tile, still burning, with that same time left. The burn does not run while the file sits on disk. Chopped trees and picked bushes still grow back from the seed. A fire that has already gone out is not stored.
