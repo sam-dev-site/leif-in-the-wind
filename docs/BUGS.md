@@ -44,6 +44,18 @@ Each heading below is one break in the game you already have. It stays open unti
 
 **Where:** `game/art/ui/save_floppy.png` is a 16×16 picture of two cream bars. The woods draw it on the top-right button (`game/world/hud.gd`). The headless test still requires those two bars.
 
+## The fallen branch is almost as big as the trees
+
+**Status:** Open.
+
+**Found:** 2026-10-29
+
+**What you saw:** A pine branch on the ground is a little too big. It is almost the same size as the trees.
+
+**What the game should do:** Keep the same sprite. Draw it about 30% smaller. It is still a fallen fir branch: Space clears it for half a wood, and it does not block the walk.
+
+**Where:** Coastal woods. `game/art/coastal_north/clutter_fir_branch.png` is 32×32 and the woods draw it at full size (`game/world/chunk.gd`). Standing fir and spruce are 48×64. The title still uses that same branch picture at full size.
+
 ## Later
 
 Passing is good enough to keep. The heading stays on this list. A later pass is a separate ask.
@@ -117,3 +129,4 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 - **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.
 - **2026-10-29 — Save button overlaps the name field.** Open. Not this Play.
 - **2026-10-29 — The save mark is two pause bars.** Open. It should be a floppy disc. Not this Play.
+- **2026-10-29 — The fallen branch is almost as big as the trees.** Open. Same sprite, about 30% smaller. Not this Play.

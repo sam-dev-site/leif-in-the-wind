@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-10-28
+Updated: 2026-10-29
 
 ## Where we are
 
@@ -28,21 +28,17 @@ PixelLab trial: **2 / 40** generations left. Then 5/day (stack to 20). Paid floo
 - Slice 0 verbs: `game/world/supplies.gd`, `interact.gd`, `skills.gd`, `campfire.gd`, `day_clock.gd` (E spends 3 forage for half a heart; Space trains woodcutting)
 - Launch menu: `game/title/title.gd` is the main scene. The coast fills the screen. A green box holds New Game and Continue. New Game fades the box, then Leif walks inland while the strip loads in slices. Three save files live in Godot’s user folder. The save mark is two bars, `game/art/ui/save_floppy.png`, top right. A skills mark sits left of it. Escape closes the name box when it is open. Otherwise Escape in the woods is not bound (pause is an idea in `docs/IDEAS.md`)
 - Woodcutting UI: `game/art/ui/skills.png`, `skill_woodcutting.png`, `leaf_fir.png`
-- Bug backlog: `docs/BUGS.md` has two open bugs. The Save button overlaps the name field. The save mark is two pause bars and should be a floppy disc. Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom-right corner is fixed: the next ground tile no longer covers the cushion. Running on a diagonal is choppy is passing and kept for later: the view follows Leif from outside the tree stack.
+- Bug backlog: `docs/BUGS.md` has three open bugs. The Save button overlaps the name field. The save mark is two pause bars and should be a floppy disc. The fallen branch is almost as big as the trees. Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom-right corner is fixed: the next ground tile no longer covers the cushion. Running on a diagonal is choppy is passing and kept for later: the view follows Leif from outside the tree stack.
 - Coastal bed: `The First Grove` loops on `coastal_north` (`game/art/coastal_north/the_first_grove.mp3`)
 
 ## Blocked / next
 
 Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off.
 
-Trajectory: stay on this coast. Woodcutting is in. Fire-making as a skill is next. A longer strip is not a priority. Do not suggest growing the map or starting the river as the next step.
-
 1. **Open Play check:** press Play on woodcutting. First trees take 3–4 Spaces and pay 0.5 wood. The skills mark, the panel, the leaves, and a save that keeps the XP are the things to judge. Not signed off yet. Spending 3 forage for half a heart is also not signed off in Play. The three save files are signed off.
-2. **Next mechanic after that Play:** fire-making as a skill. **F** still always lights if you paid 3 wood.
-3. **After that, still not next:** a caribou you can see on the trail. Then the river as different ground, once this biome is worth staying in. A longer coast stays off the list.
-4. **Ideas:** one line each in `docs/IDEAS.md`. Dig in when asked. Not in build.
-5. **Cloud + PR:** `river_valley` research is on `main`. Leave it there. No spawn tables, no art, no second biome, until this coast has the skills and you ask.
-6. **Bug backlog:** two open bugs in `docs/BUGS.md` — the Save button overlaps the name field, and the save mark is two pause bars (it should be a floppy disc). Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
+2. **Ideas:** `docs/IDEAS.md` has no order. Each line is one slice. When asked what to work on next, read the mission, the decisions, the status, and that file, and choose one slice. Not in build until they say so.
+3. **Cloud + PR:** `river_valley` research is on `main`. Leave it there. No spawn tables or art until you ask.
+4. **Bug backlog:** three open bugs in `docs/BUGS.md` — the Save button overlaps the name field, the save mark is two pause bars (it should be a floppy disc), and the fallen branch is almost as big as the trees (same sprite, about 30% smaller). Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
 
 ## Local machine
 

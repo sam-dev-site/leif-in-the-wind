@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-29 — Ideas have no order
+
+**Decision:** `docs/IDEAS.md` is an unordered set of slices. A heading only groups slices that belong together. There is no queue. When the owner asks what to work on next, read the mission, the decisions, the status, and that file, and choose one slice. Taking in a new idea includes a pass over the file: combine lines that are the same slice, split a line that is more than one, and drop a duplicate. In that file the land you walk is called the map.
+
+**Why:** The numbered order was choosing the work. They want that choice made when they ask, from the whole project. “Coast” in the ideas file was unclear. Crafting, a house, and a town were one line. Heart regen and more hearts belong in one group and stay two slices.
+
+**Rejected:** A standing numbered list in the ideas file. Keeping a grab-bag line as one slice. Treating “ask what’s next” as a prompt to read a queue.
+
 ## 2026-10-28 — Woodcutting is a skill on this shore
 
 **Decision:** Woodcutting is the first skill, on `coastal_north`. Fir, spruce, and fallen logs share it. A branch stays one tap, half a wood, and grants no XP. XP is granted only when the tree falls, 25 per fell. A bite that leaves it standing grants nothing.
