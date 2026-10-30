@@ -157,7 +157,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if key.keycode == KEY_R:
-		# New coast. Wood, forage, and woodcutting stay. Fires were on the old ground.
+		# New seed. Wood, forage, and skills stay. Fires were on the old ground.
 		world_seed = (world_seed * 1103515245 + 12345) & 0x7fffffff
 		rebuild()
 		get_viewport().set_input_as_handled()
@@ -291,8 +291,10 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 	_pending_snapshot = snapshot.duplicate(true)
 	if snapshot.is_empty():
 		skills.woodcutting_xp = 0
+		skills.firemaking_xp = 0
 	else:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
+		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
 	if snapshot.has("name"):
 		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
 	if snapshot.has("seed"):
@@ -337,6 +339,7 @@ func capture_walk() -> Dictionary:
 		"cold_acc": supplies.cold_acc,
 		"heal_acc": supplies.heal_acc,
 		"woodcutting_xp": skills.woodcutting_xp,
+		"firemaking_xp": skills.firemaking_xp,
 		"elapsed": elapsed,
 		"fog": fog_cells,
 		"fires": _capture_fires(),
@@ -358,6 +361,7 @@ func apply_walk(data: Dictionary) -> void:
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
 	supplies.heal_acc = float(data.get("heal_acc", 0.0))
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
+	skills.firemaking_xp = int(data.get("firemaking_xp", 0))
 	if _clock != null and data.has("elapsed"):
 		_clock.elapsed = float(data["elapsed"])
 		DayClock.darkness_now = _clock.darkness()
@@ -576,8 +580,9 @@ func _try_eat() -> void:
 func _try_place_campfire() -> void:
 	if _chunk == null or _player == null:
 		return
-	if supplies.wood < Supplies.CAMPFIRE_WOOD:
-		_hint = "Need %s wood for a fire." % Supplies.wood_label(Supplies.CAMPFIRE_WOOD)
+	var cost := skills.fire_cost()
+	if supplies.wood < cost:
+		_hint = "Need %s wood for a fire." % Supplies.wood_label(cost)
 		_refresh_hud()
 		return
 	var world_cell := Interact.tile_ahead(_player.global_position, _player.facing_name())
@@ -586,12 +591,21 @@ func _try_place_campfire() -> void:
 		_hint = reason
 		_refresh_hud()
 		return
-	if not Campfire.try_place(supplies, false, false):
+	if not Campfire.try_place(supplies, false, false, cost):
+		_hint = "Need %s wood for a fire." % Supplies.wood_label(cost)
+		_refresh_hud()
+		return
+	if not skills.roll_catch():
 		_hint = "The fire does not catch."
 		_refresh_hud()
 		return
 	if place_saved_fire(world_cell, DayClock.cold_seconds()):
-		_hint = "Campfire lit."
+		var gained := skills.add_firemaking_xp(Skills.XP_PER_LIGHT)
+		if gained > 0:
+			_hint = "Fire-making is now %d." % skills.firemaking_level()
+			_spawn_leaves()
+		else:
+			_hint = "Campfire lit."
 	else:
 		_hint = "Cannot light a fire there."
 	_refresh_hud()

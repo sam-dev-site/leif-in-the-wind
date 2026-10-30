@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Fire-making is a skill on this biome
+
+**Decision:** Fire-making is in on `coastal_north`. **F** spends the level’s wood cost for an attempt. A miss still spends the wood; the hint stays **The fire does not catch.** Catch chance climbs from **35%** at level 1 to **95%** at level 30, then stays 95%. Wood cost is a flat **7** through level 30, then linear down to **1** at 99. XP is **40** per successful light (more than a fell’s 25). Fail grants 0. The two bars write `firemaking_xp` next to `woodcutting_xp`. Old files without the key load as 0. **R** keeps it. The skills panel stacks a Fire-making row under Woodcutting. A lit fire still burns one cold night and uses the same warmth radius. Live docs say **this biome** when they mean the playable skill ground, not “this coast” / “this shore.”
+
+**Why:** Challenge on this biome before more map. Early nights should tax kindling; past 30, cheaper wood is the payoff. A miss burning a stack is why a light pays more XP than a tree. Longer burn and a bigger warmth radius can wait until this curve feels right in Play.
+
+**Rejected:** Sure fire from level 1. Keeping cost at 3. Matching fell XP. Longer burn or warmer radius in this Play. Rewriting old decision paragraphs (append-only).
+
 ## 2026-10-29 — Fallen branches are drawn smaller
 
 **Decision:** The fallen fir branch picture stays `clutter_fir_branch.png`, 32×32. The woods draw it at **0.7 scale** (about 30% smaller). Space still clears it for half a wood. It still does not block the walk. The title uses the same scale. Needles stay at the picture’s own size.

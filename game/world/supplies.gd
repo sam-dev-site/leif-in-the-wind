@@ -6,7 +6,8 @@ extends RefCounted
 
 const WOOD_PER_TREE := 3.0
 const WOOD_PER_BRANCH := 0.5
-const CAMPFIRE_WOOD := 3.0
+## Early fire-making tax. Live cost comes from Skills.fire_wood_cost().
+const CAMPFIRE_WOOD := 7.0
 const EAT_FORAGE := 3
 const HEART_STEP := 0.5
 const COLD_SECONDS := 5.0

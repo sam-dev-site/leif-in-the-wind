@@ -20,10 +20,12 @@ var _core: ColorRect
 var _flicker := 0.0
 
 
-static func try_place(supplies: Supplies, tile_blocked: bool, occupied: bool) -> bool:
+## Spends wood for an attempt. Catch chance is the caller's job.
+static func try_place(supplies: Supplies, tile_blocked: bool, occupied: bool, cost: float = -1.0) -> bool:
 	if supplies == null or tile_blocked or occupied:
 		return false
-	return supplies.try_spend_wood(Supplies.CAMPFIRE_WOOD)
+	var spend := cost if cost >= 0.0 else Supplies.CAMPFIRE_WOOD
+	return supplies.try_spend_wood(spend)
 
 
 func _ready() -> void:

@@ -6,7 +6,7 @@ Do not call a unit of work complete until the applicable gates pass. Owner is a 
 
 - Serves at least one current aesthetic in `docs/MISSION.md` (sensation, fantasy, discovery, submission) and does not fight the pillars
 - Answers: *which feeling is this for, and does it make the woods worth being in?* Inland travel still counts. Sitting still counts. A checklist that only moves Leif does not.
-- Does not turn this slice into a finished camp / town sim or a skill-tree grind. Expression (a house, a town) stays later. Woodcutting and fire-making on this coast are the next mechanic. They are not a reason to grow the map.
+- Does not turn this slice into a finished camp / town sim or a skill-tree grind. Expression (a house, a town) stays later. Woodcutting and fire-making on this biome are in. They are not a reason to grow the map.
 
 ## 2. Knowledge
 

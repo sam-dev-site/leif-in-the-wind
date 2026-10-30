@@ -21,7 +21,7 @@ We design from **aesthetics** (the feelings) back to **dynamics** (what play doe
 3. **Discovery** — uncharted land. A new seed, a trail that keeps going, a biome that changes underfoot. The continent is the toy. More of this same shore is not the next discovery. A few steps already show its whole vocabulary.
 4. **Submission** — the game as a pastime. Walking without a quest marker. Sitting the night out. Chilling in the woods is valid play, not wasted time.
 
-**Next, on this coast, before more land:**
+**Next, on this biome, before more land:**
 
 5. **Challenge** — woodcutting and fire-making, and the leveling curve in `docs/IDEAS.md`. They appear here first, in the biome that suits them: trees and fallen wood to chop, cold that makes a fire matter. A new biome is where something new is learned. That waits until this place is worth staying in. Getting better at the work is not a grind loop dressed as survival.
 

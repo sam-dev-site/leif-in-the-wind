@@ -20,6 +20,7 @@ func _init() -> void:
 	_test_pick_forage_in_front()
 	_test_chop_tree_in_front()
 	_test_woodcutting_skill()
+	_test_firemaking_skill()
 	_test_verbs_honor_biome_lists()
 	_test_campfire_spends_wood_and_lights()
 	_test_campfire_on_open_ground_only()
@@ -391,7 +392,8 @@ func _test_verbs_honor_biome_lists() -> void:
 	_expect(is_equal_approx(supplies.wood, Supplies.WOOD_PER_TREE), "wood comes from the listed tree")
 	_expect(not supplies.pick_forage("bakeapple", narrow), "bakeapple is absent from this biome list")
 	_expect(supplies.pick_forage("blueberry", narrow), "blueberry is on this biome list")
-	_expect(is_equal_approx(Supplies.WOOD_PER_TREE, Supplies.CAMPFIRE_WOOD), "a comfortable tree still pays for a fire")
+	_expect(is_equal_approx(Supplies.CAMPFIRE_WOOD, Skills.FIRE_WOOD_START), "the early fire tax is 7 wood")
+	_expect(Supplies.WOOD_PER_TREE < Supplies.CAMPFIRE_WOOD, "one comfortable tree no longer buys a fire alone")
 	var interact := Interact.new()
 	interact.biome = coast
 	interact.supplies = Supplies.new()
@@ -401,6 +403,50 @@ func _test_verbs_honor_biome_lists() -> void:
 	_expect(interact.supplies.wood == 0, "a rejected chop adds no wood")
 	fake.free()
 	interact.free()
+
+
+func _test_firemaking_skill() -> void:
+	print("firemaking skill")
+	_expect(Skills.XP_PER_LIGHT > Skills.XP_PER_FELL, "a light grants more xp than a fell")
+	_expect(is_equal_approx(Skills.catch_chance(1), Skills.CATCH_START), "level 1 catch is the start chance")
+	_expect(is_equal_approx(Skills.catch_chance(30), Skills.CATCH_SURE), "level 30 catch is sure-ish")
+	_expect(is_equal_approx(Skills.catch_chance(99), Skills.CATCH_SURE), "level 99 catch stays at 95%")
+	_expect(Skills.catch_chance(15) > Skills.catch_chance(1), "catch climbs before 30")
+	_expect(is_equal_approx(Skills.fire_wood_cost(1), 7.0), "level 1 fire costs 7")
+	_expect(is_equal_approx(Skills.fire_wood_cost(30), 7.0), "level 30 fire still costs 7")
+	_expect(is_equal_approx(Skills.fire_wood_cost(99), 1.0), "level 99 fire costs 1")
+	_expect(Skills.fire_wood_cost(50) < 7.0, "past 30 the wood cost drops")
+	var skill := Skills.new()
+	_expect(skill.firemaking_level() == 1, "fire-making starts at 1")
+	_expect(skill.add_firemaking_xp(Skills.XP_PER_LIGHT) == 0, "one light is not yet a level")
+	_expect(skill.firemaking_xp == Skills.XP_PER_LIGHT, "the light grants 40")
+	skill.add_firemaking_xp(Skills.XP_PER_LIGHT)
+	_expect(skill.firemaking_level() == 1, "80 xp is still level 1")
+	_expect(skill.add_firemaking_xp(3) == 1, "83 xp is level 2")
+	_expect(skill.firemaking_level() == 2, "fire-making is now 2")
+	_expect(skill.firemaking_step_label() == "0/91", "level 2 step starts empty")
+	skill.catch_override = 0
+	_expect(not skill.roll_catch(), "override can force a miss")
+	skill.catch_override = 1
+	_expect(skill.roll_catch(), "override can force a catch")
+	var world := _boot_run(0, {})
+	var spot := _open_fire_cell(world)
+	_expect(spot.x >= 0, "open ground for a fire attempt")
+	_stand_facing_cell(world, spot, "north")
+	world.skills.catch_override = 0
+	world.supplies.wood = 7.0
+	world._try_place_campfire()
+	_expect(is_equal_approx(world.supplies.wood, 0.0), "a miss still spends the wood")
+	_expect(world.skills.firemaking_xp == 0, "a miss grants no xp")
+	_expect(_campfire_at(world, spot) == null, "a miss leaves no fire")
+	_expect(world._hint == "The fire does not catch.", "the miss hint is set")
+	world.skills.catch_override = 1
+	world.supplies.wood = 7.0
+	world._try_place_campfire()
+	_expect(_campfire_at(world, spot) != null, "a catch leaves a fire")
+	_expect(world.skills.firemaking_xp == Skills.XP_PER_LIGHT, "a catch grants light xp")
+	_expect(is_equal_approx(world.supplies.wood, 0.0), "a catch spends the wood")
+	world.free()
 
 
 func _test_campfire_spends_wood_and_lights() -> void:
@@ -414,7 +460,7 @@ func _test_campfire_spends_wood_and_lights() -> void:
 	_expect(supplies.wood == Supplies.CAMPFIRE_WOOD, "water does not spend wood")
 	_expect(not Campfire.try_place(supplies, false, true), "occupied ground refuses the fire")
 	_expect(supplies.wood == Supplies.CAMPFIRE_WOOD, "occupied ground does not spend wood")
-	_expect(Campfire.try_place(supplies, false, false), "three wood lights a fire")
+	_expect(Campfire.try_place(supplies, false, false), "seven wood spends for a fire")
 	_expect(supplies.wood == 0, "the fire spent the wood")
 	var fire := Campfire.new()
 	fire.build_visual()
@@ -503,10 +549,12 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	_expect(text.contains("night"), "the phase is on the hud")
 	_expect(text.contains("Space pick, chop, or clear"), "pick, chop, and clear are labeled")
 	_expect(text.contains("E eat (3 forage)"), "eat costs 3 forage")
-	_expect(text.contains("F campfire"), "the campfire key is labeled")
+	_expect(text.contains("F campfire (7 wood)"), "the campfire key shows the early cost")
 	_expect(text.contains("C sleep"), "sleep is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
 	_expect(supplies.hearts == 3, "the hud line does not spend hearts")
+	text = GameHud.status_text(11, "Coastal North", supplies, "night", "", 3.0)
+	_expect(text.contains("F campfire (3 wood)"), "the hud uses the live fire cost")
 
 
 func _test_eat_forage_heals_half_a_heart() -> void:
@@ -1252,11 +1300,14 @@ func _test_floppy_writes_the_walk() -> void:
 			_expect(panel != null and panel.visible, "the skills mark opens a panel")
 			_expect(panel.position.y >= 30.0, "the panel sits under the marks")
 			_expect(panel.position.x >= 370.0, "the panel stays in the right column")
-			_expect(panel.size.x <= 100.0 and panel.size.y <= 28.0, "the panel is a small row")
-			_expect((hud._skill_level as Label).text == "1", "the panel shows the level")
+			_expect(panel.size.x <= 100.0 and panel.size.y <= 48.0, "the panel is two small rows")
+			_expect(panel.size.y >= 36.0, "the panel has room for fire-making")
+			_expect((hud._skill_level as Label).text == "1", "the panel shows woodcutting")
+			_expect(hud.get_node_or_null("SkillsPanel/FiremakingLevel") != null, "fire-making has a row")
+			_expect((hud._fire_level as Label).text == "1", "the panel shows fire-making")
 			_expect(str(panel.tooltip_text) == "", "the native tooltip stays off")
 			var hover := hud.get_node_or_null("SkillHover") as Label
-			_expect(hover != null and hover.text == "25/83", "the hover chip has the step")
+			_expect(hover != null and hover.text == "25/83", "the hover chip has the woodcutting step")
 			if hover != null:
 				_expect(hover.get_theme_font_size("font_size") == 8, "the hover chip is small")
 				hud.place_skill_hover(Vector2(450, 40))
@@ -1304,6 +1355,7 @@ func _test_floppy_writes_the_walk() -> void:
 		"cold_acc": 1.25,
 		"heal_acc": 0.5,
 		"woodcutting_xp": 83,
+		"firemaking_xp": 40,
 		"elapsed": 55.0,
 		"fog": [[3, 4], [3, 5]],
 	})
@@ -1321,7 +1373,9 @@ func _test_floppy_writes_the_walk() -> void:
 	_expect(is_equal_approx(float(saved["x"]), 200.0), "where he stands is in the file")
 	_expect(is_equal_approx(float(saved["elapsed"]), 55.0), "the time of day is in the file")
 	_expect(int(saved["woodcutting_xp"]) == 83, "woodcutting is in the file")
-	_expect(world.skills.level() == 2, "the file restores the level")
+	_expect(int(saved["firemaking_xp"]) == 40, "fire-making is in the file")
+	_expect(world.skills.level() == 2, "the file restores woodcutting")
+	_expect(world.skills.firemaking_level() == 1, "the file restores fire-making")
 	_expect(clock.phase() == "night", "dusk and night come back with the file")
 	_expect(not saved.has("harvested"), "the file does not list chopped trees")
 	var saw_fog := false
@@ -1353,10 +1407,14 @@ func _test_floppy_writes_the_walk() -> void:
 		"y": 120.0,
 	})
 	_expect(world.skills.woodcutting_xp == 0, "an old file with no skill key is level 1")
+	_expect(world.skills.firemaking_xp == 0, "an old file with no fire-making key is level 1")
 	world.skills.woodcutting_xp = 174
+	world.skills.firemaking_xp = 120
 	var kept := world.skills.woodcutting_xp
+	var kept_fire := world.skills.firemaking_xp
 	world.rebuild()
 	_expect(world.skills.woodcutting_xp == kept, "a new seed keeps woodcutting")
+	_expect(world.skills.firemaking_xp == kept_fire, "a new seed keeps fire-making")
 	world.free()
 
 
@@ -1459,6 +1517,29 @@ func _is_pause_mark(tex: Texture2D) -> bool:
 		elif not ink:
 			in_bar = false
 	return runs == 2
+
+
+## Stand on the tile south of target and face it, so F aims at that world cell.
+func _stand_facing_cell(world: World, target: Vector2i, facing: String) -> void:
+	var stand := target + Vector2i(0, 1)
+	if facing == "south":
+		stand = target + Vector2i(0, -1)
+	elif facing == "east":
+		stand = target + Vector2i(-1, 0)
+	elif facing == "west":
+		stand = target + Vector2i(1, 0)
+	var host := world._chunk_at(ChunkGenerator.chunk_of_cell(stand))
+	_expect(host != null, "the stand tile has a chunk")
+	if host == null or world._player == null:
+		return
+	if world._player.get_parent() != null:
+		world._player.get_parent().remove_child(world._player)
+	host.add_child(world._player)
+	world._chunk = host
+	var tile := float(ChunkGenerator.TILE)
+	world._player.global_position = Vector2((float(stand.x) + 0.5) * tile, (float(stand.y) + 0.5) * tile)
+	world._player.set_facing(facing)
+	_expect(Interact.tile_ahead(world._player.global_position, facing) == target, "F aims at the open cell")
 
 
 func _open_fire_cell(world: World) -> Vector2i:

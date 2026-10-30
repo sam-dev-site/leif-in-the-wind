@@ -12,6 +12,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 - **Home screen.** Title with New Game and Continue. Continue shows three files by the name he typed and the Costa Rica time. The two bars in the woods write them. An x on a filled box deletes it after a yes. A run already survives quitting in those files, so a separate profile slice is not open.
 - **Woodcutting.** In. A tree’s wood follows that skill. The earlier wish of 1, then 1–3, then 2–5 is not its own slice.
+- **Fire-making.** In. Catch chance climbs through level 30; wood cost starts at 7 and drops after 30. Longer burn and a bigger warmth radius stay open wishes below if they return.
 
 ## Hearts
 
@@ -24,8 +25,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Skills
 
-- **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting shipped on its own numbers. The older chop-and-fire picture is still in [SKILLS.md](SKILLS.md). It is not this curve.
-- **Fire-making.** The skill is not in. A fire still costs 3 wood and always lights.
+- **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting and fire-making shipped on their own numbers in [SKILLS.md](SKILLS.md). It is not this curve.
 - **Forage skill.** More efficient gathering.
 - **Fishing skill.**
 
