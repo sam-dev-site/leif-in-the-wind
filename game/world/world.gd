@@ -607,6 +607,7 @@ func _try_place_campfire() -> void:
 		else:
 			_hint = "Campfire lit."
 	else:
+		supplies.wood = snappedf(supplies.wood + cost, 0.1)
 		_hint = "Cannot light a fire there."
 	_refresh_hud()
 

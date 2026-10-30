@@ -21,6 +21,7 @@ var firemaking_xp: int = 0
 ## Tests only: -1 rolls, 0 forces a miss, 1 forces a catch.
 var catch_override: int = -1
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _rng_ready := false
 
 
 func level() -> int:
@@ -86,6 +87,9 @@ func roll_catch() -> bool:
 		return false
 	if catch_override == 1:
 		return true
+	if not _rng_ready:
+		rng.randomize()
+		_rng_ready = true
 	return rng.randf() < catch_chance(firemaking_level())
 
 

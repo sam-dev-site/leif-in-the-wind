@@ -42,7 +42,7 @@ Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 
 
 ## Local machine
 
-Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.GodotEngine`). Open the `game` folder, not the repo root. Do not install Unity.
+Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.GodotEngine`). Open the `game` folder, not the repo root. Do not install Unity. Fire-making from `cursor/fire-making-skill-5117` is on this machine and on `main`. Headless tests passed here, including catch/miss, the 7-wood early cost, the panel row, and a save that keeps the XP. Ready for Play: **F** spends 7 at level 1 and can miss; the skills mark shows both rows.
 
 ## Checks
 

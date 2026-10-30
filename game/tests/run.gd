@@ -433,6 +433,12 @@ func _test_firemaking_skill() -> void:
 	var spot := _open_fire_cell(world)
 	_expect(spot.x >= 0, "open ground for a fire attempt")
 	_stand_facing_cell(world, spot, "north")
+	world.skills.catch_override = 1
+	world.supplies.wood = 6.0
+	world._try_place_campfire()
+	_expect(is_equal_approx(world.supplies.wood, 6.0), "short wood is not spent")
+	_expect(_campfire_at(world, spot) == null, "short wood leaves no fire")
+	_expect(world._hint == "Need 7 wood for a fire.", "the short-wood hint is set")
 	world.skills.catch_override = 0
 	world.supplies.wood = 7.0
 	world._try_place_campfire()
@@ -1294,6 +1300,7 @@ func _test_floppy_writes_the_walk() -> void:
 				_expect((shade.position.y + shade.size.y) - (skills_mark.position.y + skills_mark.size.y) >= 3.0, "the shadow peeks under the tile")
 				_expect((skills_mark as TextureButton).stretch_mode == TextureButton.STRETCH_SCALE, "the tile stays inside the holder")
 			world.skills.woodcutting_xp = 25
+			world.skills.firemaking_xp = 40
 			world._refresh_hud()
 			skills_mark.pressed.emit()
 			var panel := hud.get_node_or_null("SkillsPanel") as Control
@@ -1305,6 +1312,7 @@ func _test_floppy_writes_the_walk() -> void:
 			_expect((hud._skill_level as Label).text == "1", "the panel shows woodcutting")
 			_expect(hud.get_node_or_null("SkillsPanel/FiremakingLevel") != null, "fire-making has a row")
 			_expect((hud._fire_level as Label).text == "1", "the panel shows fire-making")
+			_expect(hud._hover_tip == "25/83|40/83", "hover keeps both skill steps")
 			_expect(str(panel.tooltip_text) == "", "the native tooltip stays off")
 			var hover := hud.get_node_or_null("SkillHover") as Label
 			_expect(hover != null and hover.text == "25/83", "the hover chip has the woodcutting step")
@@ -1320,6 +1328,7 @@ func _test_floppy_writes_the_walk() -> void:
 			skills_mark.pressed.emit()
 			_expect(not panel.visible, "the skills mark closes the panel")
 			world.skills.woodcutting_xp = 0
+			world.skills.firemaking_xp = 0
 		floppy.pressed.emit()
 		_expect(world.is_naming(), "clicking the bars asks for a name")
 		world.cancel_save_name()
