@@ -10,6 +10,7 @@ const SKILLS := "res://art/ui/skills.png"
 const WOODCUTTING := "res://art/ui/skill_woodcutting.png"
 const FIREMAKING := "res://art/ui/skill_firemaking.png"
 const FORAGING := "res://art/ui/skill_foraging.png"
+const DEATH_SKULL := "res://art/ui/death_skull.png"
 const CREAM := Color(0.95, 0.93, 0.86)
 const _SAVE_DIM := Color(0.72, 0.7, 0.64)
 const _SAVE_LIT := Color(1.45, 1.35, 1.1)
@@ -18,6 +19,7 @@ const PLATE_COLOR := Color(0.24, 0.36, 0.2, 1)
 var _label: Label
 var _shadow: Label
 var _fade: ColorRect
+var _death_mark: Control
 var _pips: Array[ColorRect] = []
 var _minimap: TextureRect
 var _minimap_tex: ImageTexture
@@ -57,6 +59,24 @@ func set_fade(alpha: float) -> void:
 	if _fade == null:
 		_build()
 	_fade.color.a = clampf(alpha, 0.0, 1.0)
+
+
+## Cream skull on the black. Sleep leaves this at 0. Death fades it with the hold.
+func set_death_mark(alpha: float) -> void:
+	if _death_mark == null:
+		_build()
+	var a := clampf(alpha, 0.0, 1.0)
+	_death_mark.modulate.a = a
+	_death_mark.visible = a > 0.001
+	if _death_mark.visible and _fade != null:
+		move_child(_fade, get_child_count() - 1)
+		move_child(_death_mark, get_child_count() - 1)
+
+
+func death_mark_alpha() -> float:
+	if _death_mark == null:
+		return 0.0
+	return _death_mark.modulate.a
 
 
 func show_minimap(img: Image) -> void:
@@ -133,9 +153,42 @@ func _build() -> void:
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_fade.focus_mode = Control.FOCUS_NONE
 	add_child(_fade)
+	_build_death_mark()
 	_build_minimap()
 	_build_floppy()
 	_build_skills()
+
+
+func _build_death_mark() -> void:
+	if _death_mark != null:
+		return
+	# 32×32 cream skull, centered on the 480×270 black. Sleep never raises its alpha.
+	if ResourceLoader.exists(DEATH_SKULL):
+		var tex_mark := TextureRect.new()
+		tex_mark.name = "DeathMark"
+		tex_mark.texture = load(DEATH_SKULL) as Texture2D
+		tex_mark.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_mark.stretch_mode = TextureRect.STRETCH_KEEP
+		tex_mark.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		tex_mark.size = Vector2(32, 32)
+		tex_mark.position = Vector2(224, 119)
+		tex_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tex_mark.focus_mode = Control.FOCUS_NONE
+		tex_mark.modulate.a = 0.0
+		tex_mark.visible = false
+		_death_mark = tex_mark
+	else:
+		var box := ColorRect.new()
+		box.name = "DeathMark"
+		box.color = CREAM
+		box.size = Vector2(32, 32)
+		box.position = Vector2(224, 119)
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.focus_mode = Control.FOCUS_NONE
+		box.modulate.a = 0.0
+		box.visible = false
+		_death_mark = box
+	add_child(_death_mark)
 
 
 func _paint_hearts(supplies: Supplies) -> void:
@@ -143,6 +196,8 @@ func _paint_hearts(supplies: Supplies) -> void:
 	_ensure_pips(slots * 2)
 	if _fade != null:
 		move_child(_fade, get_child_count() - 1)
+	if _death_mark != null and _death_mark.visible:
+		move_child(_death_mark, get_child_count() - 1)
 	if _name_box != null and _name_box.visible:
 		move_child(_name_box, get_child_count() - 1)
 	if _floppy != null:

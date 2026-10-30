@@ -82,6 +82,7 @@ func _add_wood(amount: float) -> void:
 
 
 ## Night away from a fire: lose half a heart every 5s. Day and fire warmth do not heal.
+## The cold that would take the last half-heart returns "die" instead.
 func tick_vitals(is_night: bool, is_warm: bool, delta: float) -> String:
 	if delta <= 0.0:
 		return ""
@@ -91,11 +92,19 @@ func tick_vitals(is_night: bool, is_warm: bool, delta: float) -> String:
 			return ""
 		cold_acc = 0.0
 		if hearts <= HEART_STEP:
-			return ""
+			hearts = 0.0
+			return "die"
 		hearts = snappedf(maxf(HEART_STEP, hearts - HEART_STEP), HEART_STEP)
 		return "cold"
 	cold_acc = 0.0
 	return ""
+
+
+## Half the pack on death. Wood floors to a tenth. Forage floors to a whole berry.
+func take_death_tax() -> void:
+	wood = floorf(wood * 5.0) / 10.0
+	forage = int(forage / 2)
+	cold_acc = 0.0
 
 
 func _listed(species: String, biome: Biome, as_tree: bool) -> bool:

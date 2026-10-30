@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Death: half the pack, wake at the fire
+
+**Decision:** Cold that would take the last half-heart is death. The screen fades to black like sleep. A cream skull and crossed bones (`game/art/ui/death_skull.png`, 32×32 placeholder) fades in on that black and holds about 0.8s. Sleep stays a blank blink. He wakes at dawn at the last tile he slept on (**C** by a fire). If he never slept this run, or the file has no `sleep_x` / `sleep_y`, he wakes on the landing. Wood and forage are halved (wood floors to a tenth; forage floors to a whole berry). Hearts become **1**. Skills, fog, caribou, and seed stay. Hint: **The cold took him. Half the pack is gone.** A named shore writes the floppy after death so Continue cannot undo it. **R** clears the sleep mark with the old ground. PixelLab does not spend generations on the skull in this cut.
+
+**Why:** Night and berries-only heal were signed off with nothing ending the walk. Waking at the fire makes the camp load-bearing (submission, fantasy). Half the pack is the tax — not a corpse run, not a wipe of XP. Challenge is getting better at the work; a death that erases levels fights that. Discovery keeps the trail he already walked.
+
+**Rejected:** Dropping the pack on the ground. Losing all wood and berries. Wiping XP or the map. Death during sleep, the quit ask, or the name box. Spending PixelLab generations on the skull. A scary or gory mark.
+
 ## 2026-10-30 — No heart regen is signed off in Play
 
 **Decision:** Play signed off no heart regen as shipped. Daylight does not heal. Fire warmth does not heal — it only stops the night drain. **E** (Foraging eat cost) is the only way hearts come back. Eat cost stays 10→2. The last half-heart stays.

@@ -26,6 +26,9 @@ var _hint := ""
 var _fires: Array[Node2D] = []
 var _sleep_phase := ""
 var _sleep_t := 0.0
+var _dying := false
+var _has_sleep_mark := false
+var _sleep_mark := Vector2.ZERO
 var _fog := FogMap.new()
 var _minimap_cell := Vector2i(99999, 99999)
 var _staged := false
@@ -44,11 +47,14 @@ var _caribou: Caribou
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
 const SLEEP_IN := 0.7
+## Death holds the black longer so the cream skull can be read.
+const DEATH_HOLD := 0.8
 const FIRE_WARM_PIXELS := 56.0
 const PROP_EDGE := 24.0
 const TITLE_SCENE := "res://title/title.tscn"
 const PLATE_COLOR := Color(0.24, 0.36, 0.2, 1)
 const CREAM := Color(0.95, 0.93, 0.86)
+const DEATH_HINT := "The cold took him. Half the pack is gone."
 
 
 func _ready() -> void:
@@ -146,6 +152,8 @@ func _process(delta: float) -> void:
 	if change == "cold":
 		_hint = "The night is cold. Get to a fire."
 		_refresh_hud()
+	elif change == "die":
+		_begin_death()
 	_reveal_visible_view()
 
 
@@ -233,7 +241,16 @@ func _on_acted(action: String, species: String) -> void:
 
 func rebuild() -> void:
 	# R is a new coast. Do not drop him back on the shore he had saved.
+	# The last-sleep mark goes with the old ground, same as fires.
 	_pending_snapshot = {}
+	_has_sleep_mark = false
+	_sleep_mark = Vector2.ZERO
+	_dying = false
+	_sleep_phase = ""
+	_sleep_t = 0.0
+	if _hud != null:
+		_hud.set_fade(0.0)
+		_hud.set_death_mark(0.0)
 	_drop_caribou()
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
@@ -324,6 +341,11 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 	_slot = slot
 	_save_name = ""
 	_pending_snapshot = snapshot.duplicate(true)
+	_dying = false
+	_sleep_phase = ""
+	_sleep_t = 0.0
+	_has_sleep_mark = false
+	_sleep_mark = Vector2.ZERO
 	if snapshot.is_empty():
 		skills.woodcutting_xp = 0
 		skills.firemaking_xp = 0
@@ -420,7 +442,7 @@ func capture_walk() -> Dictionary:
 		caribou_px = _caribou.global_position
 		caribou_facing = _caribou.facing_name()
 		caribou_dir = _caribou.travel_dir
-	return {
+	var data := {
 		"version": 1,
 		"name": _save_name,
 		"seed": world_seed,
@@ -443,6 +465,10 @@ func capture_walk() -> Dictionary:
 		"caribou_facing": caribou_facing,
 		"caribou_dir": caribou_dir,
 	}
+	if _has_sleep_mark:
+		data["sleep_x"] = _sleep_mark.x
+		data["sleep_y"] = _sleep_mark.y
+	return data
 
 
 ## Puts the saved walk back on a coast that was already built from that seed.
@@ -485,13 +511,20 @@ func apply_walk(data: Dictionary) -> void:
 	_minimap_cell = Vector2i(99999, 99999)
 	if data.has("fires") and data["fires"] is Array:
 		_restore_fires(data["fires"])
+	# Old files without sleep keys mean he never slept on this shore.
+	if data.has("sleep_x") and data.has("sleep_y"):
+		_has_sleep_mark = true
+		_sleep_mark = Vector2(float(data["sleep_x"]), float(data["sleep_y"]))
+	else:
+		_has_sleep_mark = false
+		_sleep_mark = Vector2.ZERO
 	_apply_caribou(data)
 	_reveal_visible_view()
 	_refresh_hud()
 
 
 func try_save() -> void:
-	if _naming or is_sleeping() or _slot < 0:
+	if _naming or is_sleeping() or is_dying() or _slot < 0:
 		return
 	if _save_name == "":
 		_set_naming(true)
@@ -645,6 +678,18 @@ func _append_chunk_props(found: Array, key: Vector2i) -> void:
 
 func is_sleeping() -> bool:
 	return _sleep_phase != ""
+
+
+func is_dying() -> bool:
+	return _dying
+
+
+func has_sleep_mark() -> bool:
+	return _has_sleep_mark
+
+
+func sleep_mark() -> Vector2:
+	return _sleep_mark
 
 
 func leif() -> Player:
@@ -1114,7 +1159,7 @@ func is_near_fire(world_px: Vector2) -> bool:
 
 
 func _try_sleep() -> void:
-	if _player == null or _clock == null or _sleep_phase != "":
+	if _player == null or _clock == null or _sleep_phase != "" or _dying:
 		return
 	if not is_near_fire(_player.global_position):
 		_hint = "Sleep by a fire."
@@ -1124,40 +1169,114 @@ func _try_sleep() -> void:
 		_hint = "Sleep when it is dark."
 		_refresh_hud()
 		return
+	_dying = false
 	_sleep_phase = "out"
 	_sleep_t = 0.0
 	_clock.set_process(false)
 
 
+func _begin_death() -> void:
+	if _player == null or _clock == null or _sleep_phase != "":
+		return
+	_dying = true
+	_sleep_phase = "out"
+	_sleep_t = 0.0
+	_clock.set_process(false)
+	_hint = DEATH_HINT
+	_refresh_hud()
+
+
+## Dawn, half the pack, one heart, last sleep tile or the landing.
+func _respawn() -> void:
+	if _clock != null:
+		_clock.set_process(true)
+		var skipped := _clock.seconds_until_dawn()
+		if _clock.can_sleep():
+			_clock.sleep_to_dawn()
+			_burn_fires(skipped)
+		elif _clock.phase() != "dawn":
+			# Already past night somehow: still land on dawn of this cycle.
+			var cycle := _clock.cycle_length()
+			var dawn_start := cycle - DayClock.DAWN_SECONDS
+			var t := fposmod(_clock.elapsed, cycle)
+			_clock.elapsed = _clock.elapsed - t + dawn_start
+			DayClock.darkness_now = _clock.darkness()
+			if _night != null:
+				_night.color = _clock.modulate_color()
+	supplies.take_death_tax()
+	supplies.hearts = 1.0
+	supplies.cold_acc = 0.0
+	if _player != null and is_instance_valid(_player):
+		if _has_sleep_mark:
+			_player.global_position = _sleep_mark
+		else:
+			var landing: MapChunk = _chunks.get(Vector2i(0, 0))
+			if landing != null:
+				_player.global_position = landing.position + landing.spawn_local()
+		_reparent_player()
+		stick_camera()
+	_hint = DEATH_HINT
+	_refresh_hud()
+	# Named shores write so Continue cannot undo the death.
+	if _save_name != "" and _slot >= 0:
+		_commit_save()
+		_hint = DEATH_HINT
+		_refresh_hud()
+
+
 func _tick_sleep(delta: float) -> void:
 	_sleep_t += delta
+	var hold_for := DEATH_HOLD if _dying else SLEEP_HOLD
 	if _sleep_phase == "out":
-		_hud.set_fade(clampf(_sleep_t / SLEEP_OUT, 0.0, 1.0))
+		var out_a := clampf(_sleep_t / SLEEP_OUT, 0.0, 1.0)
+		_hud.set_fade(out_a)
+		if _dying:
+			_hud.set_death_mark(out_a)
+		else:
+			_hud.set_death_mark(0.0)
 		if _sleep_t >= SLEEP_OUT:
-			_clock.set_process(true)
-			var skipped := _clock.seconds_until_dawn()
-			if not _clock.sleep_to_dawn():
-				_sleep_phase = ""
-				_hud.set_fade(0.0)
-				_hint = "Sleep when it is dark."
+			if _dying:
+				_respawn()
+			else:
+				_clock.set_process(true)
+				var skipped := _clock.seconds_until_dawn()
+				if not _clock.sleep_to_dawn():
+					_sleep_phase = ""
+					_dying = false
+					_hud.set_fade(0.0)
+					_hud.set_death_mark(0.0)
+					_hint = "Sleep when it is dark."
+					_refresh_hud()
+					return
+				_burn_fires(skipped)
+				supplies.cold_acc = 0.0
+				# Remember this camp as the death wake tile.
+				if _player != null and is_instance_valid(_player):
+					_has_sleep_mark = true
+					_sleep_mark = _player.global_position
+				if is_near_fire(_player.global_position):
+					_hint = "Slept by the fire."
+				else:
+					_hint = "Slept by the fire. It burned out."
 				_refresh_hud()
-				return
-			_burn_fires(skipped)
-			supplies.cold_acc = 0.0
 			_sleep_phase = "hold"
 			_sleep_t = 0.0
-			if is_near_fire(_player.global_position):
-				_hint = "Slept by the fire."
-			else:
-				_hint = "Slept by the fire. It burned out."
-			_refresh_hud()
 	elif _sleep_phase == "hold":
 		_hud.set_fade(1.0)
-		if _sleep_t >= SLEEP_HOLD:
+		if _dying:
+			_hud.set_death_mark(1.0)
+		if _sleep_t >= hold_for:
 			_sleep_phase = "in"
 			_sleep_t = 0.0
 	elif _sleep_phase == "in":
-		_hud.set_fade(1.0 - clampf(_sleep_t / SLEEP_IN, 0.0, 1.0))
+		var in_a := 1.0 - clampf(_sleep_t / SLEEP_IN, 0.0, 1.0)
+		_hud.set_fade(in_a)
+		if _dying:
+			_hud.set_death_mark(in_a)
+		else:
+			_hud.set_death_mark(0.0)
 		if _sleep_t >= SLEEP_IN:
 			_sleep_phase = ""
+			_dying = false
 			_hud.set_fade(0.0)
+			_hud.set_death_mark(0.0)

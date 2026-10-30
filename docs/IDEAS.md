@@ -18,6 +18,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
 - **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 - **No heart regen.** In. Play signed off. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night.
+- **Death and respawn.** In. Cold at the last half-heart is death. Cream skull on the black. Wake at the last slept fire (or the landing), half the pack gone, one heart, skills and map kept. PixelLab skull waits on generations.
 
 ## Hearts
 
@@ -62,7 +63,6 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 ## The shell
 
 - **Hunger meter.** Eating is in: forage cost for half a heart follows Foraging. A ticking bar is not.
-- **Death and respawn.**
 - **Inventory screen.**
 - **Steam page.**
 - **Pause.** Still later. Escape in the woods is quit-to-menu, not pause.

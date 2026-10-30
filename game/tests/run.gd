@@ -44,6 +44,7 @@ func _init() -> void:
 	_test_night_is_cold_away_from_fire()
 	_test_sleep_jumps_to_dawn()
 	_test_night_costs_six_hearts()
+	_test_death_and_respawn()
 	_test_fallen_log_blocks_its_length()
 	_test_campfire_burns_one_night()
 	_test_coastal_north_has_grove_music()
@@ -939,8 +940,13 @@ func _test_night_is_cold_away_from_fire() -> void:
 	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "the next chill is another half")
 	_expect(is_equal_approx(supplies.hearts, 2.0), "a full heart is two chills")
 	supplies.hearts = 0.5
-	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "", "the last half-heart stays")
-	_expect(is_equal_approx(supplies.hearts, 0.5), "night does not kill him this slice")
+	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "die", "the last half-heart is death")
+	_expect(is_equal_approx(supplies.hearts, 0.0), "cold takes the last half-heart")
+	supplies.wood = 7.0
+	supplies.forage = 5
+	supplies.take_death_tax()
+	_expect(is_equal_approx(supplies.wood, 3.5), "death halves wood to a tenth")
+	_expect(supplies.forage == 2, "death halves forage down")
 
 
 func _test_sleep_jumps_to_dawn() -> void:
@@ -2030,6 +2036,128 @@ func _test_caribou_on_the_trail() -> void:
 	_expect(world.caribou() != null, "an old file still spawns a caribou")
 	if world.caribou() != null:
 		_expect(ChunkGenerator.world_cell_at(world.caribou().global_position).y < 0, "the old file seed-spawns inland")
+	world.free()
+
+
+func _test_death_and_respawn() -> void:
+	print("death and respawn")
+	_use_empty_saves()
+	var world := _boot_run(0, {})
+	var hud := _hud_of(world)
+	var clock := _clock_of(world)
+	var leif := world.leif()
+	_expect(hud != null and clock != null and leif != null, "the woods are up for death")
+	if hud == null or clock == null or leif == null:
+		world.free()
+		return
+	var landing := leif.global_position
+	# Sleep fade stays unmarked.
+	world._dying = false
+	world._sleep_phase = "out"
+	world._sleep_t = World.SLEEP_OUT * 0.5
+	world._tick_sleep(0.0)
+	_expect(is_equal_approx(hud.death_mark_alpha(), 0.0), "sleep fade does not show the skull")
+	world._sleep_phase = ""
+	world._sleep_t = 0.0
+	hud.set_fade(0.0)
+	hud.set_death_mark(0.0)
+	# Mark a camp inland, then walk away with a full pack.
+	var camp := landing + Vector2(0, -96)
+	leif.global_position = camp
+	world._has_sleep_mark = true
+	world._sleep_mark = camp
+	leif.global_position = camp + Vector2(80, 0)
+	var away := leif.global_position
+	world.supplies.wood = 7.0
+	world.supplies.forage = 5
+	world.supplies.hearts = 0.5
+	world.skills.woodcutting_xp = 100
+	world.skills.firemaking_xp = 80
+	world.skills.forage_xp = 40
+	world._fog.reveal(Vector2i(3, -2))
+	var fog_before := world._fog.revealed.size()
+	clock.elapsed = DayClock.DAY_SECONDS + 5.0
+	DayClock.darkness_now = clock.darkness()
+	world._begin_death()
+	_expect(world.is_dying(), "death starts the fade")
+	_expect(world.is_sleeping(), "death uses the sleep blink")
+	# Fade out: skull rises with the black.
+	world._sleep_t = World.SLEEP_OUT * 0.5
+	world._tick_sleep(0.0)
+	_expect(hud.death_mark_alpha() > 0.4, "the skull fades in on death")
+	# Finish out: tax, dawn, wake at the camp.
+	world._sleep_t = World.SLEEP_OUT
+	world._tick_sleep(0.0)
+	_expect(clock.phase() == "dawn", "death wakes at dawn")
+	_expect(is_equal_approx(world.supplies.wood, 3.5), "half the wood is gone")
+	_expect(world.supplies.forage == 2, "half the berries are gone")
+	_expect(is_equal_approx(world.supplies.hearts, 1.0), "he wakes with one heart")
+	_expect(is_equal_approx(leif.global_position.x, camp.x), "he wakes at the last sleep")
+	_expect(is_equal_approx(leif.global_position.y, camp.y), "the camp tile is the wake place")
+	_expect(not is_equal_approx(leif.global_position.x, away.x), "he left the cold spot")
+	_expect(world.skills.woodcutting_xp == 100, "woodcutting stays")
+	_expect(world.skills.firemaking_xp == 80, "fire-making stays")
+	_expect(world.skills.forage_xp == 40, "foraging stays")
+	_expect(world._fog.revealed.size() == fog_before, "the map stays")
+	_expect(hud.lines().contains("Half the pack is gone"), "the death hint is up")
+	_expect(world._sleep_phase == "hold", "death holds the black")
+	_expect(is_equal_approx(hud.death_mark_alpha(), 1.0), "the skull is full on the hold")
+	# Hold ends; skull fades with the wake.
+	world._sleep_t = World.DEATH_HOLD
+	world._tick_sleep(0.0)
+	_expect(world._sleep_phase == "in", "death fades back in")
+	world._sleep_t = World.SLEEP_IN
+	world._tick_sleep(0.0)
+	_expect(not world.is_dying(), "death is over")
+	_expect(is_equal_approx(hud.death_mark_alpha(), 0.0), "the skull is gone after wake")
+	# Capture keeps the sleep mark; R clears it.
+	var shot := world.capture_walk()
+	_expect(shot.has("sleep_x") and shot.has("sleep_y"), "the floppy stores the sleep mark")
+	world.rebuild()
+	_expect(not world.has_sleep_mark(), "R clears the sleep mark")
+	var land_again := world.leif().global_position
+	# Old file without sleep keys: landing wake.
+	var old := shot.duplicate(true)
+	old.erase("sleep_x")
+	old.erase("sleep_y")
+	world.apply_walk(old)
+	_expect(not world.has_sleep_mark(), "an old file has no sleep mark")
+	# Put him inland, die, wake on landing (no sleep mark on this shore).
+	world.leif().global_position = land_again + Vector2(0, -128)
+	world.supplies.wood = 4.0
+	world.supplies.forage = 3
+	world.supplies.hearts = 0.5
+	clock.elapsed = DayClock.DAY_SECONDS + 5.0
+	world._begin_death()
+	world._sleep_t = World.SLEEP_OUT
+	world._tick_sleep(0.0)
+	_expect(is_equal_approx(world.leif().global_position.x, land_again.x), "never slept wakes on the landing")
+	_expect(is_equal_approx(world.leif().global_position.y, land_again.y), "landing is the New Game spawn")
+	_expect(is_equal_approx(world.supplies.wood, 2.0), "half of four wood is two")
+	_expect(world.supplies.forage == 1, "half of three berries is one")
+	world._sleep_phase = ""
+	world._dying = false
+	hud.set_fade(0.0)
+	hud.set_death_mark(0.0)
+	# Named shore writes after death.
+	world._save_name = "Cold"
+	world.supplies.wood = 8.0
+	world.supplies.forage = 9
+	world.supplies.hearts = 0.5
+	world._has_sleep_mark = true
+	world._sleep_mark = camp
+	world.leif().global_position = camp + Vector2(16, 0)
+	clock.elapsed = DayClock.DAY_SECONDS + 5.0
+	world._begin_death()
+	world._sleep_t = World.SLEEP_OUT
+	world._tick_sleep(0.0)
+	var saved := ShoreSave.read_slot(0)
+	_expect(not saved.is_empty(), "a named shore writes after death")
+	if not saved.is_empty():
+		_expect(is_equal_approx(float(saved.get("wood", -1)), 4.0), "the file has half the wood")
+		_expect(int(saved.get("forage", -1)) == 4, "the file has half the berries")
+		_expect(is_equal_approx(float(saved.get("hearts", -1)), 1.0), "the file has one heart")
+		_expect(is_equal_approx(float(saved.get("sleep_x", -1)), camp.x), "the file keeps the sleep mark")
 	world.free()
 
 
