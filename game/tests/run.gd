@@ -57,6 +57,7 @@ func _init() -> void:
 	_test_fallen_branch_is_smaller_than_the_trees()
 	_test_admin_settings()
 	_test_quit_to_menu()
+	_test_caribou_on_the_trail()
 	_wipe_admin()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
@@ -1833,6 +1834,131 @@ func _campfire_at(world: World, cell: Vector2i) -> Campfire:
 			if here == cell:
 				return node as Campfire
 	return null
+
+
+func _test_caribou_on_the_trail() -> void:
+	print("caribou on the trail")
+	var gen := ChunkGenerator.new()
+	var path := gen.caribou_trail_cells(11, World.STRIP_NORTH)
+	_expect(not path.is_empty(), "the trail has a walk")
+	if path.is_empty():
+		return
+	var wide := 0
+	var last_y := path[0].y + 1
+	var step_ok := true
+	for i in path.size():
+		if i > 0:
+			var a := path[i - 1]
+			var b := path[i]
+			if maxi(absi(a.x - b.x), absi(a.y - b.y)) != 1:
+				step_ok = false
+		if path[i].y == last_y:
+			wide += 1
+		last_y = path[i].y
+	_expect(step_ok, "the walk steps one tile at a time")
+	_expect(wide == 0, "the walk is one tile wide")
+	var trail_hits := 0
+	var trail_miss := 0
+	for cy in range(World.STRIP_NORTH, World.STRIP_SOUTH + 1):
+		var data := gen.generate(11, 0, cy, _coast())
+		var tiles: PackedInt32Array = data["tiles"]
+		for ty in ChunkGenerator.HEIGHT:
+			for tx in ChunkGenerator.WIDTH:
+				if tiles[ty * ChunkGenerator.WIDTH + tx] != ChunkGenerator.TILE_TRAIL:
+					continue
+				var cell := Vector2i(tx, cy * ChunkGenerator.HEIGHT + ty)
+				if path.has(cell):
+					trail_hits += 1
+				else:
+					trail_miss += 1
+	_expect(trail_hits > 0, "painted trail tiles sit on the walk")
+	_expect(trail_miss == 0, "every painted trail tile is on the walk")
+	var spawn_i := gen.caribou_seed_index(path)
+	var spawn_cell := path[spawn_i]
+	_expect(path.has(spawn_cell), "seed spawn is on the walk")
+	_expect(spawn_cell.y < ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS - 8, "seed spawn is inland of the beach")
+	var tile := float(ChunkGenerator.TILE)
+	var self_px := Vector2(8, 8)
+	var south := self_px + Vector2(0, 3.5 * tile)
+	var north := self_px + Vector2(0, -3.5 * tile)
+	var toward := Vector2(0, -1)
+	_expect(Caribou.should_spook(self_px, south, toward, true), "jog toward at 4 tiles spooks")
+	_expect(not Caribou.should_spook(self_px, south + Vector2(0, tile), toward, true), "jog toward at 5 tiles does not")
+	var walk_close := self_px + Vector2(0, 1.5 * tile)
+	_expect(Caribou.should_spook(self_px, walk_close, toward, false), "walk toward at 2 tiles spooks")
+	_expect(not Caribou.should_spook(self_px, south, toward, false), "walk toward at 4 tiles does not")
+	_expect(not Caribou.should_spook(self_px, walk_close, Vector2.ZERO, false), "standing still inside 2 tiles does not spook")
+	var away := Caribou.pick_away(self_px, south, [north, south])
+	_expect(away == north, "flee picks the cell farther from Leif")
+	var trapped := Caribou.pick_away(self_px, north, [south])
+	_expect(trapped == south, "toward-Leif only when that is the open step")
+	_expect(Caribou.FLEE_SPEED > Player.RUN_SPEED, "it runs faster than Leif")
+	var walker := Caribou.new()
+	var short: Array[Vector2i] = [Vector2i(10, 10), Vector2i(10, 9), Vector2i(10, 8), Vector2i(10, 7)]
+	walker.setup(short, 1)
+	var start := walker.position
+	walker.tick_with(0.4, Vector2(1000, 1000), Vector2.ZERO, false)
+	_expect(walker.position != start, "walking advances along the path")
+	_expect(not walker.is_fleeing(), "a far stand does not spook")
+	var graze_at := walker.position
+	walker.hold_graze(2.0)
+	walker.tick_with(0.4, Vector2(1000, 1000), Vector2.ZERO, false)
+	_expect(walker.is_grazing(), "graze holds still")
+	_expect(walker.position == graze_at, "graze does not move")
+	var before_flee := walker.position
+	var leif_south := before_flee + Vector2(0, 3.0 * tile)
+	walker.tick_with(0.05, leif_south, toward, true)
+	_expect(walker.is_fleeing(), "jog toward in range starts a flee")
+	for _i in 20:
+		walker.tick_with(0.05, leif_south, toward, true)
+	_expect(walker.position.distance_to(leif_south) > before_flee.distance_to(leif_south), "flee increases distance")
+	_expect(is_instance_valid(walker), "the node is still there after a run")
+	for _j in 40:
+		walker.tick_with(0.1, walker.position + Vector2(0, 8), toward, true)
+	_expect(is_instance_valid(walker), "the north edge does not free the node")
+	walker.free()
+	var dummy := Node2D.new()
+	dummy.set_meta("kind", "caribou")
+	dummy.set_meta("species", "caribou")
+	var interact := Interact.new()
+	interact.supplies = Supplies.new()
+	interact.biome = _coast()
+	var wood := interact.supplies.wood
+	var forage := interact.supplies.forage
+	_expect(interact.use_on(dummy) == "", "Space on a caribou does nothing")
+	_expect(is_equal_approx(interact.supplies.wood, wood), "wood stays")
+	_expect(interact.supplies.forage == forage, "forage stays")
+	dummy.free()
+	interact.free()
+	var world := _boot_run(0, {})
+	var elk := world.caribou()
+	_expect(elk != null, "the woods have a caribou")
+	if elk == null:
+		world.free()
+		return
+	var seed_cell := ChunkGenerator.world_cell_at(elk.global_position)
+	_expect(path.has(seed_cell) or gen.caribou_trail_cells(world.world_seed, World.STRIP_NORTH).has(seed_cell), "it stands on the walk")
+	_expect(seed_cell.y < 0, "New Game puts it inland")
+	var kept := elk.global_position + Vector2(0, -32)
+	elk.global_position = kept
+	elk.set_facing("west")
+	elk.travel_dir = -1
+	var shot := world.capture_walk()
+	_expect(is_equal_approx(float(shot["caribou_x"]), kept.x), "save keeps the caribou")
+	elk.global_position = kept + Vector2(48, 0)
+	world.apply_walk(shot)
+	_expect(is_equal_approx(world.caribou().global_position.x, kept.x), "continue puts it back")
+	_expect(world.caribou().facing_name() == "west", "continue keeps facing")
+	_expect(world.caribou().travel_dir == -1, "continue keeps travel")
+	var old_file := world.capture_walk()
+	old_file.erase("caribou_x")
+	old_file.erase("caribou_y")
+	world.rebuild()
+	world.apply_walk(old_file)
+	_expect(world.caribou() != null, "an old file still spawns a caribou")
+	if world.caribou() != null:
+		_expect(ChunkGenerator.world_cell_at(world.caribou().global_position).y < 0, "the old file seed-spawns inland")
+	world.free()
 
 
 func _boot_run(slot: int, snapshot: Dictionary) -> World:

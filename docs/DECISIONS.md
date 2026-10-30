@@ -2,6 +2,22 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Caribou on the trail is signed off in Play
+
+**Decision:** Play signed off the woodland caribou as shipped. Walk, graze, spook at 4 tiles jogging / 2 tiles walking toward it, always-away flee faster than Leif, no despawn, no hunt. The ColorRect stays until PixelLab generations cover an 8-direction walk.
+
+**Why:** Owner Play: it works great.
+
+**Rejected:** Changing spook ranges or adding hunt in this sign-off.
+
+## 2026-10-30 — One woodland caribou on the trail
+
+**Decision:** The first animal is one woodland caribou (`Rangifer tarandus`) on the existing `coastal_north` trail. It walks that one-tile path, pauses to graze, and is look-don’t-touch: Space does nothing, no hunt, no meat. Jog toward it spooks at **4 tiles**. Walk toward it spooks at **2 tiles**. Standing still, walking away, or stepping onto the moss does not spook. Flee is always away from Leif, faster than his jog (~130 vs 100), along the trail. It does not despawn; it runs off screen and stays on the strip. It only steps toward him if every other way is blocked (log, tree, rock, water, or the strip edge). New Game puts it inland. Continue stores `caribou_x` / `caribou_y` / `caribou_facing` / `caribou_dir`. Old files without those keys seed-spawn inland. **R** builds a new one from the new seed. Art is the ColorRect fallback until PixelLab generations cover an 8-direction walk.
+
+**Why:** The trail already said an animal made it. Seeing one is sensation, fantasy, and discovery. Hunting would need systems this coast does not have. Two spook ranges let him watch on foot and still flush it if he jogs in. Keeping the node when it leaves the view is how the woods stay real.
+
+**Rejected:** A herd. Hunting or a Space verb. Despawning at the map edge. Spooking from standing still. Running toward Leif when an away step exists. Spending the last trial generations on an 8-direction object.
+
 ## 2026-10-30 — The save mark is a floppy disc
 
 **Decision:** The top-right woods mark is a cream 16×16 floppy disc (`game/art/ui/save_floppy.png`), not two pause bars. Click still writes the shore. First click still asks for a name. The clickable square stays 28×28 at (448, 2).

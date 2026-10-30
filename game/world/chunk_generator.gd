@@ -102,6 +102,46 @@ static func world_cell_at(px: Vector2) -> Vector2i:
 	return Vector2i(int(floor(px.x / tile)), int(floor(px.y / tile)))
 
 
+## Feet sit in the middle of a tile, same as Leif.
+static func cell_center(cell: Vector2i) -> Vector2:
+	var tile := float(TILE)
+	return Vector2((float(cell.x) + 0.5) * tile, (float(cell.y) + 0.5) * tile)
+
+
+## The walk the carver takes, including moss gaps. Index 0 is the shore; the last cell is inland.
+func caribou_trail_cells(world_seed: int, north_chunk_y: int) -> Array[Vector2i]:
+	var path: Array[Vector2i] = []
+	if north_chunk_y > 0:
+		return path
+	var tx := WIDTH / 2 + (_hash(world_seed, 0, 0, 99) % 7) - 3
+	var wy := HEIGHT - WATER_ROWS - SHORE_ROWS - 1
+	var min_wy := north_chunk_y * HEIGHT
+	while wy >= min_wy:
+		if tx >= 1 and tx < WIDTH - 1:
+			path.append(Vector2i(tx, wy))
+		if wy == min_wy:
+			break
+		var wiggle := _hash(world_seed, tx, wy, 77) % 5
+		if wiggle == 0 and tx > 2:
+			tx -= 1
+		elif wiggle == 1 and tx < WIDTH - 3:
+			tx += 1
+		wy -= 1
+	return path
+
+
+## Inland on the path, not on the landing beach.
+func caribou_seed_index(path: Array[Vector2i]) -> int:
+	if path.is_empty():
+		return 0
+	var i := int(round(float(path.size()) * 0.55))
+	i = clampi(i, 0, path.size() - 1)
+	var inland_y := -HEIGHT / 2
+	while i < path.size() - 1 and path[i].y > inland_y:
+		i += 1
+	return i
+
+
 func _idx(tx: int, ty: int) -> int:
 	return ty * WIDTH + tx
 

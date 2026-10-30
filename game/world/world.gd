@@ -39,6 +39,7 @@ var _naming := false
 var _quit_ask := false
 var _quit_layer: CanvasLayer
 var _opened := false
+var _caribou: Caribou
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
@@ -228,6 +229,7 @@ func _on_acted(action: String, species: String) -> void:
 func rebuild() -> void:
 	# R is a new coast. Do not drop him back on the shore he had saved.
 	_pending_snapshot = {}
+	_drop_caribou()
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
 	for key in _chunks.keys():
@@ -291,6 +293,7 @@ func _finish_arrival() -> void:
 	if landing != null:
 		_player.global_position = landing.position + landing.spawn_local()
 	_reparent_player()
+	_spawn_caribou()
 	_fog.clear()
 	_minimap_cell = Vector2i(99999, 99999)
 	var snapshot := _pending_snapshot
@@ -403,6 +406,13 @@ func capture_walk() -> Dictionary:
 	var elapsed := 0.0
 	if _clock != null:
 		elapsed = _clock.elapsed
+	var caribou_px := Vector2.ZERO
+	var caribou_facing := "north"
+	var caribou_dir := 1
+	if _caribou != null and is_instance_valid(_caribou):
+		caribou_px = _caribou.global_position
+		caribou_facing = _caribou.facing_name()
+		caribou_dir = _caribou.travel_dir
 	return {
 		"version": 1,
 		"name": _save_name,
@@ -421,6 +431,10 @@ func capture_walk() -> Dictionary:
 		"elapsed": elapsed,
 		"fog": fog_cells,
 		"fires": _capture_fires(),
+		"caribou_x": caribou_px.x,
+		"caribou_y": caribou_px.y,
+		"caribou_facing": caribou_facing,
+		"caribou_dir": caribou_dir,
 	}
 
 
@@ -463,6 +477,7 @@ func apply_walk(data: Dictionary) -> void:
 	_minimap_cell = Vector2i(99999, 99999)
 	if data.has("fires") and data["fires"] is Array:
 		_restore_fires(data["fires"])
+	_apply_caribou(data)
 	_reveal_visible_view()
 	_refresh_hud()
 
@@ -624,6 +639,14 @@ func is_sleeping() -> bool:
 	return _sleep_phase != ""
 
 
+func leif() -> Player:
+	return _player
+
+
+func caribou() -> Caribou:
+	return _caribou
+
+
 func on_entered_chunk(_world_px: Vector2) -> void:
 	_reparent_player()
 	_cull_far_chunks()
@@ -691,6 +714,62 @@ func _reparent_player() -> void:
 	_player.global_position = keep
 	_chunk = host
 	stick_camera()
+
+
+func reparent_caribou() -> void:
+	_reparent_actor(_caribou)
+
+
+func _spawn_caribou() -> void:
+	_drop_caribou()
+	var trail := generator.caribou_trail_cells(world_seed, STRIP_NORTH)
+	if trail.is_empty():
+		return
+	_caribou = Caribou.new()
+	_caribou.world = self
+	add_child(_caribou)
+	var start := generator.caribou_seed_index(trail)
+	_caribou.setup(trail, start)
+	_caribou.global_position = ChunkGenerator.cell_center(trail[start])
+	_reparent_actor(_caribou)
+
+
+func _apply_caribou(data: Dictionary) -> void:
+	if _caribou == null or not is_instance_valid(_caribou):
+		return
+	if not data.has("caribou_x") or not data.has("caribou_y"):
+		return
+	_caribou.global_position = Vector2(float(data["caribou_x"]), float(data["caribou_y"]))
+	if data.has("caribou_facing"):
+		_caribou.set_facing(str(data["caribou_facing"]))
+	if data.has("caribou_dir"):
+		_caribou.travel_dir = 1 if int(data["caribou_dir"]) >= 0 else -1
+	_reparent_actor(_caribou)
+
+
+func _drop_caribou() -> void:
+	if _caribou != null and is_instance_valid(_caribou):
+		var host := _caribou.get_parent()
+		if host != null:
+			host.remove_child(_caribou)
+		_caribou.queue_free()
+	_caribou = null
+
+
+func _reparent_actor(actor: Node2D) -> void:
+	if actor == null or not is_instance_valid(actor):
+		return
+	var key := ChunkGenerator.chunk_of_cell(ChunkGenerator.world_cell_at(actor.global_position))
+	var host := _chunk_at(key)
+	if host == null:
+		return
+	if actor.get_parent() == host:
+		return
+	var keep := actor.global_position
+	if actor.get_parent() != null:
+		actor.get_parent().remove_child(actor)
+	host.add_child(actor)
+	actor.global_position = keep
 
 
 func _sync_interact() -> void:
@@ -955,7 +1034,7 @@ func _minimap_color(kind: int) -> Color:
 			return biome.moss_color
 
 
-func is_blocked_pixel(global_px: Vector2) -> bool:
+func is_blocked_pixel(global_px: Vector2, mover: Node2D = null) -> bool:
 	var cell := ChunkGenerator.world_cell_at(global_px)
 	var key := ChunkGenerator.chunk_of_cell(cell)
 	var host: MapChunk = _chunks.get(key)
@@ -964,7 +1043,15 @@ func is_blocked_pixel(global_px: Vector2) -> bool:
 	var local := ChunkGenerator.local_of_cell(cell)
 	if generator.is_blocked(host.tile_kind(local)):
 		return true
-	return host.cell_blocks_walk(local)
+	if host.cell_blocks_walk(local):
+		return true
+	if _caribou != null and is_instance_valid(_caribou) and mover != _caribou:
+		if ChunkGenerator.world_cell_at(_caribou.global_position) == cell:
+			return true
+	if mover == _caribou and _player != null and is_instance_valid(_player):
+		if ChunkGenerator.world_cell_at(_player.global_position) == cell:
+			return true
+	return false
 
 
 func _adjust_foreign_cell(world_cell: Vector2i, delta: int, walk: bool, occupy: bool) -> void:

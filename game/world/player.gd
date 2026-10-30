@@ -115,6 +115,10 @@ func is_jogging() -> bool:
 	return _is_running()
 
 
+func move_vector() -> Vector2:
+	return _read_dir()
+
+
 ## Live QC speeds. WALK_SPEED / RUN_SPEED stay the baked defaults for title comparisons.
 func move_speed() -> float:
 	return AdminSettings.run_speed if _is_running() else AdminSettings.walk_speed
