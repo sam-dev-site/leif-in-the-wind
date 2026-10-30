@@ -29,6 +29,8 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 ## Skills
 
 - **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting and fire-making shipped on their own numbers in [SKILLS.md](SKILLS.md). It is not this curve.
+- **Perks.** To brainstorm. A menu like Skyrim’s perks: at certain levels you add a bonus.
+- **Level-up animations.** Woodcutting already bursts leaves. Fire-making needs its own, and foraging needs one when that skill exists.
 - **Forage skill.** More efficient gathering.
 - **Fishing skill.**
 
