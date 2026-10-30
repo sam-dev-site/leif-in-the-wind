@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — No heart regen is signed off in Play
+
+**Decision:** Play signed off no heart regen as shipped. Daylight does not heal. Fire warmth does not heal — it only stops the night drain. **E** (Foraging eat cost) is the only way hearts come back. Eat cost stays 10→2. The last half-heart stays.
+
+**Why:** Owner Play: tested and confirmed.
+
+**Rejected:** Turning day or fire heal back on in this sign-off. Retuning the eat price.
+
 ## 2026-10-30 — No heart regen
 
 **Decision:** Hearts do not come back on their own. Daylight does not heal. Fire warmth does not heal — it only stops the night drain. **E** (Foraging eat cost) is the only way hearts come back. Night away from a fire still spends half a heart every 5 seconds. The last half-heart stays. Sleep still skips to dawn and does not restore hearts. Eat cost stays as shipped (10→2). `heal_acc` is dropped from supplies and new saves; old files that still carry the key load and ignore it.

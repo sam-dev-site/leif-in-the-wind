@@ -17,7 +17,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Quit to the menu.** In. Escape in the woods asks quit to the main menu? Y/N. Yes returns to the title without closing the game. Not a pause screen.
 - **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
 - **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
-- **No heart regen.** In. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night. Play check still open.
+- **No heart regen.** In. Play signed off. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night.
 
 ## Hearts
 
