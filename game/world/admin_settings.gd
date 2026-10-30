@@ -15,6 +15,10 @@ const DEFAULTS := {
 	"run_speed": 100.0,
 }
 
+## Default density is 80% of the top. The bottom can strip the scatter.
+const FOLIAGE_MIN := -100
+const FOLIAGE_MAX := 25
+
 static var path := "user://admin_settings.json"
 
 static var day_seconds: float = 50.0
@@ -84,7 +88,7 @@ static func clamp_live() -> void:
 	night_seconds = clampf(float(night_seconds), 10.0, 180.0)
 	hearts = clampi(int(hearts), 1, 10)
 	xp_scale = clampf(float(xp_scale), 0.25, 2.0)
-	foliage_percent = clampi(int(foliage_percent), -50, 100)
+	foliage_percent = clampi(int(foliage_percent), FOLIAGE_MIN, FOLIAGE_MAX)
 	walk_speed = clampf(float(walk_speed), 30.0, 150.0)
 	run_speed = clampf(float(run_speed), 40.0, 200.0)
 	if run_speed < walk_speed:

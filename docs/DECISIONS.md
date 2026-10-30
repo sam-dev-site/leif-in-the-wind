@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Foliage slider runs from empty to a little denser than today
+
+**Decision:** The admin foliage knob is **−100% to +25%** against the baked scatter chances. 0 is today’s woods. The top is about a quarter denser, so today’s density sits near 80% of the max. The bottom can strip trees, forage, rocks, fallen logs, and ground clutter.
+
+**Why:** Play: the old −50% floor still looked like a full forest, and doubling at +100% was more top than we wanted.
+
+**Rejected:** Keeping −50 / +100. Changing the baked default in this pass.
+
 ## 2026-10-30 — Admin cog on the title; Escape quits to the menu
 
 **Decision:** Admin is machine-wide QC on the title only, not a shore save and not a player options menu. A cream cog (already on `main` as `ca7c8ab`) opens an overlay with the first knobs: day length, night length (cold night; dawn stays a fixed 10s), hearts, XP curve scale, foliage/ground stuff percent, walk speed, run speed. Sliders update `AdminSettings` in session. Session values apply to the next New Game / Continue even if he skips Save. **Save** writes `user://admin_settings.json` (on this PC: `%APPDATA%\Godot\app_userdata\Leif in the Wind\admin_settings.json`) and shows that absolute path. **Reset** restores baked `DEFAULTS` in session only. Baked consts on DayClock / Player / Skills / Supplies stay the shipped numbers; live code reads `AdminSettings` at the point of use. Bake-later workflow: when a setting feels right, a later session reads the JSON and copies values into `DEFAULTS`. Escape in the woods is **Quit to the main menu?** Yes / No (and Y / N), not pause. Yes loads `title.tscn` without closing the game. No / N / Escape on the ask stays in the woods. The clock pauses while the ask is up so night does not drain. Walk, skills, and the floppy stay until he answers. Floppy is still how a shore is written; quit without it leaves the box as it was. No cog on the woods HUD.

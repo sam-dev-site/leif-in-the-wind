@@ -17,7 +17,7 @@ const KNOBS: Array = [
 	{"label": "Night length (s)", "field": "night_seconds", "min": 10.0, "max": 180.0, "step": 1.0, "int": false},
 	{"label": "Hearts", "field": "hearts", "min": 1.0, "max": 10.0, "step": 1.0, "int": true},
 	{"label": "XP curve", "field": "xp_scale", "min": 0.25, "max": 2.0, "step": 0.05, "int": false},
-	{"label": "Foliage / ground stuff (%)", "field": "foliage_percent", "min": -50.0, "max": 100.0, "step": 1.0, "int": true},
+	{"label": "Foliage / ground stuff (%)", "field": "foliage_percent", "min": AdminSettings.FOLIAGE_MIN, "max": AdminSettings.FOLIAGE_MAX, "step": 1.0, "int": true},
 	{"label": "Walk", "field": "walk_speed", "min": 30.0, "max": 150.0, "step": 1.0, "int": false},
 	{"label": "Run", "field": "run_speed", "min": 40.0, "max": 200.0, "step": 1.0, "int": false},
 ]
@@ -144,7 +144,7 @@ func _add_row(plate: Panel, knob: Dictionary, y: float) -> float:
 	slider.position = Vector2(164, y)
 	slider.size = Vector2(170, 14)
 	slider.focus_mode = Control.FOCUS_NONE
-	slider.value_changed.connect(_on_slider.bind(field, bool(knob["int"])))
+	_connect_knob(slider, field, bool(knob["int"]))
 	plate.add_child(slider)
 	_sliders[field] = slider
 	var value := Label.new()
@@ -162,8 +162,13 @@ func _add_row(plate: Panel, knob: Dictionary, y: float) -> float:
 	return y + 18.0
 
 
-## bind() prepends field/as_int; the slider then passes value last.
-func _on_slider(field: String, as_int: bool, value: float) -> void:
+func _connect_knob(slider: HSlider, field: String, as_int: bool) -> void:
+	slider.value_changed.connect(func(value: float) -> void:
+		_on_slider(value, field, as_int)
+	)
+
+
+func _on_slider(value: float, field: String, as_int: bool) -> void:
 	match field:
 		"day_seconds":
 			AdminSettings.day_seconds = value

@@ -1269,10 +1269,14 @@ func _test_admin_settings() -> void:
 	AdminSettings.foliage_percent = 0
 	var base := _gen(11)
 	var base_trees := _count_trees(base)
-	AdminSettings.foliage_percent = 100
+	AdminSettings.foliage_percent = AdminSettings.FOLIAGE_MAX
 	var thick := _gen(11)
 	var thick_trees := _count_trees(thick)
-	_expect(thick_trees > base_trees, "foliage +100 percent plants more trees on the same seed")
+	_expect(thick_trees > base_trees, "foliage at the top plants more trees on the same seed")
+	AdminSettings.foliage_percent = AdminSettings.FOLIAGE_MIN
+	var thin := _gen(11)
+	var thin_trees := _count_trees(thin)
+	_expect(thin_trees < base_trees, "foliage at the bottom plants fewer trees on the same seed")
 	AdminSettings.foliage_percent = 0
 
 	AdminSettings.walk_speed = 40.0
@@ -1293,6 +1297,30 @@ func _test_admin_settings() -> void:
 		cog.pressed.emit()
 	_expect(menu.is_admin_open(), "cog opens the admin panel")
 	_expect(menu.get_node_or_null("AdminPanel") != null, "admin panel is on the title")
+	var panel := menu.get_node_or_null("AdminPanel") as AdminPanel
+	var walk: HSlider = null
+	if panel != null:
+		walk = panel.get_node_or_null("Plate/Slider_walk_speed") as HSlider
+	_expect(walk != null, "admin has a walk slider")
+	if walk != null:
+		walk.value = 42.0
+		walk.value_changed.emit(42.0)
+	_expect(is_equal_approx(AdminSettings.walk_speed, 42.0), "dragging walk writes the live setting")
+	if panel != null:
+		panel._on_save()
+	_expect(FileAccess.file_exists(AdminSettings.path), "save writes the admin file")
+	menu.close_admin()
+	_expect(not menu.is_admin_open(), "close hides the panel")
+	_expect(is_equal_approx(AdminSettings.walk_speed, 42.0), "close keeps the saved walk")
+	if cog != null:
+		cog.pressed.emit()
+	_expect(menu.is_admin_open(), "cog opens the panel again")
+	_expect(is_equal_approx(AdminSettings.walk_speed, 42.0), "reopen keeps the saved walk")
+	if walk != null:
+		_expect(is_equal_approx(walk.value, 42.0), "reopen shows the saved walk on the slider")
+	AdminSettings.reset_to_defaults()
+	AdminSettings.load_file()
+	_expect(is_equal_approx(AdminSettings.walk_speed, 42.0), "saved walk survives a reload")
 	var opening := menu.get_node("Menu/Buttons")
 	_expect(opening.get_child_count() == 2, "admin is an overlay, not a third menu button")
 	_expect((opening.get_child(0) as Button).text == "New Game", "New Game stays under the overlay")
