@@ -1,14 +1,15 @@
 class_name Supplies
 extends RefCounted
 
-## What Leif is carrying. Wood buys a fire. Three berries buy half a heart.
+## What Leif is carrying. Wood buys a fire. Berries buy half a heart.
 ## Night away from a fire spends hearts slowly. There is no hunger bar.
 
 const WOOD_PER_TREE := 3.0
 const WOOD_PER_BRANCH := 0.5
 ## Early fire-making tax. Live cost comes from Skills.fire_wood_cost().
 const CAMPFIRE_WOOD := 7.0
-const EAT_FORAGE := 3
+## Level-1 eat tax. Live cost comes from Skills.eat_forage_cost().
+const EAT_FORAGE := 10
 const HEART_STEP := 0.5
 const COLD_SECONDS := 5.0
 const HEAL_SECONDS := 10.0
@@ -21,10 +22,12 @@ var cold_acc := 0.0
 var heal_acc := 0.0
 
 
-func pick_forage(species: String, biome: Biome) -> bool:
+func pick_forage(species: String, biome: Biome, amount: int = 1) -> bool:
 	if not _listed(species, biome, false):
 		return false
-	forage += 1
+	if amount < 1:
+		return false
+	forage += amount
 	return true
 
 
@@ -53,14 +56,15 @@ func try_spend_wood(amount: float) -> bool:
 	return true
 
 
-## Spend 3 berries for half a heart. Short hands and full hearts spend nothing.
-## Day heal and night cold are untouched.
-func try_eat() -> String:
-	if forage < EAT_FORAGE:
+## Spend berries for half a heart. Cost is the caller's Foraging level.
+## Short hands and full hearts spend nothing. Day heal and night cold are untouched.
+func try_eat(cost: int = EAT_FORAGE) -> String:
+	var spend := cost if cost >= 1 else EAT_FORAGE
+	if forage < spend:
 		return "short"
 	if hearts >= hearts_max:
 		return "full"
-	forage -= EAT_FORAGE
+	forage -= spend
 	hearts = snappedf(minf(hearts_max, hearts + HEART_STEP), HEART_STEP)
 	return "eat"
 

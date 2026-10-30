@@ -9,6 +9,7 @@ const FLOPPY := "res://art/ui/save_floppy.png"
 const SKILLS := "res://art/ui/skills.png"
 const WOODCUTTING := "res://art/ui/skill_woodcutting.png"
 const FIREMAKING := "res://art/ui/skill_firemaking.png"
+const FORAGING := "res://art/ui/skill_foraging.png"
 const CREAM := Color(0.95, 0.93, 0.86)
 const _SAVE_DIM := Color(0.72, 0.7, 0.64)
 const _SAVE_LIT := Color(1.45, 1.35, 1.1)
@@ -28,6 +29,8 @@ var _skill_icon: TextureRect
 var _skill_level: Label
 var _fire_icon: TextureRect
 var _fire_level: Label
+var _forage_icon: TextureRect
+var _forage_level: Label
 var _skill_hover: Label
 var _hover_tip := ""
 var _name_box: Control
@@ -44,7 +47,8 @@ func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: S
 	_paint_hearts(supplies)
 	_paint_skills(skills)
 	var cost := skills.fire_cost() if skills != null else Skills.FIRE_WOOD_START
-	var body := status_text(world_seed, biome_name, supplies, phase, hint, cost)
+	var eat := skills.eat_cost() if skills != null else Skills.EAT_FORAGE_START
+	var body := status_text(world_seed, biome_name, supplies, phase, hint, cost, eat)
 	_label.text = body
 	_shadow.text = body
 
@@ -73,9 +77,11 @@ static func status_text(
 	supplies: Supplies,
 	phase: String,
 	hint: String,
-	fire_cost: float = -1.0
+	fire_cost: float = -1.0,
+	eat_cost: int = -1
 ) -> String:
 	var cost := fire_cost if fire_cost >= 0.0 else Skills.FIRE_WOOD_START
+	var eat := eat_cost if eat_cost >= 0 else Skills.EAT_FORAGE_START
 	var lines := (
 		"hearts %s/%s   wood %s   forage %d   %s\n"
 		+ "seed %d   %s\n"
@@ -90,7 +96,7 @@ static func status_text(
 		phase,
 		world_seed,
 		biome_name,
-		Supplies.EAT_FORAGE,
+		eat,
 		Supplies.wood_label(cost),
 	]
 	if hint != "":
@@ -281,7 +287,7 @@ func _build_skills() -> void:
 	_skills_panel.name = "SkillsPanel"
 	_skills_panel.visible = false
 	_skills_panel.position = Vector2(382, 32)
-	_skills_panel.size = Vector2(96, 40)
+	_skills_panel.size = Vector2(96, 58)
 	_skills_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_skills_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	var plate := StyleBoxFlat.new()
@@ -365,6 +371,42 @@ func _build_skills() -> void:
 	_fire_level.add_theme_constant_override("outline_size", 2)
 	_fire_level.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_skills_panel.add_child(_fire_level)
+	_forage_icon = TextureRect.new()
+	_forage_icon.name = "ForagingIcon"
+	_forage_icon.position = Vector2(2, 39)
+	_forage_icon.size = Vector2(16, 16)
+	_forage_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_forage_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_forage_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_forage_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(FORAGING):
+		_forage_icon.texture = load(FORAGING) as Texture2D
+	_skills_panel.add_child(_forage_icon)
+	var forage_name := Label.new()
+	forage_name.name = "ForagingName"
+	forage_name.text = "Foraging"
+	forage_name.position = Vector2(18, 37)
+	forage_name.size = Vector2(58, 20)
+	forage_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	forage_name.modulate = CREAM
+	forage_name.add_theme_font_size_override("font_size", 10)
+	forage_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	forage_name.add_theme_constant_override("outline_size", 2)
+	forage_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(forage_name)
+	_forage_level = Label.new()
+	_forage_level.name = "ForagingLevel"
+	_forage_level.text = "1"
+	_forage_level.position = Vector2(74, 37)
+	_forage_level.size = Vector2(20, 20)
+	_forage_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_forage_level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_forage_level.modulate = CREAM
+	_forage_level.add_theme_font_size_override("font_size", 10)
+	_forage_level.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	_forage_level.add_theme_constant_override("outline_size", 2)
+	_forage_level.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(_forage_level)
 	add_child(_skills_panel)
 	_skill_hover = Label.new()
 	_skill_hover.name = "SkillHover"
@@ -399,10 +441,17 @@ func _follow_skill_hover() -> void:
 		_skill_hover.visible = false
 		return
 	var local_y := mouse.y - rect.position.y
-	if local_y >= rect.size.y * 0.5 and _hover_tip.contains("|"):
-		_skill_hover.text = _hover_tip.get_slice("|", 1)
-	else:
-		_skill_hover.text = _hover_tip.get_slice("|", 0) if _hover_tip.contains("|") else _hover_tip
+	var parts := _hover_tip.split("|")
+	var idx := 0
+	if parts.size() >= 3:
+		var third := rect.size.y / 3.0
+		if local_y >= third * 2.0:
+			idx = 2
+		elif local_y >= third:
+			idx = 1
+	elif parts.size() >= 2 and local_y >= rect.size.y * 0.5:
+		idx = 1
+	_skill_hover.text = parts[idx] if parts.size() > idx else _hover_tip
 	_skill_hover.reset_size()
 	place_skill_hover(mouse)
 
@@ -440,7 +489,13 @@ func _paint_skills(skills: Skills) -> void:
 	_skill_level.text = str(skills.level())
 	if _fire_level != null:
 		_fire_level.text = str(skills.firemaking_level())
-	_hover_tip = "%s|%s" % [skills.step_label(), skills.firemaking_step_label()]
+	if _forage_level != null:
+		_forage_level.text = str(skills.forage_level())
+	_hover_tip = "%s|%s|%s" % [
+		skills.step_label(),
+		skills.firemaking_step_label(),
+		skills.forage_step_label(),
+	]
 	_skills_panel.tooltip_text = ""
 	if _skill_hover != null:
 		_skill_hover.text = skills.step_label()

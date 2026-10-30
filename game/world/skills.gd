@@ -1,12 +1,13 @@
 class_name Skills
 extends RefCounted
 
-## Woodcutting and fire-making on this biome.
+## Woodcutting, fire-making, and foraging on this biome.
 ## Levels 1–30 keep Old School RuneScape’s table. After 30 each step
 ## costs 3% more than the last, so 99 is a stay, not a second career.
 
 const XP_PER_FELL := 25
 const XP_PER_LIGHT := 40
+const XP_PER_PICK := 10
 const MAX_LEVEL := 99
 const LATE_START := 30
 const LATE_GROWTH := 1.03
@@ -14,9 +15,13 @@ const CATCH_START := 0.35
 const CATCH_SURE := 0.95
 const FIRE_WOOD_START := 7.0
 const FIRE_WOOD_END := 1.0
+## Level-1 eat tax. Live cost comes from eat_forage_cost().
+const EAT_FORAGE_START := 10
+const EAT_FORAGE_END := 2
 
 var woodcutting_xp: int = 0
 var firemaking_xp: int = 0
+var forage_xp: int = 0
 
 ## Tests only: -1 rolls, 0 forces a miss, 1 forces a catch.
 var catch_override: int = -1
@@ -32,12 +37,20 @@ func firemaking_level() -> int:
 	return _level_of(firemaking_xp)
 
 
+func forage_level() -> int:
+	return _level_of(forage_xp)
+
+
 func add_woodcutting_xp(amount: int) -> int:
 	return _add_xp("woodcutting", amount)
 
 
 func add_firemaking_xp(amount: int) -> int:
 	return _add_xp("firemaking", amount)
+
+
+func add_forage_xp(amount: int) -> int:
+	return _add_xp("forage", amount)
 
 
 func wood_at(lv: int = -1) -> float:
@@ -50,6 +63,34 @@ func wood_at(lv: int = -1) -> float:
 	else:
 		raw = 3.0 + (10.0 - 3.0) * float(lv - LATE_START) / 69.0
 	return snappedf(raw, 0.1)
+
+
+## Whole berries from one bush. Level 1 keeps today’s one pick.
+static func forage_at(lv: int = 1) -> int:
+	lv = clampi(lv, 1, MAX_LEVEL)
+	if lv >= 80:
+		return 4
+	if lv >= 50:
+		return 3
+	if lv >= LATE_START:
+		return 2
+	return 1
+
+
+## Berries spent for half a heart. Ten-level bands, floor of 2.
+## Quality is the current Foraging level — the handful in hand has no stored age.
+static func eat_forage_cost(lv: int = 1) -> int:
+	lv = clampi(lv, 1, MAX_LEVEL)
+	var band := int((lv - 1) / 10)
+	return maxi(EAT_FORAGE_END, EAT_FORAGE_START - band)
+
+
+func forage_pay() -> int:
+	return forage_at(forage_level())
+
+
+func eat_cost() -> int:
+	return eat_forage_cost(forage_level())
 
 
 static func chop_range(lv: int) -> Vector2i:
@@ -117,6 +158,18 @@ func firemaking_step_label() -> String:
 	return _step_label(firemaking_xp)
 
 
+func forage_step_into() -> int:
+	return _step_into(forage_xp)
+
+
+func forage_step_cost() -> int:
+	return _step_cost(forage_xp)
+
+
+func forage_step_label() -> String:
+	return _step_label(forage_xp)
+
+
 static func xp_for_level(lv: int) -> int:
 	lv = clampi(lv, 1, MAX_LEVEL)
 	var raw := 0
@@ -140,13 +193,22 @@ func _level_of(xp: int) -> int:
 func _add_xp(which: String, amount: int) -> int:
 	if amount <= 0:
 		return 0
-	var before := firemaking_level() if which == "firemaking" else level()
 	var cap := xp_for_level(MAX_LEVEL)
-	if which == "firemaking":
-		firemaking_xp = mini(cap, firemaking_xp + amount)
-		return firemaking_level() - before
-	woodcutting_xp = mini(cap, woodcutting_xp + amount)
-	return level() - before
+	match which:
+		"firemaking":
+			var before_fire := firemaking_level()
+			firemaking_xp = mini(cap, firemaking_xp + amount)
+			return firemaking_level() - before_fire
+		"forage":
+			var before_forage := forage_level()
+			forage_xp = mini(cap, forage_xp + amount)
+			return forage_level() - before_forage
+		"woodcutting":
+			var before_wood := level()
+			woodcutting_xp = mini(cap, woodcutting_xp + amount)
+			return level() - before_wood
+		_:
+			return 0
 
 
 func _step_into(xp: int) -> int:

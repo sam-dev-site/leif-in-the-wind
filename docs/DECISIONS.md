@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Foraging is a skill on this biome
+
+**Decision:** Foraging is in on `coastal_north`. Bakeapple and blueberry share it. **Space** still picks in one tap and always works. XP is **10** per pick on the same 1–30 OSRS then 3% table. Yield is whole berries: **1** through level 29, **2** at 30–49, **3** at 50–79, **4** at 80–99. Eat cost for half a heart is quality on the current Foraging level (no stored berry age): **10** at 1–10, then **9 / 8 / 7 / 6 / 5 / 4 / 3** each ten levels, floor **2** from 81–99. **E** always heals half a heart. The skills panel stacks a Foraging row under Fire-making. The floppy writes `forage_xp`. Old files without the key load as 0. **R** keeps it. Icon is empty until PixelLab replaces it. A miss is not in this Play.
+
+**Why:** Challenge on this biome before more map. Berries already heal; getting better at the pick and the handful is why this place stays interesting after chop and fire. Quality on the skill, not the pack, keeps one forage count.
+
+**Rejected:** A miss chance. Stored berry quality. Fractional hearts. Spending the last PixelLab generations on an icon. Cranberry in this cut.
+
 ## 2026-10-30 — Caribou on the trail is signed off in Play
 
 **Decision:** Play signed off the woodland caribou as shipped. Walk, graze, spook at 4 tiles jogging / 2 tiles walking toward it, always-away flee faster than Leif, no despawn, no hunt. The ColorRect stays until PixelLab generations cover an 8-direction walk.

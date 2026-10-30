@@ -16,6 +16,7 @@ var chunk: MapChunk
 var world: World
 var rng := RandomNumberGenerator.new()
 var last_wood := 0.0
+var last_forage := 0
 var last_levels := 0
 var _rng_ready := false
 
@@ -85,8 +86,7 @@ func use_on(target: Node2D) -> String:
 	var ok := false
 	var action := ""
 	if kind == "forage":
-		ok = supplies.pick_forage(species, biome)
-		action = "forage"
+		return _pick(target, species)
 	elif kind == "tree" or kind == "fallen":
 		return _chop(target, species)
 	elif kind == "branch" or (kind == "clutter" and Supplies.is_branch(species)):
@@ -145,6 +145,18 @@ func _skills() -> Skills:
 	if skills == null:
 		skills = Skills.new()
 	return skills
+
+
+func _pick(target: Node2D, species: String) -> String:
+	last_forage = 0
+	last_levels = 0
+	var skill := _skills()
+	last_forage = skill.forage_pay()
+	if not supplies.pick_forage(species, biome, last_forage):
+		return ""
+	last_levels = skill.add_forage_xp(Skills.XP_PER_PICK)
+	target.set_meta("harvested", true)
+	return "forage"
 
 
 func _chop(target: Node2D, species: String) -> String:

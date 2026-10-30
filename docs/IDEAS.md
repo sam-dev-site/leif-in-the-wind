@@ -16,6 +16,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Admin mode.** In. A cream cog on the title opens QC sliders (day/night, hearts, XP curve, foliage %, walk/run). Save writes `user://admin_settings.json`. More knobs can still be added to the same panel.
 - **Quit to the menu.** In. Escape in the woods asks quit to the main menu? Y/N. Yes returns to the title without closing the game. Not a pause screen.
 - **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
+- **Foraging.** In. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 
 ## Hearts
 
@@ -28,10 +29,9 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Skills
 
-- **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting and fire-making shipped on their own numbers in [SKILLS.md](SKILLS.md). It is not this curve.
+- **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting, fire-making, and foraging shipped on their own numbers in [SKILLS.md](SKILLS.md). It is not this curve.
 - **Perks.** To brainstorm. A menu like Skyrim’s perks: at certain levels you add a bonus.
-- **Level-up animations.** Woodcutting already bursts leaves. Fire-making needs its own, and foraging needs one when that skill exists.
-- **Forage skill.** More efficient gathering.
+- **Level-up animations.** Woodcutting and foraging burst leaves for now. Fire-making and foraging still want their own.
 - **Fishing skill.**
 
 ## The map
@@ -61,7 +61,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## The shell
 
-- **Hunger meter.** Eating is in: 3 berries heal half a heart. A ticking bar is not.
+- **Hunger meter.** Eating is in: forage cost for half a heart follows Foraging. A ticking bar is not.
 - **Death and respawn.**
 - **Inventory screen.**
 - **Steam page.**

@@ -23,6 +23,7 @@ func _init() -> void:
 	_test_chop_tree_in_front()
 	_test_woodcutting_skill()
 	_test_firemaking_skill()
+	_test_forage_skill()
 	_test_verbs_honor_biome_lists()
 	_test_campfire_spends_wood_and_lights()
 	_test_campfire_on_open_ground_only()
@@ -255,6 +256,7 @@ func _test_pick_forage_in_front() -> void:
 	var interact := Interact.new()
 	interact.biome = _coast()
 	interact.supplies = Supplies.new()
+	interact.skills = Skills.new()
 	var picks: Array[Node2D] = []
 	var seen := {}
 	for node in chunk.prop_nodes():
@@ -269,15 +271,18 @@ func _test_pick_forage_in_front() -> void:
 	for node in picks:
 		var species := str(node.get_meta("species"))
 		var before: int = interact.supplies.forage
+		var xp_before := interact.skills.forage_xp
 		var cell := chunk.cell_of_prop(node)
 		_expect(interact.use_on(node) == "forage", "pick %s" % species)
 		_expect(interact.use_on(node) == "", "%s cannot be picked twice" % species)
 		_expect(interact.supplies.forage == before + 1, "%s adds one forage" % species)
+		_expect(interact.skills.forage_xp == xp_before + Skills.XP_PER_PICK, "%s trains foraging" % species)
 		chunk.release_prop(node)
 		var i := cell.y * ChunkGenerator.WIDTH + cell.x
 		_expect(str(chunk.data["forage"][i]) == "", "%s bush is gone" % species)
 		_expect(not chunk.cell_occupied(cell), "%s tile is empty" % species)
 	_expect(interact.supplies.forage == 2, "forage count is both bushes")
+	_expect(interact.skills.forage_xp == Skills.XP_PER_PICK * 2, "bakeapple and blueberry share the skill")
 	_expect(interact.supplies.wood == 0, "picking does not give wood")
 	_expect(interact.supplies.hearts == 3, "picking does not spend hearts")
 	chunk.free()
@@ -461,6 +466,61 @@ func _test_firemaking_skill() -> void:
 	world.free()
 
 
+func _test_forage_skill() -> void:
+	print("forage skill")
+	_expect(Skills.forage_at(1) == 1, "level 1 pays one berry")
+	_expect(Skills.forage_at(29) == 1, "under 30 still pays one")
+	_expect(Skills.forage_at(30) == 2, "level 30 pays two")
+	_expect(Skills.forage_at(49) == 2, "under 50 pays two")
+	_expect(Skills.forage_at(50) == 3, "level 50 pays three")
+	_expect(Skills.forage_at(79) == 3, "under 80 pays three")
+	_expect(Skills.forage_at(80) == 4, "level 80 pays four")
+	_expect(Skills.forage_at(99) == 4, "level 99 pays four")
+	_expect(Skills.eat_forage_cost(1) == 10, "level 1 eat costs 10")
+	_expect(Skills.eat_forage_cost(10) == 10, "level 10 eat still costs 10")
+	_expect(Skills.eat_forage_cost(11) == 9, "level 11 eat costs 9")
+	_expect(Skills.eat_forage_cost(30) == 8, "level 30 eat costs 8")
+	_expect(Skills.eat_forage_cost(81) == 2, "level 81 eat costs 2")
+	_expect(Skills.eat_forage_cost(99) == 2, "level 99 eat stays at 2")
+	var skill := Skills.new()
+	_expect(skill.forage_level() == 1, "foraging starts at 1")
+	_expect(skill.add_forage_xp(Skills.XP_PER_PICK) == 0, "one pick is not yet a level")
+	_expect(skill.forage_xp == Skills.XP_PER_PICK, "the pick grants 10")
+	for _i in range(7):
+		skill.add_forage_xp(Skills.XP_PER_PICK)
+	_expect(skill.forage_level() == 1, "80 xp is still level 1")
+	_expect(skill.add_forage_xp(3) == 1, "83 xp is level 2")
+	_expect(skill.forage_level() == 2, "foraging is now 2")
+	_expect(skill.forage_step_label() == "0/91", "level 2 step starts empty")
+	var forage_kept := skill.forage_xp
+	_expect(skill.add_woodcutting_xp(Skills.XP_PER_PICK) == 0, "one fell-sized woodcutting bite is not a level")
+	_expect(skill.woodcutting_xp == Skills.XP_PER_PICK, "woodcutting keeps its own pool")
+	_expect(skill.forage_xp == forage_kept, "woodcutting xp does not write foraging")
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	interact.skills = Skills.new()
+	interact.skills.forage_xp = Skills.xp_for_level(30)
+	_expect(interact.skills.forage_level() == 30, "seeded xp is level 30")
+	var bush := _prop(Vector2i(4, 4), "forage", "bakeapple")
+	_expect(interact.use_on(bush) == "forage", "a level-30 pick works")
+	_expect(interact.last_forage == 2, "level 30 pays two berries")
+	_expect(interact.supplies.forage == 2, "the pack got two")
+	_expect(interact.skills.forage_xp == Skills.xp_for_level(30) + Skills.XP_PER_PICK, "the pick grants xp")
+	bush.free()
+	var supplies := Supplies.new()
+	supplies.forage = 10
+	supplies.hearts = 2.0
+	_expect(supplies.try_eat(Skills.eat_forage_cost(1)) == "eat", "ten berries heal at level 1")
+	_expect(supplies.forage == 0, "level 1 spends all ten")
+	supplies.forage = 10
+	supplies.hearts = 2.0
+	_expect(supplies.try_eat(Skills.eat_forage_cost(11)) == "eat", "the same ten heal at level 11")
+	_expect(supplies.forage == 1, "level 11 leaves one berry — no stored quality")
+	_expect(is_equal_approx(supplies.hearts, 2.5), "the heal is still half a heart")
+	interact.free()
+
+
 func _test_campfire_spends_wood_and_lights() -> void:
 	print("campfire spends wood and is the warm light")
 	var supplies := Supplies.new()
@@ -560,53 +620,55 @@ func _test_hud_shows_hearts_wood_forage() -> void:
 	_expect(text.contains("forage 2"), "forage count is on the hud")
 	_expect(text.contains("night"), "the phase is on the hud")
 	_expect(text.contains("Space pick, chop, or clear"), "pick, chop, and clear are labeled")
-	_expect(text.contains("E eat (3 forage)"), "eat costs 3 forage")
+	_expect(text.contains("E eat (10 forage)"), "eat costs 10 forage at level 1")
 	_expect(text.contains("F campfire (7 wood)"), "the campfire key shows the early cost")
 	_expect(text.contains("C sleep"), "sleep is labeled")
 	_expect(text.contains("Campfire lit."), "the last action is on the hud")
 	_expect(supplies.hearts == 3, "the hud line does not spend hearts")
 	text = GameHud.status_text(11, "Coastal North", supplies, "night", "", 3.0)
 	_expect(text.contains("F campfire (3 wood)"), "the hud uses the live fire cost")
+	text = GameHud.status_text(11, "Coastal North", supplies, "night", "", 7.0, 9)
+	_expect(text.contains("E eat (9 forage)"), "the hud uses the live eat cost")
 
 
 func _test_eat_forage_heals_half_a_heart() -> void:
 	print("eat forage heals half a heart")
 	var supplies := Supplies.new()
-	supplies.forage = 3
+	supplies.forage = 10
 	supplies.hearts = 2.0
 	supplies.wood = 1.5
 	supplies.cold_acc = 1.5
 	supplies.heal_acc = 2.0
-	_expect(supplies.try_eat() == "eat", "three berries are eaten")
-	_expect(supplies.forage == 0, "eating spends three forage")
+	_expect(supplies.try_eat() == "eat", "ten berries are eaten")
+	_expect(supplies.forage == 0, "eating spends ten forage")
 	_expect(is_equal_approx(supplies.hearts, 2.5), "eating heals half a heart")
 	_expect(is_equal_approx(supplies.wood, 1.5), "eating does not spend wood")
 	_expect(is_equal_approx(supplies.cold_acc, 1.5), "eating does not reset the night")
 	_expect(is_equal_approx(supplies.heal_acc, 2.0), "eating does not reset day heal")
-	supplies.forage = 2
+	supplies.forage = 9
 	supplies.hearts = 1.0
-	_expect(supplies.try_eat() == "short", "two berries are short of a heal")
-	_expect(supplies.forage == 2, "a short handful is not spent")
+	_expect(supplies.try_eat() == "short", "nine berries are short of a level-1 heal")
+	_expect(supplies.forage == 9, "a short handful is not spent")
 	_expect(is_equal_approx(supplies.hearts, 1.0), "a short handful does not heal")
-	supplies.forage = 3
+	supplies.forage = 10
 	supplies.hearts = supplies.hearts_max
 	_expect(supplies.try_eat() == "full", "full hearts refuse the berries")
-	_expect(supplies.forage == 3, "a full heart keeps the forage")
+	_expect(supplies.forage == 10, "a full heart keeps the forage")
 	_expect(is_equal_approx(supplies.hearts, supplies.hearts_max), "hearts stay at max")
 	supplies.forage = 0
 	supplies.hearts = 1.0
 	_expect(supplies.try_eat() == "short", "empty hands refuse")
 	_expect(supplies.forage == 0, "empty forage stays empty")
 	_expect(is_equal_approx(supplies.hearts, 1.0), "refusing does not heal")
-	supplies.forage = 4
+	supplies.forage = 11
 	supplies.hearts = 2.5
-	_expect(supplies.try_eat() == "eat", "a short heart still takes three berries")
+	_expect(supplies.try_eat() == "eat", "a short heart still takes ten berries")
 	_expect(is_equal_approx(supplies.hearts, 3.0), "the bite stops at max hearts")
 	_expect(supplies.forage == 1, "one berry is left, short of another heal")
 	_expect(supplies.try_eat() == "short", "the leftover berry is not eaten")
-	supplies.forage = 3
+	supplies.forage = 10
 	supplies.hearts = 2.0
-	_expect(supplies.try_eat() == "eat", "three berries before the cold")
+	_expect(supplies.try_eat() == "eat", "ten berries before the cold")
 	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "night cold still spends a heart")
 	_expect(is_equal_approx(supplies.hearts, 2.0), "cold still takes half a heart after eating")
 
@@ -1516,18 +1578,21 @@ func _test_floppy_writes_the_walk() -> void:
 				_expect((skills_mark as TextureButton).stretch_mode == TextureButton.STRETCH_SCALE, "the tile stays inside the holder")
 			world.skills.woodcutting_xp = 25
 			world.skills.firemaking_xp = 40
+			world.skills.forage_xp = 10
 			world._refresh_hud()
 			skills_mark.pressed.emit()
 			var panel := hud.get_node_or_null("SkillsPanel") as Control
 			_expect(panel != null and panel.visible, "the skills mark opens a panel")
 			_expect(panel.position.y >= 30.0, "the panel sits under the marks")
 			_expect(panel.position.x >= 370.0, "the panel stays in the right column")
-			_expect(panel.size.x <= 100.0 and panel.size.y <= 48.0, "the panel is two small rows")
-			_expect(panel.size.y >= 36.0, "the panel has room for fire-making")
+			_expect(panel.size.x <= 100.0 and panel.size.y <= 64.0, "the panel is three small rows")
+			_expect(panel.size.y >= 54.0, "the panel has room for foraging")
 			_expect((hud._skill_level as Label).text == "1", "the panel shows woodcutting")
 			_expect(hud.get_node_or_null("SkillsPanel/FiremakingLevel") != null, "fire-making has a row")
 			_expect((hud._fire_level as Label).text == "1", "the panel shows fire-making")
-			_expect(hud._hover_tip == "25/83|40/83", "hover keeps both skill steps")
+			_expect(hud.get_node_or_null("SkillsPanel/ForagingLevel") != null, "foraging has a row")
+			_expect((hud._forage_level as Label).text == "1", "the panel shows foraging")
+			_expect(hud._hover_tip == "25/83|40/83|10/83", "hover keeps three skill steps")
 			_expect(str(panel.tooltip_text) == "", "the native tooltip stays off")
 			var hover := hud.get_node_or_null("SkillHover") as Label
 			_expect(hover != null and hover.text == "25/83", "the hover chip has the woodcutting step")
@@ -1544,6 +1609,7 @@ func _test_floppy_writes_the_walk() -> void:
 			_expect(not panel.visible, "the skills mark closes the panel")
 			world.skills.woodcutting_xp = 0
 			world.skills.firemaking_xp = 0
+			world.skills.forage_xp = 0
 		floppy.pressed.emit()
 		_expect(world.is_naming(), "clicking the floppy asks for a name")
 		world.cancel_save_name()
@@ -1598,6 +1664,7 @@ func _test_floppy_writes_the_walk() -> void:
 		"heal_acc": 0.5,
 		"woodcutting_xp": 83,
 		"firemaking_xp": 40,
+		"forage_xp": 90,
 		"elapsed": 55.0,
 		"fog": [[3, 4], [3, 5]],
 	})
@@ -1616,8 +1683,10 @@ func _test_floppy_writes_the_walk() -> void:
 	_expect(is_equal_approx(float(saved["elapsed"]), 55.0), "the time of day is in the file")
 	_expect(int(saved["woodcutting_xp"]) == 83, "woodcutting is in the file")
 	_expect(int(saved["firemaking_xp"]) == 40, "fire-making is in the file")
+	_expect(int(saved["forage_xp"]) == 90, "foraging is in the file")
 	_expect(world.skills.level() == 2, "the file restores woodcutting")
 	_expect(world.skills.firemaking_level() == 1, "the file restores fire-making")
+	_expect(world.skills.forage_level() == 2, "the file restores foraging")
 	_expect(clock.phase() == "night", "dusk and night come back with the file")
 	_expect(not saved.has("harvested"), "the file does not list chopped trees")
 	var saw_fog := false
@@ -1650,13 +1719,17 @@ func _test_floppy_writes_the_walk() -> void:
 	})
 	_expect(world.skills.woodcutting_xp == 0, "an old file with no skill key is level 1")
 	_expect(world.skills.firemaking_xp == 0, "an old file with no fire-making key is level 1")
+	_expect(world.skills.forage_xp == 0, "an old file with no foraging key is level 1")
 	world.skills.woodcutting_xp = 174
 	world.skills.firemaking_xp = 120
+	world.skills.forage_xp = 90
 	var kept := world.skills.woodcutting_xp
 	var kept_fire := world.skills.firemaking_xp
+	var kept_forage := world.skills.forage_xp
 	world.rebuild()
 	_expect(world.skills.woodcutting_xp == kept, "a new seed keeps woodcutting")
 	_expect(world.skills.firemaking_xp == kept_fire, "a new seed keeps fire-making")
+	_expect(world.skills.forage_xp == kept_forage, "a new seed keeps foraging")
 	world.free()
 
 

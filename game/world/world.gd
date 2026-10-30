@@ -209,7 +209,14 @@ func _on_phase_changed(_next: String) -> void:
 
 func _on_acted(action: String, species: String) -> void:
 	if action == "forage":
-		_hint = "Picked %s." % species
+		if _interact != null and _interact.last_levels > 0:
+			_hint = "Foraging is now %d." % skills.forage_level()
+			_spawn_leaves()
+		else:
+			var pay := skills.forage_pay()
+			if _interact != null:
+				pay = _interact.last_forage
+			_hint = "Picked %s. +%d forage." % [species, pay]
 	elif action == "bite":
 		_hint = "The tree holds."
 	elif action == "chop":
@@ -322,12 +329,14 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 	if snapshot.is_empty():
 		skills.woodcutting_xp = 0
 		skills.firemaking_xp = 0
+		skills.forage_xp = 0
 		var h := float(AdminSettings.hearts)
 		supplies.hearts = h
 		supplies.hearts_max = h
 	else:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
+		skills.forage_xp = int(snapshot.get("forage_xp", 0))
 	if snapshot.has("name"):
 		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
 	if snapshot.has("seed"):
@@ -428,6 +437,7 @@ func capture_walk() -> Dictionary:
 		"heal_acc": supplies.heal_acc,
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
+		"forage_xp": skills.forage_xp,
 		"elapsed": elapsed,
 		"fog": fog_cells,
 		"fires": _capture_fires(),
@@ -456,6 +466,7 @@ func apply_walk(data: Dictionary) -> void:
 	supplies.heal_acc = float(data.get("heal_acc", 0.0))
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
 	skills.firemaking_xp = int(data.get("firemaking_xp", 0))
+	skills.forage_xp = int(data.get("forage_xp", 0))
 	if _clock != null and data.has("elapsed"):
 		_clock.elapsed = float(data["elapsed"])
 		DayClock.darkness_now = _clock.darkness()
@@ -800,11 +811,12 @@ func _sample_world_tile(world_tx: int, world_ty: int) -> int:
 func _try_eat() -> void:
 	if _sleep_phase != "":
 		return
-	var result := supplies.try_eat()
+	var cost := skills.eat_cost()
+	var result := supplies.try_eat(cost)
 	if result == "eat":
 		_hint = "Ate. +%s heart." % Supplies.wood_label(Supplies.HEART_STEP)
 	elif result == "short":
-		_hint = "Need %d forage to eat." % Supplies.EAT_FORAGE
+		_hint = "Need %d forage to eat." % cost
 	elif result == "full":
 		_hint = "Hearts are already full."
 	_refresh_hud()
