@@ -24,7 +24,7 @@ These are how Leif stays in the woods after dark: berries he can eat, a fire for
 3. **Space** facing balsam fir or spruce chops it with the stone axe already in hand. Level 1 takes **3–4** Spaces and pays **0.5 wood**. A smaller ringed stump stays. Woodcutting XP is granted only on the fall — **in now**
 3b. **Space** facing a fallen fir branch clears it (wood +0.5, no XP). Fallen logs train woodcutting like a standing tree — **in now**
 4. **F** spends wood (7 at low fire-making, down toward 1 after level 30) for an attempt on the tile ahead. A miss still spends the wood. Catch chance climbs to 95% by level 30. A catch grants fire-making XP and burns **one night**, then goes out — **in now**
-5. Night is **60 seconds** of cold (six hearts if you stand it). Dusk eases in; dawn eases back to day. Away from a fire, night spends **half a heart every 5 seconds**. Day or warmth heals **half a heart every 10 seconds**. The last half-heart stays — **in now**
+5. Night is **60 seconds** of cold (six hearts if you stand it). Dusk eases in; dawn eases back to day. Away from a fire, night spends **half a heart every 5 seconds**. Day and fire warmth do not heal — berries (**E**) are the only restore. The last half-heart stays — **in now**
 6. **C** by a fire at dusk or night fades to black, then wakes at dawn as it gets light. Sleeping the night spends the fire — **in now**
 7. Tiny bottom-left map: a small circle around him, and the trail stays clear; **R** wipes it — **in now**
 8. **E** spends forage (10 at low Foraging, down toward 2) to heal half a heart. A pick at level 1 still grants 1. Short hands and full hearts refuse and spend nothing. A bite never goes past max. No hunger bar — **in now**

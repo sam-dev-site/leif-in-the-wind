@@ -146,8 +146,6 @@ func _process(delta: float) -> void:
 	if change == "cold":
 		_hint = "The night is cold. Get to a fire."
 		_refresh_hud()
-	elif change == "heal":
-		_refresh_hud()
 	_reveal_visible_view()
 
 
@@ -434,7 +432,6 @@ func capture_walk() -> Dictionary:
 		"hearts": supplies.hearts,
 		"hearts_max": supplies.hearts_max,
 		"cold_acc": supplies.cold_acc,
-		"heal_acc": supplies.heal_acc,
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
 		"forage_xp": skills.forage_xp,
@@ -463,7 +460,7 @@ func apply_walk(data: Dictionary) -> void:
 	supplies.hearts_max = float(AdminSettings.hearts)
 	supplies.hearts = snappedf(minf(supplies.hearts, supplies.hearts_max), Supplies.HEART_STEP)
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
-	supplies.heal_acc = float(data.get("heal_acc", 0.0))
+	# Old files may still carry heal_acc; day/fire no longer heal, so ignore it.
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
 	skills.firemaking_xp = int(data.get("firemaking_xp", 0))
 	skills.forage_xp = int(data.get("forage_xp", 0))
@@ -1147,7 +1144,6 @@ func _tick_sleep(delta: float) -> void:
 				return
 			_burn_fires(skipped)
 			supplies.cold_acc = 0.0
-			supplies.heal_acc = 0.0
 			_sleep_phase = "hold"
 			_sleep_t = 0.0
 			if is_near_fire(_player.global_position):

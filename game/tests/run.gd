@@ -638,13 +638,11 @@ func _test_eat_forage_heals_half_a_heart() -> void:
 	supplies.hearts = 2.0
 	supplies.wood = 1.5
 	supplies.cold_acc = 1.5
-	supplies.heal_acc = 2.0
 	_expect(supplies.try_eat() == "eat", "ten berries are eaten")
 	_expect(supplies.forage == 0, "eating spends ten forage")
 	_expect(is_equal_approx(supplies.hearts, 2.5), "eating heals half a heart")
 	_expect(is_equal_approx(supplies.wood, 1.5), "eating does not spend wood")
 	_expect(is_equal_approx(supplies.cold_acc, 1.5), "eating does not reset the night")
-	_expect(is_equal_approx(supplies.heal_acc, 2.0), "eating does not reset day heal")
 	supplies.forage = 9
 	supplies.hearts = 1.0
 	_expect(supplies.try_eat() == "short", "nine berries are short of a level-1 heal")
@@ -934,9 +932,10 @@ func _test_night_is_cold_away_from_fire() -> void:
 	_expect(supplies.hearts == 3, "warmth spends no hearts")
 	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "cold night spends half a heart")
 	_expect(is_equal_approx(supplies.hearts, 2.5), "half a heart is gone")
-	_expect(supplies.tick_vitals(false, false, Supplies.HEAL_SECONDS) == "heal", "day heals slowly")
-	_expect(is_equal_approx(supplies.hearts, 3.0), "half a heart came back")
-	supplies.hearts = 2.5
+	_expect(supplies.tick_vitals(false, false, 10.0) == "", "day does not heal on its own")
+	_expect(is_equal_approx(supplies.hearts, 2.5), "day leaves hearts where they are")
+	_expect(supplies.tick_vitals(true, true, 10.0) == "", "fire warmth does not heal")
+	_expect(is_equal_approx(supplies.hearts, 2.5), "warmth leaves hearts where they are")
 	_expect(supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "the next chill is another half")
 	_expect(is_equal_approx(supplies.hearts, 2.0), "a full heart is two chills")
 	supplies.hearts = 0.5

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — No heart regen
+
+**Decision:** Hearts do not come back on their own. Daylight does not heal. Fire warmth does not heal — it only stops the night drain. **E** (Foraging eat cost) is the only way hearts come back. Night away from a fire still spends half a heart every 5 seconds. The last half-heart stays. Sleep still skips to dawn and does not restore hearts. Eat cost stays as shipped (10→2). `heal_acc` is dropped from supplies and new saves; old files that still carry the key load and ignore it.
+
+**Why:** Day and fire heal made berries optional. Berries as the only restore makes a cold night matter and makes the Foraging handful the way he stays (submission, fantasy, challenge). Fire stays how he sits the night.
+
+**Rejected:** Keeping day heal. Keeping fire-warmth heal. Retuning the eat price in this cut. Death at 0 hearts.
+
 ## 2026-10-30 — Foraging is signed off in Play
 
 **Decision:** Play signed off foraging as shipped. Bakeapple and blueberry share it. One-tap pick, 10 XP, yield 1→4, eat cost 10→2 on the current level. No miss. No stored berry quality. The icon stays empty until PixelLab.
