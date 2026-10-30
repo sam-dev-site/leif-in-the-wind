@@ -20,30 +20,6 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## Open
 
-## Save button overlaps the name field
-
-**Status:** Open. In this Play; awaiting owner Play sign-off.
-
-**Found:** 2026-10-29
-
-**What you saw:** On “Enter save name.” the Save button is transparent and sits too high. It covers the bottom edge of the text box. The field’s border runs through the button.
-
-**What the game should do:** The text box is clear. Save sits under it, on the green plate, and does not cover the field.
-
-**Where:** The name box in the woods, `game/world/hud.gd`. The field is at (116, 112), 248×22. Save is at (196, 142), 88×22, on that same plate.
-
-## The save mark is two pause bars
-
-**Status:** Open. In this Play; awaiting owner Play sign-off.
-
-**Found:** 2026-10-29
-
-**What you saw:** The top-right save mark is two vertical bars, like a pause icon.
-
-**What the game should do:** That mark is a floppy disc, in pixel art. It stays in the top right. A click still saves. The first click still asks for a name.
-
-**Where:** `game/art/ui/save_floppy.png` is drawn on the top-right button (`game/world/hud.gd`). This Play replaces the bars with a cream floppy; headless tests expect that disc. Not signed off in Play yet.
-
 ## Later
 
 Passing is good enough to keep. The heading stays on this list. A later pass is a separate ask.
@@ -63,6 +39,34 @@ Passing is good enough to keep. The heading stays on this list. A later pass is 
 **Where:** In the woods, while jogging on a diagonal. The camera follows Leif with smoothing off, from outside the y-sorted woods (`game/world/world.gd`). Each frame he moves one normalized diagonal at jog speed (`game/world/player.gd`). Straight directions were not part of this report.
 
 ## Fixed
+
+## Save button overlaps the name field
+
+**Status:** Fixed. 2026-10-30.
+
+**Play:** Signed off. The field is clear. Save sits under it on the green plate and does not cover the box.
+
+**Found:** 2026-10-29
+
+**What you saw:** On “Enter save name.” the Save button is transparent and sits too high. It covers the bottom edge of the text box. The field’s border runs through the button.
+
+**What the game should do:** The text box is clear. Save sits under it, on the green plate, and does not cover the field.
+
+**Where:** The name box in the woods, `game/world/hud.gd`. Field and Save use opaque styles and a 6px gap so the theme cannot grow the field into the button.
+
+## The save mark is two pause bars
+
+**Status:** Fixed. 2026-10-30.
+
+**Play:** Signed off. The top-right mark is a cream floppy disc. A click still saves. The first click still asks for a name.
+
+**Found:** 2026-10-29
+
+**What you saw:** The top-right save mark is two vertical bars, like a pause icon.
+
+**What the game should do:** That mark is a floppy disc, in pixel art. It stays in the top right. A click still saves. The first click still asks for a name.
+
+**Where:** `game/art/ui/save_floppy.png` is a 16×16 cream floppy. The woods draw it on the top-right button (`game/world/hud.gd`).
 
 ## The fallen branch is almost as big as the trees
 
@@ -129,6 +133,6 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Fixed. A look opens a 6-tile circle, and the trail stays clear.
 - **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.
-- **2026-10-29 — Save button overlaps the name field.** Open. In this Play; awaiting owner Play sign-off.
-- **2026-10-29 — The save mark is two pause bars.** Open. It should be a floppy disc. In this Play; awaiting owner Play sign-off.
+- **2026-10-29 — Save button overlaps the name field.** Fixed. 2026-10-30. Field clear; Save under it on the plate.
+- **2026-10-29 — The save mark is two pause bars.** Fixed. 2026-10-30. Cream floppy disc. A click still saves.
 - **2026-10-29 — The fallen branch is almost as big as the trees.** Fixed. Same sprite, drawn at 0.7.
