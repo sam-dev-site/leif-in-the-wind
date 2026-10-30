@@ -81,7 +81,7 @@ func _process(delta: float) -> void:
 		return
 	_walk_time += delta
 	_face(dir)
-	var speed := RUN_SPEED if _is_running() else WALK_SPEED
+	var speed := move_speed()
 	var next := global_position + dir * speed * delta
 	if world != null and world.is_blocked_pixel(next):
 		var slide_x := Vector2(next.x, global_position.y)
@@ -113,6 +113,11 @@ func facing_name() -> String:
 
 func is_jogging() -> bool:
 	return _is_running()
+
+
+## Live QC speeds. WALK_SPEED / RUN_SPEED stay the baked defaults for title comparisons.
+func move_speed() -> float:
+	return AdminSettings.run_speed if _is_running() else AdminSettings.walk_speed
 
 
 func _is_running() -> bool:

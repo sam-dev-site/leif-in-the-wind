@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cadmincog16x16ui"
-path="res://.godot/imported/admin_cog.png-00000000000000000000000000000000.ctex"
+uid="uid://bfi8orcepejay"
+path="res://.godot/imported/admin_cog.png-bc0a230aed6d6f43c4fa910a413629ba.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://art/ui/admin_cog.png"
-dest_files=["res://.godot/imported/admin_cog.png-00000000000000000000000000000000.ctex"]
+dest_files=["res://.godot/imported/admin_cog.png-bc0a230aed6d6f43c4fa910a413629ba.ctex"]
 
 [params]
 

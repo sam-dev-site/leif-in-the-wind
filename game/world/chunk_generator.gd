@@ -174,7 +174,7 @@ func _scatter_trees(
 			var kind := tiles[i]
 			if kind == TILE_WATER or kind == TILE_SHORE or kind == TILE_TRAIL:
 				continue
-			var chance := 0.16 if kind == TILE_MOSS else 0.07
+			var chance := clampf((0.16 if kind == TILE_MOSS else 0.07) * AdminSettings.foliage_multiplier(), 0.0, 1.0)
 			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 21) > chance:
 				continue
 			var pick := _hash(world_seed, tx, ty, 33) % species.size()
@@ -199,7 +199,7 @@ func _scatter_forage(
 			var kind := tiles[i]
 			if kind != TILE_MOSS and kind != TILE_PEAT:
 				continue
-			var chance := 0.05 if kind == TILE_PEAT else 0.03
+			var chance := clampf((0.05 if kind == TILE_PEAT else 0.03) * AdminSettings.foliage_multiplier(), 0.0, 1.0)
 			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 44) > chance:
 				continue
 			# Peat/bog prefers bakeapple; moss prefers blueberry when both exist.
@@ -230,7 +230,8 @@ func _scatter_rocks(
 			var kind := tiles[i]
 			if kind != TILE_MOSS and kind != TILE_PEAT:
 				continue
-			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 55) > 0.045:
+			var rock_chance := clampf(0.045 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 55) > rock_chance:
 				continue
 			rocks[i] = "granite"
 
@@ -259,7 +260,8 @@ func _scatter_fallen(
 			var kind := tiles[i]
 			if kind != TILE_MOSS and kind != TILE_PEAT:
 				continue
-			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 66) > 0.012:
+			var fallen_chance := clampf(0.012 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 66) > fallen_chance:
 				continue
 			if not _fallen_span_clear(tx, ty, tiles, trees, forage, rocks, fallen):
 				continue
@@ -316,7 +318,8 @@ func _scatter_clutter(
 			var kind := tiles[i]
 			if kind != TILE_MOSS and kind != TILE_PEAT:
 				continue
-			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 77) > 0.22:
+			var clutter_chance := clampf(0.22 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, chunk_x * WIDTH + tx, chunk_y * HEIGHT + ty, 77) > clutter_chance:
 				continue
 			clutter[i] = names[_hash(world_seed, tx, ty, 78) % names.size()]
 

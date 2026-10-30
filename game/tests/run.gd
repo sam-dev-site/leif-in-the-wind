@@ -7,6 +7,8 @@ var _failed := 0
 
 
 func _init() -> void:
+	# Pin admin away from the owner's QC file before anything else reads it.
+	_wipe_admin()
 	_test_same_seed_same_chunk()
 	_test_different_seed_changes_woods()
 	_test_origin_biome_is_coastal_north()
@@ -53,6 +55,9 @@ func _init() -> void:
 	_test_sphagnum_cushion_is_whole()
 	_test_sphagnum_is_smaller_than_leif()
 	_test_fallen_branch_is_smaller_than_the_trees()
+	_test_admin_settings()
+	_test_quit_to_menu()
+	_wipe_admin()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
 		quit(1)
@@ -1191,6 +1196,187 @@ func _use_empty_saves() -> void:
 	ShoreSave.use_directory("user://test_saves")
 	ShoreSave.wipe()
 	ShoreSave.unix_override = -1
+
+
+func _wipe_admin() -> void:
+	AdminSettings.use_path("user://test_admin.json")
+	var abs_path := ProjectSettings.globalize_path(AdminSettings.path)
+	if FileAccess.file_exists(AdminSettings.path):
+		DirAccess.remove_absolute(abs_path)
+	AdminSettings.reset_to_defaults()
+
+
+func _count_trees(data: Dictionary) -> int:
+	var trees: Array = data["trees"]
+	var n := 0
+	for name in trees:
+		if str(name) != "" and str(name) != ChunkGenerator.TREE_NONE:
+			n += 1
+	return n
+
+
+func _send_key(node: Node, code: Key) -> void:
+	var key := InputEventKey.new()
+	key.pressed = true
+	key.keycode = code
+	if node.has_method("_unhandled_input"):
+		node._unhandled_input(key)
+
+
+func _test_admin_settings() -> void:
+	print("admin settings")
+	_wipe_admin()
+	AdminSettings.load_file()
+	_expect(is_equal_approx(AdminSettings.day_seconds, 50.0), "missing file uses day default")
+	_expect(is_equal_approx(AdminSettings.night_seconds, 60.0), "missing file uses night default")
+	_expect(AdminSettings.hearts == 3, "missing file uses hearts default")
+	_expect(is_equal_approx(AdminSettings.xp_scale, 1.0), "missing file uses xp default")
+	_expect(AdminSettings.foliage_percent == 0, "missing file uses foliage default")
+	_expect(is_equal_approx(AdminSettings.walk_speed, 70.0), "missing file uses walk default")
+	_expect(is_equal_approx(AdminSettings.run_speed, 100.0), "missing file uses run default")
+	_expect(Skills.xp_for_level(2) == 83, "level 2 stays 83 at 1.0x")
+	_expect(Player.WALK_SPEED == 70.0, "walk const stays the baked default")
+	_expect(Player.RUN_SPEED == 100.0, "run const stays the baked default")
+	_expect(is_equal_approx(DayClock.cold_seconds(), 60.0), "cold night stays 60 at defaults")
+
+	AdminSettings.day_seconds = 40.0
+	AdminSettings.night_seconds = 45.0
+	AdminSettings.hearts = 5
+	AdminSettings.xp_scale = 1.5
+	AdminSettings.foliage_percent = 25
+	AdminSettings.walk_speed = 55.0
+	AdminSettings.run_speed = 90.0
+	_expect(AdminSettings.save_file(), "save writes the admin file")
+	_expect(FileAccess.file_exists(AdminSettings.path), "admin json exists after save")
+	AdminSettings.reset_to_defaults()
+	_expect(is_equal_approx(AdminSettings.day_seconds, 50.0), "reset restores day in session")
+	_expect(AdminSettings.hearts == 3, "reset restores hearts in session")
+	AdminSettings.load_file()
+	_expect(is_equal_approx(AdminSettings.day_seconds, 40.0), "load restores saved day")
+	_expect(is_equal_approx(AdminSettings.night_seconds, 45.0), "load restores saved night")
+	_expect(AdminSettings.hearts == 5, "load restores saved hearts")
+	_expect(is_equal_approx(AdminSettings.xp_scale, 1.5), "load restores saved xp scale")
+	_expect(AdminSettings.foliage_percent == 25, "load restores saved foliage")
+	_expect(is_equal_approx(AdminSettings.walk_speed, 55.0), "load restores saved walk")
+	_expect(is_equal_approx(AdminSettings.run_speed, 90.0), "load restores saved run")
+	_expect(AdminSettings.absolute_path().contains("test_admin.json"), "absolute path helper points at the test file")
+
+	AdminSettings.xp_scale = 2.0
+	_expect(Skills.xp_for_level(2) == 166, "xp scale 2.0 doubles level 2")
+	AdminSettings.xp_scale = 1.0
+	_expect(Skills.xp_for_level(2) == 83, "xp scale 1.0 is 83 again")
+
+	AdminSettings.foliage_percent = 0
+	var base := _gen(11)
+	var base_trees := _count_trees(base)
+	AdminSettings.foliage_percent = 100
+	var thick := _gen(11)
+	var thick_trees := _count_trees(thick)
+	_expect(thick_trees > base_trees, "foliage +100 percent plants more trees on the same seed")
+	AdminSettings.foliage_percent = 0
+
+	AdminSettings.walk_speed = 40.0
+	var walker := Player.new()
+	_expect(is_equal_approx(walker.move_speed(), 40.0), "player walk speed reads AdminSettings")
+	walker.free()
+	AdminSettings.walk_speed = 70.0
+
+	_wipe_admin()
+	var menu := TitleMenu.new()
+	root.add_child(menu)
+	menu.assemble()
+	var cog := menu.get_node_or_null("AdminCog") as TextureButton
+	_expect(cog != null, "title has an admin cog")
+	if cog != null:
+		_expect(cog.position == Vector2(448, 2), "cog sits in the top right")
+		_expect(cog.size == Vector2(28, 28), "cog is the same size as the floppy")
+		cog.pressed.emit()
+	_expect(menu.is_admin_open(), "cog opens the admin panel")
+	_expect(menu.get_node_or_null("AdminPanel") != null, "admin panel is on the title")
+	var opening := menu.get_node("Menu/Buttons")
+	_expect(opening.get_child_count() == 2, "admin is an overlay, not a third menu button")
+	_expect((opening.get_child(0) as Button).text == "New Game", "New Game stays under the overlay")
+	_expect((opening.get_child(1) as Button).text == "Continue", "Continue stays under the overlay")
+	_send_key(menu, KEY_ESCAPE)
+	_expect(not menu.is_admin_open(), "Escape closes admin")
+	_expect(menu.screen == TitleMenu.Screen.CHOOSE, "Escape from admin stays on CHOOSE")
+	_expect(menu.get_node("Menu/Buttons").get_child_count() == 2, "CHOOSE still has exactly two buttons")
+	_expect(menu.get_node_or_null("AdminCog") != null, "cog is not a Menu/Buttons child")
+	menu.free()
+	_wipe_admin()
+
+
+func _test_quit_to_menu() -> void:
+	print("quit to the menu")
+	_wipe_admin()
+	_use_empty_saves()
+	var world := _boot_run(0, {})
+	current_scene = world
+	_expect(not world.is_quit_ask(), "woods start without a quit ask")
+	_send_key(world, KEY_ESCAPE)
+	_expect(world.is_quit_ask(), "Escape in the woods opens the quit ask")
+	var clock := _clock_of(world)
+	_expect(clock != null and not clock.is_processing(), "the clock pauses while he decides")
+	_expect(world.get_node_or_null("QuitAsk") != null, "the quit plate is on the world")
+	world.press_quit_no()
+	_expect(not world.is_quit_ask(), "No closes the ask")
+	_expect(clock.is_processing(), "the clock runs again after No")
+	_expect(current_scene == world, "No stays on the World scene")
+
+	_send_key(world, KEY_ESCAPE)
+	_send_key(world, KEY_N)
+	_expect(not world.is_quit_ask(), "N closes the ask")
+	_expect(current_scene == world, "N stays on the World scene")
+
+	_send_key(world, KEY_ESCAPE)
+	_send_key(world, KEY_ESCAPE)
+	_expect(not world.is_quit_ask(), "Escape on the ask closes it")
+	_expect(current_scene == world, "Escape on the ask stays in the woods")
+
+	world.try_save()
+	ShoreSave.unix_override = 9000
+	_expect(world.submit_save_name("Kept shore"), "floppy writes a shore before quit")
+	_expect(ShoreSave.has_slot(0), "the floppy'd slot is on disk")
+	_send_key(world, KEY_ESCAPE)
+	_expect(world.is_quit_ask(), "Escape opens the ask before Yes")
+	_expect(world.get_parent() != null, "world is still parented before Yes")
+	world.press_quit_yes()
+	_expect(World.TITLE_SCENE == "res://title/title.tscn", "Yes leaves through the title scene")
+	var title := _find_title_menu()
+	_expect(title != null, "Yes returns to the title")
+	if title != null:
+		_expect(title.screen == TitleMenu.Screen.CHOOSE, "title opens on CHOOSE after quit")
+		_expect(title.get_node("Menu/Buttons").get_child_count() == 2, "New Game and Continue are back")
+		_expect((title.get_node("Menu/Buttons").get_child(0) as Button).text == "New Game", "New Game is on the title after quit")
+		_expect((title.get_node("Menu/Buttons").get_child(1) as Button).text == "Continue", "Continue is on the title after quit")
+		_expect(title.get_node_or_null("AdminCog") != null, "the cog is on the title after quit")
+		_expect(ShoreSave.has_slot(0), "a floppy'd slot is still there after quit")
+		title.free()
+
+	_use_empty_saves()
+	var fresh := _boot_run(1, {})
+	current_scene = fresh
+	_expect(not ShoreSave.has_slot(1), "an unsaved New Game has an empty box")
+	_send_key(fresh, KEY_ESCAPE)
+	_send_key(fresh, KEY_Y)
+	title = _find_title_menu()
+	_expect(title != null, "Y returns to the title")
+	if title != null:
+		_expect(not ShoreSave.has_slot(1), "an unsaved New Game still has an empty box after quit")
+		_expect(title.get_node_or_null("AdminCog") != null, "cog is there after quitting an unsaved run")
+		_expect(title.get_node("Menu/Buttons").get_child_count() == 2, "CHOOSE still has New Game and Continue")
+		title.free()
+	_wipe_admin()
+
+
+func _find_title_menu() -> TitleMenu:
+	if current_scene is TitleMenu:
+		return current_scene as TitleMenu
+	for child in root.get_children():
+		if child is TitleMenu:
+			current_scene = child
+			return child as TitleMenu
+	return null
 
 
 func _test_shore_saves() -> void:

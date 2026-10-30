@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Admin cog on the title; Escape quits to the menu
+
+**Decision:** Admin is machine-wide QC on the title only, not a shore save and not a player options menu. A cream cog (already on `main` as `ca7c8ab`) opens an overlay with the first knobs: day length, night length (cold night; dawn stays a fixed 10s), hearts, XP curve scale, foliage/ground stuff percent, walk speed, run speed. Sliders update `AdminSettings` in session. Session values apply to the next New Game / Continue even if he skips Save. **Save** writes `user://admin_settings.json` (on this PC: `%APPDATA%\Godot\app_userdata\Leif in the Wind\admin_settings.json`) and shows that absolute path. **Reset** restores baked `DEFAULTS` in session only. Baked consts on DayClock / Player / Skills / Supplies stay the shipped numbers; live code reads `AdminSettings` at the point of use. Bake-later workflow: when a setting feels right, a later session reads the JSON and copies values into `DEFAULTS`. Escape in the woods is **Quit to the main menu?** Yes / No (and Y / N), not pause. Yes loads `title.tscn` without closing the game. No / N / Escape on the ask stays in the woods. The clock pauses while the ask is up so night does not drain. Walk, skills, and the floppy stay until he answers. Floppy is still how a shore is written; quit without it leaves the box as it was. No cog on the woods HUD.
+
+**Why:** Tune day/night, hearts, XP, foliage, and speed while playing instead of playtest → tell Cursor → wait. Leave the woods without killing the process. Pause and a real options menu stay later ideas.
+
+**Rejected:** Autoload for settings. Cog on the woods HUD. Admin as a third title Screen that replaces New Game / Continue. Escape as pause. A “save first?” prompt on quit. In-woods foliage rebuild / `World.refresh_strip`. Replacing the cream cog PNG.
+
 ## 2026-10-30 — Fire-making Play keeps the early miss
 
 **Decision:** Play signed off fire-making as shipped. Early lights cost 7 and can miss. That is not too tough, and it is a motivator. Catch, wood cost, and XP stay. Longer burn and a bigger warmth radius stay later.

@@ -35,6 +35,9 @@ const OFF_SCREEN_Y := -16.0
 const LOAD_SLICE_USEC := 12000
 
 const CREAM := Color(0.95, 0.93, 0.86)
+const ADMIN_COG := "res://art/ui/admin_cog.png"
+const _SAVE_DIM := Color(0.72, 0.7, 0.64)
+const _SAVE_LIT := Color(1.45, 1.35, 1.1)
 
 var screen: Screen = Screen.CHOOSE
 var _delete_slot := -1
@@ -46,6 +49,8 @@ var _plate: Panel
 var _title: Label
 var _prompt: Label
 var _leif: Sprite2D
+var _cog: TextureButton
+var _admin: AdminPanel
 var _built := false
 var _departing := false
 var _phase := ""
@@ -68,8 +73,10 @@ func assemble() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	PlayWindow.fit(get_window())
+	AdminSettings.load_file()
 	_build_picture()
 	_build_ui()
+	_build_cog()
 	_show_screen()
 
 
@@ -112,7 +119,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if key.keycode != KEY_ESCAPE:
 		return
-	press_back()
+	if is_admin_open():
+		close_admin()
+	else:
+		press_back()
 	var viewport := get_viewport()
 	if viewport != null:
 		viewport.set_input_as_handled()
@@ -132,6 +142,9 @@ func press_continue() -> void:
 func press_back() -> void:
 	if _departing:
 		return
+	if is_admin_open():
+		close_admin()
+		return
 	if screen == Screen.SLOTS or screen == Screen.OVERWRITE_ASK:
 		screen = Screen.CHOOSE
 		_show_screen()
@@ -140,6 +153,26 @@ func press_back() -> void:
 		_show_screen()
 	elif screen == Screen.DELETE_ASK:
 		press_delete_no()
+
+
+func is_admin_open() -> bool:
+	return _admin != null and _admin.visible
+
+
+func open_admin() -> void:
+	if _departing:
+		return
+	if _admin == null:
+		_admin = AdminPanel.new()
+		_admin.name = "AdminPanel"
+		add_child(_admin)
+		_admin.assemble()
+	_admin.open_panel()
+
+
+func close_admin() -> void:
+	if _admin != null:
+		_admin.close_panel()
 
 
 func press_new_game() -> void:
@@ -373,6 +406,41 @@ func _add_prop(parent: Node2D, path: String, x: float, y: float, player_scale: b
 	if node_name != "":
 		sprite.name = node_name
 	parent.add_child(sprite)
+
+
+func _build_cog() -> void:
+	if _cog != null:
+		return
+	_cog = TextureButton.new()
+	_cog.name = "AdminCog"
+	_cog.position = Vector2(448, 2)
+	_cog.custom_minimum_size = Vector2(28, 28)
+	_cog.size = Vector2(28, 28)
+	_cog.ignore_texture_size = true
+	_cog.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
+	_cog.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_cog.focus_mode = Control.FOCUS_NONE
+	_cog.mouse_filter = Control.MOUSE_FILTER_STOP
+	_cog.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_cog.modulate = _SAVE_DIM
+	_cog.z_index = 4
+	if ResourceLoader.exists(ADMIN_COG):
+		var tex := load(ADMIN_COG) as Texture2D
+		if tex != null:
+			_cog.texture_normal = tex
+	else:
+		var cream := ColorRect.new()
+		cream.name = "CogFallback"
+		cream.size = Vector2(16, 16)
+		cream.position = Vector2(6, 6)
+		cream.color = CREAM
+		cream.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_cog.add_child(cream)
+	_cog.mouse_entered.connect(func() -> void: _cog.modulate = _SAVE_LIT)
+	_cog.mouse_exited.connect(func() -> void: _cog.modulate = _SAVE_DIM)
+	_cog.pressed.connect(open_admin)
+	add_child(_cog)
+	_cog.size = Vector2(28, 28)
 
 
 func _build_ui() -> void:

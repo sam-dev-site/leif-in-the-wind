@@ -36,6 +36,8 @@ var _slot := -1
 var _save_name := ""
 var _pending_snapshot: Dictionary = {}
 var _naming := false
+var _quit_ask := false
+var _quit_layer: CanvasLayer
 var _opened := false
 
 const SLEEP_OUT := 0.4
@@ -43,6 +45,9 @@ const SLEEP_HOLD := 0.12
 const SLEEP_IN := 0.7
 const FIRE_WARM_PIXELS := 56.0
 const PROP_EDGE := 24.0
+const TITLE_SCENE := "res://title/title.tscn"
+const PLATE_COLOR := Color(0.24, 0.36, 0.2, 1)
+const CREAM := Color(0.95, 0.93, 0.86)
 
 
 func _ready() -> void:
@@ -128,7 +133,7 @@ func camera_is_outside_the_woods() -> bool:
 
 
 func _process(delta: float) -> void:
-	if _naming:
+	if _naming or _quit_ask:
 		return
 	if _player == null or _clock == null:
 		return
@@ -154,25 +159,47 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _naming:
 		if key.keycode == KEY_ESCAPE:
 			cancel_save_name()
-			get_viewport().set_input_as_handled()
+			_mark_handled()
+		return
+	if _quit_ask:
+		if key.keycode == KEY_Y:
+			press_quit_yes()
+			_mark_handled()
+		elif key.keycode == KEY_N or key.keycode == KEY_ESCAPE:
+			press_quit_no()
+			_mark_handled()
+		return
+	if key.keycode == KEY_ESCAPE:
+		# Sleep blink ignores Escape until he is awake again.
+		if _sleep_phase != "":
+			_mark_handled()
+			return
+		open_quit_ask()
+		_mark_handled()
 		return
 	if key.keycode == KEY_R:
 		# New seed. Wood, forage, and skills stay. Fires were on the old ground.
 		world_seed = (world_seed * 1103515245 + 12345) & 0x7fffffff
 		rebuild()
-		get_viewport().set_input_as_handled()
+		_mark_handled()
 	elif key.keycode == KEY_E:
 		_try_eat()
-		get_viewport().set_input_as_handled()
+		_mark_handled()
 	elif key.keycode == KEY_F:
 		_try_place_campfire()
-		get_viewport().set_input_as_handled()
+		_mark_handled()
 	elif key.keycode == KEY_C:
 		_try_sleep()
-		get_viewport().set_input_as_handled()
+		_mark_handled()
 	elif key.keycode == KEY_F11:
 		_toggle_fullscreen()
-		get_viewport().set_input_as_handled()
+		_mark_handled()
+
+
+func _mark_handled() -> void:
+	var viewport := get_viewport()
+	if viewport != null:
+		viewport.set_input_as_handled()
 
 
 func _on_phase_changed(_next: String) -> void:
@@ -292,6 +319,9 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 	if snapshot.is_empty():
 		skills.woodcutting_xp = 0
 		skills.firemaking_xp = 0
+		var h := float(AdminSettings.hearts)
+		supplies.hearts = h
+		supplies.hearts_max = h
 	else:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
@@ -311,6 +341,54 @@ func save_name() -> String:
 
 func is_naming() -> bool:
 	return _naming
+
+
+func is_quit_ask() -> bool:
+	return _quit_ask
+
+
+func open_quit_ask() -> void:
+	if _quit_ask or _naming or _sleep_phase != "":
+		return
+	_quit_ask = true
+	if _clock != null:
+		_clock.set_process(false)
+	_build_quit_ask()
+
+
+func press_quit_no() -> void:
+	if not _quit_ask:
+		return
+	_quit_ask = false
+	if _quit_layer != null:
+		_quit_layer.queue_free()
+		_quit_layer = null
+	if _clock != null:
+		_clock.set_process(true)
+
+
+func press_quit_yes() -> void:
+	if not _quit_ask:
+		return
+	# Same landing as change_scene_to_file(TITLE_SCENE). Swap under the same
+	# parent so Play and headless -s tests agree. _exit_tree frees the camera.
+	var host := get_parent()
+	if host == null:
+		return
+	var packed := load(TITLE_SCENE) as PackedScene
+	var title: Node = packed.instantiate() if packed != null else TitleMenu.new()
+	_quit_ask = false
+	if _quit_layer != null and is_instance_valid(_quit_layer):
+		_quit_layer.queue_free()
+		_quit_layer = null
+	host.remove_child(self)
+	host.add_child(title)
+	if title is TitleMenu:
+		(title as TitleMenu).assemble()
+	var loop := Engine.get_main_loop()
+	if loop != null:
+		loop.set("current_scene", title)
+	queue_free()
 
 
 func capture_walk() -> Dictionary:
@@ -356,8 +434,10 @@ func apply_walk(data: Dictionary) -> void:
 		_save_name = ShoreSave.clean_name(str(data["name"]))
 	supplies.wood = float(data.get("wood", supplies.wood))
 	supplies.forage = int(data.get("forage", supplies.forage))
-	supplies.hearts_max = float(data.get("hearts_max", supplies.hearts_max))
+	# File hearts first, then admin max, then clamp so a lower QC max does not overfill.
 	supplies.hearts = float(data.get("hearts", supplies.hearts))
+	supplies.hearts_max = float(AdminSettings.hearts)
+	supplies.hearts = snappedf(minf(supplies.hearts, supplies.hearts_max), Supplies.HEART_STEP)
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
 	supplies.heal_acc = float(data.get("heal_acc", 0.0))
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
@@ -423,6 +503,80 @@ func _set_naming(active: bool) -> void:
 	_naming = active
 	if _clock != null:
 		_clock.set_process(not active)
+
+
+func _build_quit_ask() -> void:
+	if _quit_layer != null:
+		return
+	_quit_layer = CanvasLayer.new()
+	_quit_layer.name = "QuitAsk"
+	_quit_layer.layer = 40
+	var root := Control.new()
+	root.name = "Root"
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_STOP
+	_quit_layer.add_child(root)
+	var plate := Panel.new()
+	plate.name = "Plate"
+	plate.position = Vector2(100, 90)
+	plate.size = Vector2(280, 88)
+	var style := StyleBoxFlat.new()
+	style.bg_color = PLATE_COLOR
+	style.set_border_width_all(2)
+	style.border_color = Color(0.55, 0.66, 0.42, 1)
+	plate.add_theme_stylebox_override("panel", style)
+	plate.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(plate)
+	var prompt := Label.new()
+	prompt.name = "Prompt"
+	prompt.text = "Quit to the main menu?"
+	prompt.position = Vector2(12, 10)
+	prompt.size = Vector2(256, 28)
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt.modulate = CREAM
+	prompt.add_theme_font_size_override("font_size", 12)
+	prompt.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	prompt.add_theme_constant_override("outline_size", 4)
+	prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(prompt)
+	var row := HBoxContainer.new()
+	row.name = "Buttons"
+	row.position = Vector2(40, 48)
+	row.size = Vector2(200, 28)
+	row.add_theme_constant_override("separation", 8)
+	plate.add_child(row)
+	row.add_child(_quit_button("Yes", press_quit_yes))
+	row.add_child(_quit_button("No", press_quit_no))
+	add_child(_quit_layer)
+
+
+func _quit_button(text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size = Vector2(96, 24)
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_font_size_override("font_size", 12)
+	button.add_theme_color_override("font_color", CREAM)
+	button.add_theme_color_override("font_hover_color", CREAM)
+	button.add_theme_color_override("font_pressed_color", CREAM)
+	button.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	button.add_theme_constant_override("outline_size", 4)
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.05, 0.07, 0.04, 0.78)
+	normal.set_border_width_all(1)
+	normal.border_color = Color(CREAM.r, CREAM.g, CREAM.b, 0.35)
+	normal.set_content_margin_all(4)
+	var lit := StyleBoxFlat.new()
+	lit.bg_color = Color(0.05, 0.07, 0.04, 0.78)
+	lit.set_border_width_all(1)
+	lit.border_color = Color(CREAM.r, CREAM.g, CREAM.b, 0.9)
+	lit.set_content_margin_all(4)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", lit)
+	button.add_theme_stylebox_override("pressed", lit)
+	button.add_theme_stylebox_override("focus", normal)
+	button.pressed.connect(callback)
+	return button
 
 
 func _commit_save() -> bool:

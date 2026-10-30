@@ -32,17 +32,27 @@ func _process(delta: float) -> void:
 		phase_changed.emit(after)
 
 
+func _day_seconds() -> float:
+	return AdminSettings.day_seconds
+
+
+## Cold night plus the dawn fade. Baked NIGHT_SECONDS stays 70 at the shipped defaults.
+func _night_block() -> float:
+	return AdminSettings.night_seconds + DAWN_SECONDS
+
+
 func cycle_length() -> float:
-	return DAY_SECONDS + NIGHT_SECONDS
+	return _day_seconds() + _night_block()
 
 
 func phase() -> String:
+	var day := _day_seconds()
 	var t := fposmod(elapsed, cycle_length())
 	if t >= cycle_length() - DAWN_SECONDS:
 		return "dawn"
-	if t >= DAY_SECONDS:
+	if t >= day:
 		return "night"
-	if t >= DAY_SECONDS - DUSK_SECONDS:
+	if t >= day - DUSK_SECONDS:
 		return "dusk"
 	return "day"
 
@@ -51,9 +61,9 @@ func is_night() -> bool:
 	return phase() == "night"
 
 
-## How long `is_night()` stays true. Dawn is after this, carved from NIGHT_SECONDS.
+## How long `is_night()` stays true. Dawn is after this, carved from the night block.
 static func cold_seconds() -> float:
-	return NIGHT_SECONDS - DAWN_SECONDS
+	return AdminSettings.night_seconds
 
 
 func can_sleep() -> bool:
@@ -86,12 +96,13 @@ func sleep_to_dawn() -> bool:
 
 ## 0 is full daylight. 1 is night. Dusk eases in; dawn eases out so the wrap is not a cut.
 func darkness() -> float:
+	var day := _day_seconds()
 	var t := fposmod(elapsed, cycle_length())
-	var dusk_start := DAY_SECONDS - DUSK_SECONDS
+	var dusk_start := day - DUSK_SECONDS
 	var dawn_start := cycle_length() - DAWN_SECONDS
 	if t <= dusk_start:
 		return 0.0
-	if t < DAY_SECONDS:
+	if t < day:
 		return (t - dusk_start) / DUSK_SECONDS
 	if t < dawn_start:
 		return 1.0

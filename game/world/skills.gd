@@ -119,12 +119,15 @@ func firemaking_step_label() -> String:
 
 static func xp_for_level(lv: int) -> int:
 	lv = clampi(lv, 1, MAX_LEVEL)
+	var raw := 0
 	if lv <= LATE_START:
-		return _osrs_xp(lv)
-	var base := _osrs_xp(LATE_START)
-	var step0 := _osrs_xp(LATE_START + 1) - _osrs_xp(LATE_START)
-	var k := lv - LATE_START
-	return int(floor(float(base) + float(step0) * (pow(LATE_GROWTH, float(k)) - 1.0) / (LATE_GROWTH - 1.0)))
+		raw = _osrs_xp(lv)
+	else:
+		var base := _osrs_xp(LATE_START)
+		var step0 := _osrs_xp(LATE_START + 1) - _osrs_xp(LATE_START)
+		var k := lv - LATE_START
+		raw = int(floor(float(base) + float(step0) * (pow(LATE_GROWTH, float(k)) - 1.0) / (LATE_GROWTH - 1.0)))
+	return int(floor(float(raw) * AdminSettings.xp_scale))
 
 
 func _level_of(xp: int) -> int:
