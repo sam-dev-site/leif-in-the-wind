@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — The save mark is a floppy disc
+
+**Decision:** The top-right woods mark is a cream 16×16 floppy disc (`game/art/ui/save_floppy.png`), not two pause bars. Click still writes the shore. First click still asks for a name. The clickable square stays 28×28 at (448, 2).
+
+**Why:** Play read the bars as pause.
+
+**Rejected:** Keeping the bars. Spending PixelLab generations on `create_ui_asset`.
+
 ## 2026-10-30 — Foliage slider runs from empty to a little denser than today
 
 **Decision:** The admin foliage knob is **−100% to +25%** against the baked scatter chances. 0 is today’s woods. The top is about a quarter denser, so today’s density sits near 80% of the max. The bottom can strip trees, forage, rocks, fallen logs, and ground clutter.

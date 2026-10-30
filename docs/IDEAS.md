@@ -10,7 +10,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## In
 
-- **Home screen.** Title with New Game and Continue. Continue shows three files by the name he typed and the Costa Rica time. The two bars in the woods write them. An x on a filled box deletes it after a yes. A run already survives quitting in those files, so a separate profile slice is not open.
+- **Home screen.** Title with New Game and Continue. Continue shows three files by the name he typed and the Costa Rica time. The floppy in the woods writes them. An x on a filled box deletes it after a yes. A run already survives quitting in those files, so a separate profile slice is not open.
 - **Woodcutting.** In. A tree’s wood follows that skill. The earlier wish of 1, then 1–3, then 2–5 is not its own slice.
 - **Fire-making.** In. Catch chance climbs through level 30; wood cost starts at 7 and drops after 30. Longer burn and a bigger warmth radius stay open wishes below if they return.
 - **Admin mode.** In. A cream cog on the title opens QC sliders (day/night, hearts, XP curve, foliage %, walk/run). Save writes `user://admin_settings.json`. More knobs can still be added to the same panel.

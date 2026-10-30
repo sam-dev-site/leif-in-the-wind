@@ -216,8 +216,8 @@ func _build_floppy() -> void:
 		return
 	_floppy = TextureButton.new()
 	_floppy.name = "SaveFloppy"
-	# The bars are only a few pixels wide. The clickable square is the whole corner,
-	# including the gap, so a click on the mark still saves.
+	# The floppy mark is a 16×16 disc centered in this holder. The clickable square is
+	# the whole 28×28 corner, so a click on the mark still saves.
 	_floppy.position = Vector2(448, 2)
 	_floppy.custom_minimum_size = Vector2(28, 28)
 	_floppy.size = Vector2(28, 28)
@@ -276,7 +276,7 @@ func _build_skills() -> void:
 	_skills_btn.pressed.connect(_toggle_skills)
 	add_child(_skills_btn)
 	_skills_btn.size = Vector2(28, 28)
-	# Sit under the skills mark and the two bars (416–476). Skills stack down this column.
+	# Sit under the skills mark and the floppy (416–476). Skills stack down this column.
 	_skills_panel = Panel.new()
 	_skills_panel.name = "SkillsPanel"
 	_skills_panel.visible = false
@@ -456,6 +456,7 @@ func _ensure_name_box() -> void:
 	box.mouse_filter = Control.MOUSE_FILTER_STOP
 	box.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var plate := Panel.new()
+	plate.name = "SaveNamePlate"
 	plate.position = Vector2(100, 78)
 	plate.size = Vector2(280, 108)
 	plate.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -477,27 +478,59 @@ func _ensure_name_box() -> void:
 	title.add_theme_constant_override("outline_size", 4)
 	box.add_child(title)
 	_name_line = LineEdit.new()
+	_name_line.name = "SaveNameField"
 	_name_line.position = Vector2(116, 112)
+	_name_line.custom_minimum_size = Vector2(248, 22)
 	_name_line.size = Vector2(248, 22)
 	_name_line.max_length = ShoreSave.NAME_LIMIT
 	_name_line.focus_mode = Control.FOCUS_ALL
 	_name_line.add_theme_font_size_override("font_size", 12)
 	_name_line.add_theme_color_override("font_color", CREAM)
+	_name_line.add_theme_color_override("font_placeholder_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.45))
+	var field_normal := _name_box_style(Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
+	var field_focus := _name_box_style(Color(CREAM.r, CREAM.g, CREAM.b, 0.9))
+	_name_line.add_theme_stylebox_override("normal", field_normal)
+	_name_line.add_theme_stylebox_override("focus", field_focus)
+	_name_line.add_theme_stylebox_override("read_only", field_normal)
 	_name_line.text_submitted.connect(func(text: String) -> void: name_submitted.emit(text))
 	box.add_child(_name_line)
 	var save := Button.new()
+	save.name = "SaveNameConfirm"
 	save.text = "Save"
-	save.position = Vector2(196, 142)
 	save.custom_minimum_size = Vector2(88, 22)
+	save.size = Vector2(88, 22)
 	save.focus_mode = Control.FOCUS_NONE
 	save.add_theme_font_size_override("font_size", 12)
 	save.add_theme_color_override("font_color", CREAM)
 	save.add_theme_color_override("font_hover_color", CREAM)
+	save.add_theme_color_override("font_pressed_color", CREAM)
+	save.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	save.add_theme_constant_override("outline_size", 4)
+	var save_normal := _name_box_style(Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
+	var save_lit := _name_box_style(Color(CREAM.r, CREAM.g, CREAM.b, 0.9))
+	save.add_theme_stylebox_override("normal", save_normal)
+	save.add_theme_stylebox_override("hover", save_lit)
+	save.add_theme_stylebox_override("pressed", save_lit)
+	save.add_theme_stylebox_override("focus", save_normal)
+	# Keep at least 6px under the field. Center Save on the plate.
+	save.position = Vector2(196, _name_line.position.y + _name_line.size.y + 6.0)
+	var plate_bottom := save.position.y + save.size.y + 8.0
+	if plate_bottom > plate.position.y + plate.size.y:
+		plate.size.y = plate_bottom - plate.position.y
 	save.pressed.connect(func() -> void: name_submitted.emit(_name_line.text))
 	box.add_child(save)
 	box.set_process_unhandled_input(true)
 	add_child(box)
 	_name_box = box
+
+
+func _name_box_style(border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.07, 0.04, 0.78)
+	style.set_border_width_all(1)
+	style.border_color = border
+	style.set_content_margin_all(2)
+	return style
 
 
 func _input(event: InputEvent) -> void:

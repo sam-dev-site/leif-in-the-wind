@@ -1498,14 +1498,14 @@ func _test_floppy_writes_the_walk() -> void:
 		_expect(floppy.size.x >= 24.0 and floppy.size.y >= 24.0, "the save mark has a corner-sized click")
 		var floppy_click := Rect2(Vector2.ZERO, floppy.size)
 		_expect(floppy_click.has_point(Vector2(1, 1)), "the corner of the save mark clicks")
-		_expect(floppy_click.has_point(floppy.size * 0.5), "the gap between the bars clicks")
+		_expect(floppy_click.has_point(floppy.size * 0.5), "the center of the mark clicks")
 		_expect(floppy.mouse_filter == Control.MOUSE_FILTER_STOP, "the save mark takes the click")
 		var tex := (floppy as TextureButton).texture_normal
-		_expect(tex != null and _is_pause_mark(tex), "the save mark is two vertical bars")
+		_expect(tex != null and _is_floppy_mark(tex), "the save mark is a floppy disc")
 		var skills_mark := hud.get_node_or_null("SkillsMark") as TextureButton
 		_expect(skills_mark != null, "the skills mark is on the hud")
 		if skills_mark != null:
-			_expect(skills_mark.position.x < floppy.position.x, "the skills mark sits left of the bars")
+			_expect(skills_mark.position.x < floppy.position.x, "the skills mark sits left of the floppy")
 			_expect(skills_mark.size.x >= 24.0, "the skills mark has a corner-sized click")
 			var shade := hud.get_node_or_null("SkillsMarkShadow") as Control
 			_expect(shade != null, "the brown tile has a drop shadow")
@@ -1544,12 +1544,30 @@ func _test_floppy_writes_the_walk() -> void:
 			world.skills.woodcutting_xp = 0
 			world.skills.firemaking_xp = 0
 		floppy.pressed.emit()
-		_expect(world.is_naming(), "clicking the bars asks for a name")
+		_expect(world.is_naming(), "clicking the floppy asks for a name")
 		world.cancel_save_name()
 	_expect(not ShoreSave.has_slot(0), "a new shore has no file yet")
 	world.try_save()
 	_expect(world.is_naming(), "the first floppy asks for a name")
 	_expect(clock != null and not clock.is_processing(), "the night waits while he types")
+	var name_box := hud.get_node_or_null("SaveName") as Control
+	_expect(name_box != null and name_box.visible, "the name box is open")
+	if name_box != null:
+		var field := name_box.get_node_or_null("SaveNameField") as Control
+		var confirm := name_box.get_node_or_null("SaveNameConfirm") as Control
+		var plate := name_box.get_node_or_null("SaveNamePlate") as Control
+		_expect(field != null and confirm != null and plate != null, "the name box has field, Save, and plate")
+		if field != null and confirm != null and plate != null:
+			var field_rect := Rect2(field.position, field.size)
+			var save_rect := Rect2(confirm.position, confirm.size)
+			_expect(not field_rect.intersects(save_rect), "field and Save do not overlap")
+			_expect(confirm.position.y >= field.position.y + field.size.y, "Save sits below the field")
+			var plate_rect := Rect2(plate.position, plate.size)
+			_expect(plate_rect.encloses(field_rect), "the field sits inside the green plate")
+			_expect(plate_rect.encloses(save_rect), "Save sits inside the green plate")
+			var save_btn := confirm as Button
+			var normal := save_btn.get_theme_stylebox("normal") as StyleBoxFlat
+			_expect(normal != null and normal.bg_color.a > 0.5, "Save is opaque")
 	_expect(not world.submit_save_name("   "), "a blank name does not write")
 	_expect(world.is_naming() and not ShoreSave.has_slot(0), "the name box stays open")
 	var escape := InputEventKey.new()
@@ -1726,10 +1744,21 @@ func _named_save(save_name: String, world_seed: int, unix_time: int) -> Dictiona
 	}
 
 
-func _is_pause_mark(tex: Texture2D) -> bool:
+func _is_floppy_mark(tex: Texture2D) -> bool:
 	var img := tex.get_image()
 	if img == null or img.get_width() != 16 or img.get_height() != 16:
 		return false
+	var center := img.get_pixel(8, 8)
+	if center.a <= 0.5:
+		return false
+	var opaque := 0
+	for y in 16:
+		for x in 16:
+			if img.get_pixel(x, y).a > 0.5:
+				opaque += 1
+	if opaque <= 80:
+		return false
+	# Old pause bars were two ink runs on row y=7. A filled disc must not match that.
 	var runs := 0
 	var in_bar := false
 	for x in 16:
@@ -1739,7 +1768,9 @@ func _is_pause_mark(tex: Texture2D) -> bool:
 			in_bar = true
 		elif not ink:
 			in_bar = false
-	return runs == 2
+	if runs == 2:
+		return false
+	return true
 
 
 ## Stand on the tile south of target and face it, so F aims at that world cell.

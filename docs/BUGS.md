@@ -22,7 +22,7 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## Save button overlaps the name field
 
-**Status:** Open.
+**Status:** Open. In this Play; awaiting owner Play sign-off.
 
 **Found:** 2026-10-29
 
@@ -34,7 +34,7 @@ Each heading below is one break in the game you already have. It stays open unti
 
 ## The save mark is two pause bars
 
-**Status:** Open.
+**Status:** Open. In this Play; awaiting owner Play sign-off.
 
 **Found:** 2026-10-29
 
@@ -42,7 +42,7 @@ Each heading below is one break in the game you already have. It stays open unti
 
 **What the game should do:** That mark is a floppy disc, in pixel art. It stays in the top right. A click still saves. The first click still asks for a name.
 
-**Where:** `game/art/ui/save_floppy.png` is a 16×16 picture of two cream bars. The woods draw it on the top-right button (`game/world/hud.gd`). The headless test still requires those two bars.
+**Where:** `game/art/ui/save_floppy.png` is drawn on the top-right button (`game/world/hud.gd`). This Play replaces the bars with a cream floppy; headless tests expect that disc. Not signed off in Play yet.
 
 ## Later
 
@@ -129,6 +129,6 @@ An earlier decision opened every tile on the 480×270 screen. That is the pictur
 - **2026-10-28 — Running on a diagonal is choppy.** Passing. Kept for later. The view is no longer stacked with the trees.
 - **2026-10-28 — Minimap shows too much.** Fixed. A look opens a 6-tile circle, and the trail stays clear.
 - **2026-10-28 — Sphagnum is larger than Leif.** Fixed. The cushion is stamped at half size.
-- **2026-10-29 — Save button overlaps the name field.** Open. Not this Play.
-- **2026-10-29 — The save mark is two pause bars.** Open. It should be a floppy disc. Not this Play.
+- **2026-10-29 — Save button overlaps the name field.** Open. In this Play; awaiting owner Play sign-off.
+- **2026-10-29 — The save mark is two pause bars.** Open. It should be a floppy disc. In this Play; awaiting owner Play sign-off.
 - **2026-10-29 — The fallen branch is almost as big as the trees.** Fixed. Same sprite, drawn at 0.7.

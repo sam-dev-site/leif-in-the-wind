@@ -16,7 +16,7 @@ XP is granted **only when the tree falls**, 25 per fell. One Space and walk away
 
 Levels 1–30 use Old School RuneScape’s table uncut. After 30 each step costs 3% more than the last. Level 99 is 341,036 XP. Level 92 is about 79% of that, not half.
 
-A workbench mark sits left of the two bars. It opens a short column under those marks: Woodcutting, then Fire-making, each with its level. Hover on a row for a small step chip (`0/83`, then `25/83`) that sits just under the pointer and follows it. Continue still shows name and time. The two bars write `woodcutting_xp` and `firemaking_xp` in that biome’s file. **R** keeps both.
+A workbench mark sits left of the floppy. It opens a short column under those marks: Woodcutting, then Fire-making, each with its level. Hover on a row for a small step chip (`0/83`, then `25/83`) that sits just under the pointer and follows it. Continue still shows name and time. The floppy writes `woodcutting_xp` and `firemaking_xp` in that biome’s file. **R** keeps both.
 
 A level-up drops green leaves around Leif and says **Woodcutting is now 2.** (Fire-making uses the same leaves and says **Fire-making is now 2.**)
 
@@ -45,7 +45,7 @@ The first fire is fourteen branches, or many clumsy trees. Past 30, cheaper wood
 
 - No XP total on the bottom HUD line
 - No skill tree
-- Fire-making is signed off in Play. No other skills until asked
+- Woodcutting is signed off in Play. Fire-making is signed off in Play. No other skills until asked
 - No printing the level on Continue
 - No longer burn or bigger warmth radius in this cut
 
