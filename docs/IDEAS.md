@@ -16,7 +16,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Admin mode.** In. A cream cog on the title opens QC sliders (day/night, hearts, XP curve, foliage %, walk/run). Save writes `user://admin_settings.json`. More knobs can still be added to the same panel.
 - **Quit to the menu.** In. Escape in the woods asks quit to the main menu? Y/N. Yes returns to the title without closing the game. Not a pause screen.
 - **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
-- **Foraging.** In. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
+- **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 
 ## Hearts
 

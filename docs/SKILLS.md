@@ -72,7 +72,7 @@ So the first heal is ten bushes. At 30 it is four bushes (2 each, cost 8). At 99
 
 - No XP total on the bottom HUD line
 - No skill tree
-- Woodcutting is signed off in Play. Fire-making is signed off in Play. Foraging waits on Play
+- Woodcutting is signed off in Play. Fire-making is signed off in Play. Foraging is signed off in Play
 - No printing the level on Continue
 - No longer burn or bigger warmth radius in this cut
 - No miss on a pick. No stored berry quality. No fractional hearts
