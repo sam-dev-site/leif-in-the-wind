@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Fire-making Play keeps the early miss
+
+**Decision:** Play signed off fire-making as shipped. Early lights cost 7 and can miss. That is not too tough, and it is a motivator. Catch, wood cost, and XP stay. Longer burn and a bigger warmth radius stay later.
+
+**Why:** Owner Play: the first fires worked as expected. The miss is the challenge, not a wall.
+
+**Rejected:** Softening catch or cost after Play. Adding longer burn or a bigger pool in this sign-off.
+
 ## 2026-10-30 — Fire-making is a skill on this biome
 
 **Decision:** Fire-making is in on `coastal_north`. **F** spends the level’s wood cost for an attempt. A miss still spends the wood; the hint stays **The fire does not catch.** Catch chance climbs from **35%** at level 1 to **95%** at level 30, then stays 95%. Wood cost is a flat **7** through level 30, then linear down to **1** at 99. XP is **40** per successful light (more than a fell’s 25). Fail grants 0. The two bars write `firemaking_xp` next to `woodcutting_xp`. Old files without the key load as 0. **R** keeps it. The skills panel stacks a Fire-making row under Woodcutting. A lit fire still burns one cold night and uses the same warmth radius. Live docs say **this biome** when they mean the playable skill ground, not “this coast” / “this shore.”

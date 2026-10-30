@@ -45,7 +45,7 @@ The first fire is fourteen branches, or many clumsy trees. Past 30, cheaper wood
 
 - No XP total on the bottom HUD line
 - No skill tree
-- No other skills until fire-making is fun in Play
+- Fire-making is signed off in Play. No other skills until asked
 - No printing the level on Continue
 - No longer burn or bigger warmth radius in this cut
 
