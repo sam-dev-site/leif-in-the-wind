@@ -60,6 +60,7 @@ func _init() -> void:
 	_test_admin_settings()
 	_test_quit_to_menu()
 	_test_caribou_on_the_trail()
+	_test_arctic_hare_on_the_moss()
 	_wipe_admin()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
@@ -2036,6 +2037,121 @@ func _test_caribou_on_the_trail() -> void:
 	_expect(world.caribou() != null, "an old file still spawns a caribou")
 	if world.caribou() != null:
 		_expect(ChunkGenerator.world_cell_at(world.caribou().global_position).y < 0, "the old file seed-spawns inland")
+	world.free()
+
+
+func _test_arctic_hare_on_the_moss() -> void:
+	print("arctic hare on the moss")
+	var gen := ChunkGenerator.new()
+	var trail := gen.caribou_trail_cells(11, World.STRIP_NORTH)
+	var cells := gen.hare_seed_cells(11, World.STRIP_NORTH)
+	_expect(cells.size() == 3, "seed places three hares")
+	var trail_hit := 0
+	var inland_ok := true
+	var moss_ok := true
+	for i in cells.size():
+		var cell: Vector2i = cells[i]
+		if trail.has(cell):
+			trail_hit += 1
+		if cell.y >= 0:
+			inland_ok = false
+		var kind := gen.peek_ground(11, cell.x, cell.y)
+		if kind != ChunkGenerator.TILE_MOSS and kind != ChunkGenerator.TILE_PEAT:
+			moss_ok = false
+		for j in range(i + 1, cells.size()):
+			_expect(Vector2(cell).distance_to(Vector2(cells[j])) >= 12.0, "hares are at least 12 tiles apart")
+	_expect(trail_hit == 0, "seed cells are off the caribou trail")
+	_expect(inland_ok, "seed cells are inland")
+	_expect(moss_ok, "seed cells are moss or peat")
+	var tile := float(ChunkGenerator.TILE)
+	var self_px := Vector2(8, 8)
+	var south := self_px + Vector2(0, 3.5 * tile)
+	var north := self_px + Vector2(0, -3.5 * tile)
+	var toward := Vector2(0, -1)
+	_expect(Hare.should_spook(self_px, south, toward, true), "jog toward at 4 tiles spooks")
+	_expect(not Hare.should_spook(self_px, south + Vector2(0, tile), toward, true), "jog toward at 5 tiles does not")
+	var walk_close := self_px + Vector2(0, 1.5 * tile)
+	_expect(Hare.should_spook(self_px, walk_close, toward, false), "walk toward at 2 tiles spooks")
+	_expect(not Hare.should_spook(self_px, south, toward, false), "walk toward at 4 tiles does not")
+	_expect(not Hare.should_spook(self_px, walk_close, Vector2.ZERO, false), "standing still inside 2 tiles does not spook")
+	var away := Hare.pick_away(self_px, south, [north, south])
+	_expect(away == north, "flee picks the cell farther from Leif")
+	_expect(Hare.FLEE_SPEED > Player.RUN_SPEED, "it runs faster than Leif")
+	var hopper := Hare.new()
+	hopper.setup_at(Vector2i(10, -10))
+	hopper.hold_sit(0.1)
+	var start := hopper.position
+	hopper.tick_with(0.2, Vector2(1000, 1000), Vector2.ZERO, false)
+	_expect(not hopper.is_sitting() or hopper.position == start, "sit holds still while it lasts")
+	hopper.hold_sit(0.0)
+	hopper.tick_with(0.2, Vector2(1000, 1000), Vector2.ZERO, false)
+	_expect(hopper.position != start or hopper.is_sitting(), "a hop or sit follows an ended sit")
+	var before_flee := hopper.position
+	var leif_south := before_flee + Vector2(0, 3.0 * tile)
+	hopper.tick_with(0.05, leif_south, toward, true)
+	_expect(hopper.is_fleeing(), "jog toward in range starts a flee")
+	for _i in 20:
+		hopper.tick_with(0.05, leif_south, toward, true)
+	_expect(hopper.position.distance_to(leif_south) > before_flee.distance_to(leif_south), "flee increases distance")
+	_expect(is_instance_valid(hopper), "the node is still there after a run")
+	for _j in 40:
+		hopper.tick_with(0.1, hopper.position + Vector2(0, 8), toward, true)
+	_expect(is_instance_valid(hopper), "a long flee does not free the node")
+	hopper.free()
+	var dummy := Node2D.new()
+	dummy.set_meta("kind", "hare")
+	dummy.set_meta("species", "arctic_hare")
+	var interact := Interact.new()
+	interact.supplies = Supplies.new()
+	interact.biome = _coast()
+	var wood := interact.supplies.wood
+	var forage := interact.supplies.forage
+	_expect(interact.use_on(dummy) == "", "Space on a hare does nothing")
+	_expect(is_equal_approx(interact.supplies.wood, wood), "wood stays")
+	_expect(interact.supplies.forage == forage, "forage stays")
+	dummy.free()
+	interact.free()
+	var world := _boot_run(0, {})
+	var pack := world.hares()
+	_expect(pack.size() == 3, "the woods have three hares")
+	if pack.size() != 3:
+		world.free()
+		return
+	for hare in pack:
+		_expect(hare != null and is_instance_valid(hare), "each hare is alive")
+		var cell := ChunkGenerator.world_cell_at(hare.global_position)
+		_expect(cell.y < 0, "New Game puts a hare inland")
+		_expect(not world.is_trail_cell(cell), "New Game keeps a hare off the trail")
+	var kept: Array[Vector2] = []
+	var facings: Array[String] = []
+	for i in pack.size():
+		var shifted := pack[i].global_position + Vector2(float(i) * 16.0, -24.0)
+		pack[i].global_position = shifted
+		pack[i].set_facing("west" if i % 2 == 0 else "east")
+		kept.append(shifted)
+		facings.append(pack[i].facing_name())
+	var shot := world.capture_walk()
+	_expect(shot.has("hares") and shot["hares"] is Array, "save keeps a hares list")
+	var rows: Array = shot["hares"]
+	_expect(rows.size() == 3, "save keeps three hares")
+	for i in kept.size():
+		pack[i].global_position = kept[i] + Vector2(48, 0)
+	world.apply_walk(shot)
+	var restored := world.hares()
+	_expect(restored.size() == 3, "continue puts three hares back")
+	for i in mini(restored.size(), kept.size()):
+		_expect(is_equal_approx(restored[i].global_position.x, kept[i].x), "continue keeps hare %d place" % i)
+		_expect(restored[i].facing_name() == facings[i], "continue keeps hare %d facing" % i)
+	var old_file := world.capture_walk()
+	old_file.erase("hares")
+	world.rebuild()
+	world.apply_walk(old_file)
+	var seeded := world.hares()
+	_expect(seeded.size() == 3, "an old file still spawns three hares")
+	for hare in seeded:
+		if hare == null or not is_instance_valid(hare):
+			continue
+		_expect(ChunkGenerator.world_cell_at(hare.global_position).y < 0, "the old file seed-spawns inland")
 	world.free()
 
 

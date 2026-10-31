@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-31 — Three arctic hares on the moss
+
+**Decision:** Three arctic hares (`Lepus arcticus`) live on the moss of `coastal_north`. New Game seed-places them inland on moss or peat, off the caribou trail, at least **12 tiles** apart. They hop on open ground, sit ~2s between hops, and are look-don’t-touch: Space does nothing, no hunt, no meat. Jog toward them spooks at **4 tiles**. Walk toward them spooks at **2 tiles**. Standing still does not spook. Flee is always away from Leif, faster than his jog (**160** vs 100). Hop speed is **90**. They do not despawn. Continue stores a `hares` array (`x` / `y` / `facing`). Old files without that key seed-spawn three inland. **R** builds three from the new seed. Death keeps them. Art is a cream ColorRect until PixelLab generations cover an 8-direction walk. Do not spend trial gens on them in this cut. The caribou keeps the trail.
+
+**Why:** Sensation and fantasy — the moss feels lived-in. Discovery — you find a hare off the trail. Submission — standing still you can watch it sit. Challenge stays on the skills already in. Research already names the arctic hare as native atmosphere. No new biome, no longer strip, no combat.
+
+**Rejected:** One hare only. Hunting or meat. Putting hares on the caribou trail. A shared Animal base with the caribou. Spending PixelLab generations. Beaver or other species in this cut. Title-still hare.
+
 ## 2026-10-30 — Death is signed off in Play
 
 **Decision:** Play signed off death as shipped. Cold at the last half-heart fades to black with the cream skull. Sleep stays a blank blink. He wakes at dawn at the last slept fire (or the landing), wood and forage halved, one heart. Skills and the map stay. Hint stays **The cold took him. Half the pack is gone.** The placeholder skull stays; PixelLab does not spend generations on it in this sign-off.
