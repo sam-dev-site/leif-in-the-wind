@@ -2063,6 +2063,13 @@ func _test_arctic_hare_on_the_moss() -> void:
 	_expect(trail_hit == 0, "seed cells are off the caribou trail")
 	_expect(inland_ok, "seed cells are inland")
 	_expect(moss_ok, "seed cells are moss or peat")
+	for cell in cells:
+		var near := false
+		for t in trail:
+			if Vector2(cell).distance_to(Vector2(t)) <= 6.5:
+				near = true
+				break
+		_expect(near, "seed cells sit beside the caribou trail")
 	var tile := float(ChunkGenerator.TILE)
 	var self_px := Vector2(8, 8)
 	var south := self_px + Vector2(0, 3.5 * tile)
@@ -2117,11 +2124,18 @@ func _test_arctic_hare_on_the_moss() -> void:
 	if pack.size() != 3:
 		world.free()
 		return
+	var world_trail := world.generator.caribou_trail_cells(world.world_seed, World.STRIP_NORTH)
 	for hare in pack:
 		_expect(hare != null and is_instance_valid(hare), "each hare is alive")
 		var cell := ChunkGenerator.world_cell_at(hare.global_position)
 		_expect(cell.y < 0, "New Game puts a hare inland")
 		_expect(not world.is_trail_cell(cell), "New Game keeps a hare off the trail")
+		var near := false
+		for t in world_trail:
+			if Vector2(cell).distance_to(Vector2(t)) <= 8.0:
+				near = true
+				break
+		_expect(near, "New Game puts a hare beside the trail")
 	var kept: Array[Vector2] = []
 	var facings: Array[String] = []
 	for i in pack.size():

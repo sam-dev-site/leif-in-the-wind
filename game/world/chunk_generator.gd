@@ -142,42 +142,46 @@ func caribou_seed_index(path: Array[Vector2i]) -> int:
 	return i
 
 
-## Inland moss/peat cells off the caribou trail, at least 12 tiles apart.
-## Returns more than three so the woods can skip blocked props and still place three.
+## Moss/peat beside the caribou trail, around the same inland band as the caribou.
+## Off the path by 3–6 tiles. At least 12 tiles apart. Extra cells let the woods skip trees.
 func hare_seed_cells(world_seed: int, north_chunk_y: int, want: int = 3) -> Array[Vector2i]:
 	var picked: Array[Vector2i] = []
 	if north_chunk_y > 0:
 		return picked
-	var need := maxi(want, 3)
-	var trail := {}
-	for cell in caribou_trail_cells(world_seed, north_chunk_y):
-		trail[cell] = true
-	var min_wy := north_chunk_y * HEIGHT + 2
-	var max_wy := -8
-	var min_wx := -WIDTH + 2
-	var max_wx := WIDTH * 2 - 3
-	if max_wy < min_wy or max_wx < min_wx:
+	var path := caribou_trail_cells(world_seed, north_chunk_y)
+	if path.is_empty():
 		return picked
-	var attempts := 0
-	while picked.size() < need and attempts < 800:
-		attempts += 1
-		var hx := _hash(world_seed, attempts, 401, 913)
-		var hy := _hash(world_seed, attempts, 418, 914)
-		var wx := min_wx + (hx % (max_wx - min_wx + 1))
-		var wy := min_wy + (hy % (max_wy - min_wy + 1))
-		var cell := Vector2i(wx, wy)
-		var kind := peek_ground(world_seed, wx, wy)
-		if kind != TILE_MOSS and kind != TILE_PEAT:
+	var on_trail := {}
+	for cell in path:
+		on_trail[cell] = true
+	var need := maxi(want, 3)
+	var origin := caribou_seed_index(path)
+	var sides: Array[int] = [4, -4, 5, -5, 3, -3, 6, -6]
+	var step := 0
+	while picked.size() < need and step < path.size() * 2:
+		var k := int((step + 1) / 2)
+		var delta := k if (step % 2 == 1) else -k
+		step += 1
+		var ti := origin + delta
+		if ti < 0 or ti >= path.size():
 			continue
-		if trail.has(cell):
-			continue
-		var ok := true
-		for other: Vector2i in picked:
-			if Vector2(cell).distance_to(Vector2(other)) < 12.0:
-				ok = false
-				break
-		if ok:
+		var base: Vector2i = path[ti]
+		for ox in sides:
+			var cell := Vector2i(base.x + ox, base.y)
+			if on_trail.has(cell):
+				continue
+			var kind := peek_ground(world_seed, cell.x, cell.y)
+			if kind != TILE_MOSS and kind != TILE_PEAT:
+				continue
+			var ok := true
+			for other: Vector2i in picked:
+				if Vector2(cell).distance_to(Vector2(other)) < 12.0:
+					ok = false
+					break
+			if not ok:
+				continue
 			picked.append(cell)
+			break
 	return picked
 
 
