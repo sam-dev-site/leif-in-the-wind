@@ -142,6 +142,49 @@ func caribou_seed_index(path: Array[Vector2i]) -> int:
 	return i
 
 
+## Moss/peat beside the caribou trail, around the same inland band as the caribou.
+## Off the path by 3–6 tiles. At least 12 tiles apart. Extra cells let the woods skip trees.
+func hare_seed_cells(world_seed: int, north_chunk_y: int, want: int = 3) -> Array[Vector2i]:
+	var picked: Array[Vector2i] = []
+	if north_chunk_y > 0:
+		return picked
+	var path := caribou_trail_cells(world_seed, north_chunk_y)
+	if path.is_empty():
+		return picked
+	var on_trail := {}
+	for cell in path:
+		on_trail[cell] = true
+	var need := maxi(want, 3)
+	var origin := caribou_seed_index(path)
+	var sides: Array[int] = [4, -4, 5, -5, 3, -3, 6, -6]
+	var step := 0
+	while picked.size() < need and step < path.size() * 2:
+		var k := int((step + 1) / 2)
+		var delta := k if (step % 2 == 1) else -k
+		step += 1
+		var ti := origin + delta
+		if ti < 0 or ti >= path.size():
+			continue
+		var base: Vector2i = path[ti]
+		for ox in sides:
+			var cell := Vector2i(base.x + ox, base.y)
+			if on_trail.has(cell):
+				continue
+			var kind := peek_ground(world_seed, cell.x, cell.y)
+			if kind != TILE_MOSS and kind != TILE_PEAT:
+				continue
+			var ok := true
+			for other: Vector2i in picked:
+				if Vector2(cell).distance_to(Vector2(other)) < 12.0:
+					ok = false
+					break
+			if not ok:
+				continue
+			picked.append(cell)
+			break
+	return picked
+
+
 func _idx(tx: int, ty: int) -> int:
 	return ty * WIDTH + tx
 

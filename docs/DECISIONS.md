@@ -2,6 +2,30 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-31 — Arctic hares are signed off in Play
+
+**Decision:** Play signed off the arctic hares as shipped. Three cream hares sit 3–6 tiles off the caribou trail in the same inland band. Hop, sit, spook at 4 tiles jogging / 2 tiles walking toward them, no hunt. The ColorRect stays until PixelLab.
+
+**Why:** Owner Play: perfect, all good now.
+
+**Rejected:** Moving them onto the trail. Hunting. Spending PixelLab generations in this sign-off.
+
+## 2026-10-31 — Hares sit beside the caribou trail
+
+**Decision:** The three arctic hares seed on moss or peat **3–6 tiles off** the caribou trail, in the same inland band as the caribou, still at least 12 tiles apart. They stay off the path. The cream ColorRect is larger (about a tile) so Play can see it in the trees. New Game and **R** use that seed. A Continue that already stored far-away hares still puts those back.
+
+**Why:** Owner Play walked the trail, found the caribou, and saw no hares. The first seed scattered them across the whole 3×4 strip, often a chunk east or west of the path, as an 8×6 cream speck.
+
+**Rejected:** Putting hares on the trail. Hunting. Spending PixelLab generations. Leaving the whole-strip scatter.
+
+## 2026-10-31 — Three arctic hares on the moss
+
+**Decision:** Three arctic hares (`Lepus arcticus`) live on the moss of `coastal_north`. New Game seed-places them inland on moss or peat, off the caribou trail, at least **12 tiles** apart. They hop on open ground, sit ~2s between hops, and are look-don’t-touch: Space does nothing, no hunt, no meat. Jog toward them spooks at **4 tiles**. Walk toward them spooks at **2 tiles**. Standing still does not spook. Flee is always away from Leif, faster than his jog (**160** vs 100). Hop speed is **90**. They do not despawn. Continue stores a `hares` array (`x` / `y` / `facing`). Old files without that key seed-spawn three inland. **R** builds three from the new seed. Death keeps them. Art is a cream ColorRect until PixelLab generations cover an 8-direction walk. Do not spend trial gens on them in this cut. The caribou keeps the trail.
+
+**Why:** Sensation and fantasy — the moss feels lived-in. Discovery — you find a hare off the trail. Submission — standing still you can watch it sit. Challenge stays on the skills already in. Research already names the arctic hare as native atmosphere. No new biome, no longer strip, no combat.
+
+**Rejected:** One hare only. Hunting or meat. Putting hares on the caribou trail. A shared Animal base with the caribou. Spending PixelLab generations. Beaver or other species in this cut. Title-still hare.
+
 ## 2026-10-30 — Playtest handoff, not a new pipeline
 
 **Decision:** Cloud still writes verbs and research as a PR. This PC still presses Play and does PixelLab. The ceremony in between is harnessed. Session start names the branch, whether the tree is dirty, and any open PRs. A new local chat with exactly one open PR lands it and says Godot is ready. Sign-off words (`done`, `good`, `save`, and the rest) sync GitHub `main` to this PC: commit if needed, merge the playtest PR, checkout `main`, pull. Every phase change ends with one next-action line from `.cursor/rules/dev-loop.mdc`. Cloud never launches the Godot editor and never claims Play. Cloud writes **ready for Play** in `docs/STATUS.md`. The local sign-off writes **Play signed off**.

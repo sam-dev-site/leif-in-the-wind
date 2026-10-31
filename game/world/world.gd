@@ -43,6 +43,7 @@ var _quit_ask := false
 var _quit_layer: CanvasLayer
 var _opened := false
 var _caribou: Caribou
+var _hares: Array[Hare] = []
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
@@ -252,6 +253,7 @@ func rebuild() -> void:
 		_hud.set_fade(0.0)
 		_hud.set_death_mark(0.0)
 	_drop_caribou()
+	_drop_hares()
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
 	for key in _chunks.keys():
@@ -316,6 +318,7 @@ func _finish_arrival() -> void:
 		_player.global_position = landing.position + landing.spawn_local()
 	_reparent_player()
 	_spawn_caribou()
+	_spawn_hares()
 	_fog.clear()
 	_minimap_cell = Vector2i(99999, 99999)
 	var snapshot := _pending_snapshot
@@ -442,6 +445,15 @@ func capture_walk() -> Dictionary:
 		caribou_px = _caribou.global_position
 		caribou_facing = _caribou.facing_name()
 		caribou_dir = _caribou.travel_dir
+	var hare_rows: Array = []
+	for hare in _hares:
+		if hare == null or not is_instance_valid(hare):
+			continue
+		hare_rows.append({
+			"x": hare.global_position.x,
+			"y": hare.global_position.y,
+			"facing": hare.facing_name(),
+		})
 	var data := {
 		"version": 1,
 		"name": _save_name,
@@ -464,6 +476,7 @@ func capture_walk() -> Dictionary:
 		"caribou_y": caribou_px.y,
 		"caribou_facing": caribou_facing,
 		"caribou_dir": caribou_dir,
+		"hares": hare_rows,
 	}
 	if _has_sleep_mark:
 		data["sleep_x"] = _sleep_mark.x
@@ -519,6 +532,7 @@ func apply_walk(data: Dictionary) -> void:
 		_has_sleep_mark = false
 		_sleep_mark = Vector2.ZERO
 	_apply_caribou(data)
+	_apply_hares(data)
 	_reveal_visible_view()
 	_refresh_hud()
 
@@ -700,6 +714,17 @@ func caribou() -> Caribou:
 	return _caribou
 
 
+func hares() -> Array[Hare]:
+	return _hares
+
+
+func is_trail_cell(cell: Vector2i) -> bool:
+	var host := _chunk_at(ChunkGenerator.chunk_of_cell(cell))
+	if host == null or host.data.is_empty():
+		return false
+	return host.tile_kind(ChunkGenerator.local_of_cell(cell)) == ChunkGenerator.TILE_TRAIL
+
+
 func on_entered_chunk(_world_px: Vector2) -> void:
 	_reparent_player()
 	_cull_far_chunks()
@@ -773,6 +798,10 @@ func reparent_caribou() -> void:
 	_reparent_actor(_caribou)
 
 
+func reparent_hare(hare: Hare) -> void:
+	_reparent_actor(hare)
+
+
 func _spawn_caribou() -> void:
 	_drop_caribou()
 	var trail := generator.caribou_trail_cells(world_seed, STRIP_NORTH)
@@ -807,6 +836,88 @@ func _drop_caribou() -> void:
 			host.remove_child(_caribou)
 		_caribou.queue_free()
 	_caribou = null
+
+
+func _spawn_hares() -> void:
+	_drop_hares()
+	var cells := generator.hare_seed_cells(world_seed, STRIP_NORTH, 12)
+	for cell in cells:
+		if _hares.size() >= Hare.HARE_COUNT:
+			break
+		var open := _open_hare_cell(cell)
+		if open == Vector2i(2147483647, 2147483647):
+			continue
+		var far_enough := true
+		for hare in _hares:
+			if hare == null or not is_instance_valid(hare):
+				continue
+			var other := ChunkGenerator.world_cell_at(hare.global_position)
+			if Vector2(open).distance_to(Vector2(other)) < float(Hare.MIN_SPREAD_TILES):
+				far_enough = false
+				break
+		if not far_enough:
+			continue
+		var born := Hare.new()
+		born.world = self
+		add_child(born)
+		born.setup_at(open)
+		_reparent_actor(born)
+		_hares.append(born)
+
+
+func _open_hare_cell(cell: Vector2i) -> Vector2i:
+	var none := Vector2i(2147483647, 2147483647)
+	if not is_trail_cell(cell) and not is_blocked_pixel(ChunkGenerator.cell_center(cell)):
+		return cell
+	var neighbors: Array[Vector2i] = [
+		Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0),
+		Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(1, 1),
+	]
+	for n in neighbors:
+		var try_cell := cell + n
+		if is_trail_cell(try_cell):
+			continue
+		if not is_blocked_pixel(ChunkGenerator.cell_center(try_cell)):
+			return try_cell
+	return none
+
+
+func _apply_hares(data: Dictionary) -> void:
+	if not data.has("hares") or not (data["hares"] is Array):
+		return
+	var rows: Array = data["hares"]
+	if rows.is_empty():
+		return
+	while _hares.size() < rows.size():
+		var hare := Hare.new()
+		hare.world = self
+		add_child(hare)
+		_hares.append(hare)
+	for i in mini(_hares.size(), rows.size()):
+		var hare := _hares[i]
+		if hare == null or not is_instance_valid(hare):
+			continue
+		var row: Variant = rows[i]
+		if not (row is Dictionary):
+			continue
+		var entry: Dictionary = row
+		if not entry.has("x") or not entry.has("y"):
+			continue
+		hare.global_position = Vector2(float(entry["x"]), float(entry["y"]))
+		if entry.has("facing"):
+			hare.set_facing(str(entry["facing"]))
+		_reparent_actor(hare)
+
+
+func _drop_hares() -> void:
+	for hare in _hares:
+		if hare == null or not is_instance_valid(hare):
+			continue
+		var host := hare.get_parent()
+		if host != null:
+			host.remove_child(hare)
+		hare.queue_free()
+	_hares.clear()
 
 
 func _reparent_actor(actor: Node2D) -> void:
@@ -1102,7 +1213,13 @@ func is_blocked_pixel(global_px: Vector2, mover: Node2D = null) -> bool:
 	if _caribou != null and is_instance_valid(_caribou) and mover != _caribou:
 		if ChunkGenerator.world_cell_at(_caribou.global_position) == cell:
 			return true
-	if mover == _caribou and _player != null and is_instance_valid(_player):
+	for hare in _hares:
+		if hare == null or not is_instance_valid(hare) or mover == hare:
+			continue
+		if ChunkGenerator.world_cell_at(hare.global_position) == cell:
+			return true
+	var animal_mover := mover == _caribou or mover is Hare
+	if animal_mover and _player != null and is_instance_valid(_player):
 		if ChunkGenerator.world_cell_at(_player.global_position) == cell:
 			return true
 	return false
