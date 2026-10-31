@@ -13,7 +13,7 @@ GitHub `main` is the brain. Chat memory is not.
 | [docs/STATUS.md](docs/STATUS.md) | What exists, what is blocked, what is next. |
 | [docs/SLICE_0.md](docs/SLICE_0.md) | Current playable cut only. |
 | [docs/REVIEW.md](docs/REVIEW.md) | Do not call work done until these gates pass. |
-| [docs/IDEAS.md](docs/IDEAS.md) | Unordered slices. No queue. When asked what is next, choose one from the whole project. |
+| [docs/IDEAS.md](docs/IDEAS.md) | Unordered slices. No queue. Each open slice has questions for the next agent. When asked what is next, choose one from the whole project. |
 | [docs/BUGS.md](docs/BUGS.md) | Breaks that are not the current Play. Log them. A fix session names the open headings before changing the game. |
 | [docs/research/biomes/](docs/research/biomes/) | Flora and fauna with sources. |
 
@@ -33,7 +33,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. Ideas have no order. When the owner asks what to work on next, read the mission, the decisions, the status, and `docs/IDEAS.md`, and choose one slice.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
 6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — sync GitHub `main` to this PC in that turn: commit if needed, push, merge a playtest PR if that is the branch, checkout `main`, pull. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc` and `.cursor/skills/playtest-pr`.
-7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Taking one in includes a pass over that file: combine the same slice, split a line that is more than one, and drop a duplicate.
+7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Taking one in includes a pass over that file: combine the same slice, split a line that is more than one, drop a duplicate, and add questions grounded in the game. Do not invent the answers. See `.cursor/rules/ideas.mdc`.
 
 ## Dev loop
 

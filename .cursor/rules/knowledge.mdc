@@ -21,4 +21,4 @@ Prefer cloud agent + PR over loading this Surface Pro. Local machine is for play
 
 Slice docs do not override `docs/MISSION.md`. Features serve the named aesthetics (sensation, fantasy, discovery, submission), not only inland movement.
 
-`docs/IDEAS.md` is an unordered set of slices. When the owner asks what to work on next, read the mission, decisions, status, and that file, and choose one slice. Do not treat the ideas file as a queue.
+`docs/IDEAS.md` is an unordered set of slices. When the owner asks what to work on next, read the mission, decisions, status, and that file, and choose one slice. Do not treat the ideas file as a queue. Logging a wish adds questions grounded in the game and does not invent answers. See `.cursor/rules/ideas.mdc`.

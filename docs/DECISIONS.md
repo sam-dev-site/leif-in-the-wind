@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-31 — An idea lands with questions, not answers
+
+**Decision:** Logging a wish in `docs/IDEAS.md` includes a few questions the next agent should ask before building. Each question has to come from something already true in the game, the research, or another slice. The questions are not decisions. The agent does not invent a cost, a species, a timer, or a material. Rule: `.cursor/rules/ideas.mdc`.
+
+**Why:** A one-line dump left the next agent with a half-hatched wish. The owner wants that file to tee up the design conversation. A boat was the example of the shape, not an idea to log.
+
+**Rejected:** Copying the wish and stopping. Filling in the design while logging it. Inventing a species or a recipe so the questions look finished.
+
 ## 2026-10-31 — GitHub CLI on this PC is logged in
 
 **Decision:** This Surface already has GitHub CLI (`gh` 2.102, winget `GitHub.cli`). It is logged in as **sam-dev-site** over HTTPS (Windows keyring). Local agents use that for `gh pr list`, checkout, and merge. Git stays HTTPS to `sam-dev-site/leif-in-the-wind`. Do not add GitHub Desktop, a GitHub MCP server, or a second git host for this job.

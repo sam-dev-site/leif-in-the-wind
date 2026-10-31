@@ -1,0 +1,22 @@
+---
+description: When logging a wish in docs/IDEAS.md, add questions grounded in the game. Do not invent answers.
+globs: docs/IDEAS.md
+alwaysApply: false
+---
+
+# Ideas
+
+`docs/IDEAS.md` tees up the next agent. A wish is not done when the line is copied.
+
+## When a wish comes in
+
+1. Read the mission, decisions, status, and the whole ideas file.
+2. Write the wish in the owner's words. One slice. Group it with similar slices. Combine duplicates. Split a line that is more than one slice.
+3. Add a few questions the next agent should ask before building. Base each one on something already true in the game, the research, or another slice.
+4. Do not answer the questions. Do not invent a cost, a species, a timer, a material, or a rule they did not say. If a plant or animal is not in `docs/research/biomes/`, the question is that research is required, not a made-up species.
+
+## Shape
+
+Wish, then `Ask:` lines. The asks are not decisions.
+
+A boat is not a logged idea. It is only the shape: "I want a way to build a boat to cross water" becomes asks such as what it is built from (wood is what he carries), whether he can enter the water anywhere or only at a spot, and what happens if it breaks. Those asks cite the river slice and the sea that is already south of the map. They do not pick the design.
