@@ -19,6 +19,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 - **No heart regen.** In. Play signed off. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night.
 - **Death and respawn.** In. Play signed off. Cold at the last half-heart is death. Cream skull on the black. Wake at the last slept fire (or the landing), half the pack gone, one heart, skills and map kept. PixelLab skull waits on generations.
+- **Arctic hare.** In. Three arctic hares hop the moss, sit, and run away if he jogs at 4 tiles or walks at 2. No hunt. ColorRect until PixelLab walk art.
 
 ## Hearts
 
@@ -52,7 +53,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Creatures
 
-- **Animals.** Hare, beaver, and later species. The caribou on the trail is in.
+- **Animals.** Beaver and later species. The caribou on the trail is in. The arctic hare on the moss is in.
 - **NPCs.**
 
 ## A place you made

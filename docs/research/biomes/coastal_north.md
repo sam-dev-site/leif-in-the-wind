@@ -68,6 +68,7 @@ Use these and nothing else until this file is revised:
 - Clutter: sphagnum cushions, fir/spruce needles, short fallen branches (not deciduous leaves)
 - Forage pickups: bakeapple, blueberry
 - Path: caribou trail inland, away from water
+- Atmosphere: three arctic hares on the moss (look-don’t-touch; off the trail)
 - No wolves or bears in slice 0 (named here so slice 1 does not invent them)
 
 ## Sources

@@ -9,6 +9,7 @@ Play opens on a title. The coastal still fills the screen. A green box on top of
 - Shore on one edge (crash-landing)
 - Researched boreal forest inland
 - A **caribou** trail that points **away from the water** (the mission’s “deer trails” on this biome). One tile wide, moss gaps, not a road. One woodland caribou walks it, grazes, and runs away if he jogs at it (4 tiles) or walks at it (2 tiles). Space does nothing. It does not vanish off the strip.
+- Three **arctic hares** on the moss, off that trail. They hop, sit, and run away if he jogs at them (4 tiles) or walks at them (2 tiles). Space does nothing. No hunt. ColorRect until PixelLab walk art.
 - Ground is PixelLab Wang tiles (water, shore, moss/peat, trail), not flat color
 - Granite is a rock object on the moss, not painted into the floor
 - Light clutter: sphagnum and needles stay scenery. Fallen fir branches: Space clears them for **0.5 wood**
@@ -30,6 +31,7 @@ These are how Leif stays in the woods after dark: berries he can eat, a fire for
 7. Tiny bottom-left map: a small circle around him, and the trail stays clear; **R** wipes it — **in now**
 8. **E** spends forage (10 at low Foraging, down toward 2) to heal half a heart. A pick at level 1 still grants 1. Short hands and full hearts refuse and spend nothing. A bite never goes past max. No hunger bar — **in now**
 9. One woodland caribou on the trail. Walk toward it spooks at 2 tiles; jog toward it at 4. Standing still you can watch it graze. It always runs away, faster than Leif, and stays in the woods — **in now**
+10. Three arctic hares on the moss. Walk toward one spooks at 2 tiles; jog toward it at 4. Standing still you can watch it sit. It always runs away, faster than Leif, and stays in the woods — **in now**
 
 Press **R** in-game for a new seed (mission test: different woods). Wood, forage, woodcutting, fire-making, and foraging stay. Fires and the last-sleep mark were on the old ground.
 
@@ -54,4 +56,4 @@ Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth, sleep, the corner fog map, smaller ringed stumps, foraging (yield and eat cost), the launch title, the three save files, woodcutting, fire-making, the title admin cog, Escape quit-to-menu, one caribou on the trail, and death (half pack, wake at the fire) are in. A longer strip is not the next cut. A hunger meter, the river, pause, and a player options menu wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, smaller ringed stumps, foraging (yield and eat cost), the launch title, the three save files, woodcutting, fire-making, the title admin cog, Escape quit-to-menu, one caribou on the trail, three arctic hares on the moss, and death (half pack, wake at the fire) are in. A longer strip is not the next cut. A hunger meter, the river, pause, and a player options menu wait. Still `coastal_north`.
