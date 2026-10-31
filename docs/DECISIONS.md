@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-31 — GitHub CLI on this PC is logged in
+
+**Decision:** This Surface already has GitHub CLI (`gh` 2.102, winget `GitHub.cli`). It is logged in as **sam-dev-site** over HTTPS (Windows keyring). Local agents use that for `gh pr list`, checkout, and merge. Git stays HTTPS to `sam-dev-site/leif-in-the-wind`. Do not add GitHub Desktop, a GitHub MCP server, or a second git host for this job.
+
+**Why:** The playtest handoff needs `gh` to land and merge PRs. The binary was installed but not authenticated. Owner asked to log the comms so the next chat starts clean and matched.
+
+**Rejected:** GitHub Desktop. A GitHub MCP token next to PixelLab. Bumping to 2.103.3. SSH. A Cursor Origin remote.
+
 ## 2026-10-31 — Arctic hares are signed off in Play
 
 **Decision:** Play signed off the arctic hares as shipped. Three cream hares sit 3–6 tiles off the caribou trail in the same inland band. Hop, sit, spook at 4 tiles jogging / 2 tiles walking toward them, no hunt. The ColorRect stays until PixelLab.
