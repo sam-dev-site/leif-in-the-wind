@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Death is signed off in Play
+
+**Decision:** Play signed off death as shipped. Cold at the last half-heart fades to black with the cream skull. Sleep stays a blank blink. He wakes at dawn at the last slept fire (or the landing), wood and forage halved, one heart. Skills and the map stay. Hint stays **The cold took him. Half the pack is gone.** The placeholder skull stays; PixelLab does not spend generations on it in this sign-off.
+
+**Why:** Owner Play: everything worked.
+
+**Rejected:** Changing the tax, the wake place, or the skull art in this sign-off.
+
 ## 2026-10-30 — Death: half the pack, wake at the fire
 
 **Decision:** Cold that would take the last half-heart is death. The screen fades to black like sleep. A cream skull and crossed bones (`game/art/ui/death_skull.png`, 32×32 placeholder) fades in on that black and holds about 0.8s. Sleep stays a blank blink. He wakes at dawn at the last tile he slept on (**C** by a fire). If he never slept this run, or the file has no `sleep_x` / `sleep_y`, he wakes on the landing. Wood and forage are halved (wood floors to a tenth; forage floors to a whole berry). Hearts become **1**. Skills, fog, caribou, and seed stay. Hint: **The cold took him. Half the pack is gone.** A named shore writes the floppy after death so Continue cannot undo it. **R** clears the sleep mark with the old ground. PixelLab does not spend generations on the skull in this cut.

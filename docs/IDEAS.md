@@ -18,7 +18,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
 - **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 - **No heart regen.** In. Play signed off. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night.
-- **Death and respawn.** In. Cold at the last half-heart is death. Cream skull on the black. Wake at the last slept fire (or the landing), half the pack gone, one heart, skills and map kept. PixelLab skull waits on generations.
+- **Death and respawn.** In. Play signed off. Cold at the last half-heart is death. Cream skull on the black. Wake at the last slept fire (or the landing), half the pack gone, one heart, skills and map kept. PixelLab skull waits on generations.
 
 ## Hearts
 
@@ -38,6 +38,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 ## The map
 
 - **Longer map.** The walk inland stops at the north edge of the strip.
+- **Tree and bush regrowth.** After a harvest, if that kind is gone from the area, a grow cycle starts on its own. A sapling appears, and after some time it is a tree. Bushes do the same. Today a chopped tree or a picked bush comes back from the seed when the file loads. This is a timed grow, not that.
 - **Less ground clutter.** About 5–10% less stuff on the ground.
 - **Push rocks.**
 - **Seasonality.**
