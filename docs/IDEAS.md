@@ -113,6 +113,8 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 He called this a priority shift. These slices are one design. Crafting is the point of the extras. Decide what he wants to make, then ask this forest where those pieces can fall. A gap becomes its own slice. He has not chosen the build order among the rucksack, the drops, and crafting. Do not turn that into a queue.
 
+He said crafting unlocks other skills. Fishing is the example.
+
 Wood from a tree and berries from a bush stay as they are. They stay on the HUD at all times. They are the two locked necessities. The rucksack is not a second count of wood or berries.
 
 - **Rucksack.** A backpack icon in the top right. It holds the extras, not wood and not forage.
@@ -128,6 +130,7 @@ Wood from a tree and berries from a bush stay as they are. They stay on the HUD 
   - Ask: The objects he can use today are fir, spruce, fallen logs, fir branches, bakeapple, and blueberry. Rocks, moss, and needles are not picked. Which of those are allowed to drop an extra?
 - **Crafting.** Work backwards from the thing he wants to make. His worked example, not a locked recipe: a fishing pole wants 1 long stick, 1 cord (hemp, cord, or vine, whichever this forest can actually have), 1 feather, 1 tree nut, and 1 bone. Then assign each need to a source that belongs here.
   - Ask: Is the fishing pole the first thing crafting makes? Fishing is already its own slice.
+  - Ask: He said crafting unlocks other skills like fishing. Is the pole the gate that starts Fishing, or can Fishing start without a crafted tool?
   - Ask: The axe is already in hand, and a fire is already wood plus **F**. Does crafting make things those do not, only?
   - Ask: Is crafting a screen on the rucksack, or the buttons he already uses?
   - Ask: The raft is its own slice. Do not fold it in unless he says they are the same.
