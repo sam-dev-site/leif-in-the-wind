@@ -61,6 +61,7 @@ func _init() -> void:
 	_test_quit_to_menu()
 	_test_caribou_on_the_trail()
 	_test_arctic_hare_on_the_moss()
+	_test_rucksack_and_torch()
 	_wipe_admin()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
@@ -2311,6 +2312,160 @@ func _hud_of(world: World) -> GameHud:
 		if child is GameHud:
 			return child
 	return null
+
+
+func _test_rucksack_and_torch() -> void:
+	print("rucksack and torch")
+	var bag := Rucksack.new()
+	_expect(bag.add(Rucksack.ID_PITCH, 99) == 99, "a stack fills to 99")
+	_expect(bag.stack_count() == 1, "one pile at the cap")
+	_expect(bag.add(Rucksack.ID_PITCH, 1) == 1, "the hundredth starts a new pile")
+	_expect(bag.stack_count() == 2, "pitch splits past 99")
+	_expect(bag.total_of(Rucksack.ID_PITCH) == 100, "both piles count")
+	bag.clear()
+	bag.add(Rucksack.ID_STICK, 1)
+	bag.add(Rucksack.ID_PITCH, 1)
+	_expect(bag.can_craft_torch(), "one stick and one pitch craft a torch")
+	_expect(bag.craft_torch(), "make spends the recipe")
+	_expect(bag.total_of(Rucksack.ID_STICK) == 0, "craft spends the stick")
+	_expect(bag.total_of(Rucksack.ID_PITCH) == 0, "craft spends the pitch")
+	_expect(bag.total_of(Rucksack.ID_TORCH) == 1, "craft adds a torch")
+	_expect(bag.equip_torch_at(0), "double-click equip takes the torch stack")
+	_expect(bag.is_torch_equipped(), "the torch stays equipped")
+	_expect(bag.equip_torch_at(0), "double-click again unequips while unlit")
+	_expect(not bag.is_torch_equipped(), "unequip clears E")
+	bag.equip_torch_at(0)
+	_expect(bag.light_torch(DayClock.cold_seconds()), "a lit fire lights the torch")
+	_expect(bag.torch_lit, "the torch is burning")
+	_expect(not bag.light_torch(DayClock.cold_seconds()), "a second light does nothing")
+	_expect(not bag.equip_torch_at(0), "cannot unequip while lit")
+	_expect(bag.tick_torch(DayClock.cold_seconds()), "one night burns it out")
+	_expect(not bag.torch_lit, "the burn ends")
+	_expect(bag.total_of(Rucksack.ID_TORCH) == 0, "a burned torch is single use")
+	_expect(not bag.is_torch_equipped(), "E clears when the stack is gone")
+	# Death tax: uneven percent across stacks.
+	bag.clear()
+	bag.add(Rucksack.ID_PITCH, 20)
+	bag.add(Rucksack.ID_STICK, 20)
+	var tax_rng := RandomNumberGenerator.new()
+	tax_rng.seed = 7
+	var before := bag.total_of(Rucksack.ID_PITCH) + bag.total_of(Rucksack.ID_STICK)
+	bag.take_death_tax(tax_rng)
+	var after := bag.total_of(Rucksack.ID_PITCH) + bag.total_of(Rucksack.ID_STICK)
+	_expect(after <= before, "death tax never grows the pack")
+	_expect(after >= before - int(ceil(float(before) * 0.10)), "tax stays near the 5-10 percent band")
+	# Stick / pitch chances; wood pay unchanged.
+	var rate_rng := RandomNumberGenerator.new()
+	rate_rng.seed = 42
+	var stick_hits := 0
+	var pitch_hits := 0
+	for _i in 200:
+		if bag.roll_stick(rate_rng):
+			stick_hits += 1
+		if bag.roll_pitch(rate_rng):
+			pitch_hits += 1
+	_expect(stick_hits > 20 and stick_hits < 80, "stick chance sits near 25 percent")
+	_expect(pitch_hits > 5 and pitch_hits < 40, "pitch chance sits near 10 percent")
+	_expect(pitch_hits < stick_hits, "pitch is rarer than stick")
+	var interact := Interact.new()
+	interact.biome = _coast()
+	interact.supplies = Supplies.new()
+	interact.skills = Skills.new()
+	interact.pack = Rucksack.new()
+	interact.rng.seed = 99
+	interact._rng_ready = true
+	# Force a stick by rolling until one lands, still paying wood.
+	var got_stick := false
+	for _i in 80:
+		var branch := _prop(Vector2i(5, 2), "branch", "fir_branch")
+		interact.supplies.wood = 0.0
+		interact.pack.clear()
+		_expect(interact.use_on(branch) == "clear", "branch clears")
+		_expect(is_equal_approx(interact.supplies.wood, 0.5), "branch still pays half a wood")
+		if interact.pack.total_of(Rucksack.ID_STICK) > 0:
+			got_stick = true
+			branch.free()
+			break
+		branch.free()
+	_expect(got_stick, "a branch can drop a stick")
+	var got_pitch := false
+	for _i in 120:
+		var fir := _prop(Vector2i(2, 2), "tree", "fir")
+		interact.supplies.wood = 0.0
+		interact.pack.clear()
+		interact.skills = Skills.new()
+		_expect(_fell(interact, fir) == "chop", "fir falls")
+		_expect(is_equal_approx(interact.supplies.wood, 0.5), "wood pay is unchanged")
+		if interact.pack.total_of(Rucksack.ID_PITCH) > 0:
+			got_pitch = true
+			fir.free()
+			break
+		fir.free()
+	_expect(got_pitch, "a fell can drop pitch")
+	# Space on a lit fire with an equipped torch.
+	var world := _boot_run(0, {})
+	var hud := _hud_of(world)
+	_expect(hud != null and hud.get_node_or_null("PackMark") != null, "the pack mark is on the hud")
+	if hud != null:
+		var pack_mark := hud.get_node("PackMark") as BaseButton
+		var skills_mark := hud.get_node("SkillsMark") as Control
+		var floppy := hud.get_node("SaveFloppy") as Control
+		_expect(skills_mark.position.x < pack_mark.position.x, "skills sit left of the pack")
+		_expect(pack_mark.position.x < floppy.position.x, "the pack sits left of the floppy")
+		pack_mark.pressed.emit()
+		_expect(hud.is_pack_open(), "the pack mark opens the mouse area")
+		world.pack.add(Rucksack.ID_STICK, 1)
+		world.pack.add(Rucksack.ID_PITCH, 1)
+		hud._paint_pack()
+		hud._on_make_torch()
+		_expect(world.pack.total_of(Rucksack.ID_TORCH) == 1, "Make crafts a torch")
+		_expect(world.pack.equip_torch_at(0), "equip from the pack")
+		hud.close_pack()
+		_expect(not hud.is_pack_open(), "Escape path can close the pack")
+	# Place a fire and light the torch from Space.
+	if world.pack.total_of(Rucksack.ID_TORCH) < 1:
+		world.pack.add(Rucksack.ID_TORCH, 1)
+		world.pack.equip_torch_at(0)
+	world.supplies.wood = 20.0
+	var ahead := Interact.tile_ahead(world.leif().global_position, world.leif().facing_name())
+	_expect(world.place_saved_fire(ahead, DayClock.cold_seconds()), "a fire is lit ahead")
+	var fire: Node2D = null
+	for node in world.nearby_props():
+		if str(node.get_meta("kind", "")) == "campfire":
+			fire = node
+			break
+	_expect(fire != null, "the fire is a Space target")
+	if fire != null and world._interact != null:
+		world._interact.pack = world.pack
+		_expect(world._interact.use_on(fire) == "torch", "Space on a fire lights the equipped torch")
+		_expect(world.pack.torch_lit, "the torch is lit")
+		_expect(world.supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "a torch does not warm him")
+		world.pack.extinguish_and_consume()
+		_expect(world.pack.total_of(Rucksack.ID_TORCH) == 0, "sleep or death spends the lit torch")
+	# Save round-trip keeps stacks and equipped; old file is empty.
+	world.pack.clear()
+	world.pack.add(Rucksack.ID_PITCH, 3)
+	world.pack.add(Rucksack.ID_STICK, 2)
+	world.pack.add(Rucksack.ID_TORCH, 1)
+	world.pack.equip_torch_at(world.pack.stack_count() - 1)
+	var shot := world.capture_walk()
+	_expect(shot.has("pack"), "the floppy stores the pack")
+	var kept_pitch := world.pack.total_of(Rucksack.ID_PITCH)
+	world.pack.clear()
+	world.apply_walk(shot)
+	_expect(world.pack.total_of(Rucksack.ID_PITCH) == kept_pitch, "continue restores pitch")
+	_expect(world.pack.total_of(Rucksack.ID_STICK) == 2, "continue restores sticks")
+	_expect(world.pack.is_torch_equipped(), "continue restores equipped")
+	var old := shot.duplicate(true)
+	old.erase("pack")
+	world.apply_walk(old)
+	_expect(world.pack.stack_count() == 0, "an old file loads an empty pack")
+	# R keeps the pack.
+	world.pack.add(Rucksack.ID_PITCH, 4)
+	world.rebuild()
+	_expect(world.pack.total_of(Rucksack.ID_PITCH) == 4, "R keeps the pack")
+	interact.free()
+	world.free()
 
 
 func _clock_of(world: World) -> DayClock:

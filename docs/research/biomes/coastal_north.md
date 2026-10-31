@@ -20,8 +20,8 @@ Cold maritime boreal / forest-tundra. Wind, fog, granite, peat and raised bog, l
 
 | Role in game | Species (common / scientific) | Notes | Source |
 |---|---|---|---|
-| Canopy | Balsam fir (`Abies balsamea`) | Grew on and around the site when the Norse arrived. Slice 0 default choppable tree. | Canadian Encyclopedia, L’Anse aux Meadows |
-| Canopy | Spruce (`Picea` spp.) | Forests of fir and spruce stood just behind the strand before later cutting. | Great Unsolved Mysteries in Canadian History, “Where is Vinland?” |
+| Canopy | Balsam fir (`Abies balsamea`) | Grew on and around the site when the Norse arrived. Slice 0 default choppable tree. Blisters on the bark yield resin (Canada balsam): traditionally used as pitch/sealant and medicine. Game extra from a fell: **pitch** (same stack as spruce gum). | Canadian Encyclopedia, L’Anse aux Meadows; ethnobotany of balsam fir pitch |
+| Canopy | Spruce (`Picea` spp.) | Forests of fir and spruce stood just behind the strand before later cutting. Hardened spruce resin is spruce gum (Newfoundland “frankgum”), chewed and used as sealant. Game extra from a fell: **pitch** (same stack as fir balsam). | Great Unsolved Mysteries in Canadian History, “Where is Vinland?”; Dictionary of Newfoundland English (frankgum); Atlantic Canada spruce-gum tradition |
 | Canopy | Tamarack / larch (`Larix laricina`) | Local “tamarack”; still in bushy clusters on the exposed site. | Same; Canadian Encyclopedia |
 | Canopy / edge | White birch (`Betula` spp.) and poplar | Listed among stands on and around the site. | Canadian Encyclopedia |
 | Wind-stunted | Tuckamore (wind-crippled fir/spruce) | Visual language for the shore edge, not a separate species. | Newfoundland boreal coast (see also Parks Canada site descriptions) |
@@ -69,7 +69,17 @@ Use these and nothing else until this file is revised:
 - Forage pickups: bakeapple, blueberry
 - Path: caribou trail inland, away from water
 - Atmosphere: three arctic hares on the moss (look-don’t-touch; beside the trail, not on it)
+- Pack extras (not HUD wood/forage): rare **pitch** on a fir or spruce fell (standing or fallen log); a **stick** chance on a cleared fallen fir branch (besides the 0.5 wood). Bushes do not drop extras in this cut. White birch bark and spruce-root cord are attested at L’Anse aux Meadows but are **not** spawned extras yet.
 - No wolves or bears in slice 0 (named here so slice 1 does not invent them)
+
+## Pack extras (sourced)
+
+| Extra | Comes from | Notes | Source |
+|---|---|---|---|
+| Pitch | Balsam fir or spruce, on a fell | One kind. Fir balsam and spruce gum share the stack. Rarer than the branch stick. | Fir resin / Canada balsam ethnobotany; Newfoundland spruce gum / frankgum |
+| Stick | Fallen fir branch, on clear | A usable shaft besides the 0.5 wood. Not a new plant. | Existing clutter species `fir_branch` |
+
+Not extras on this map yet (attested, reserved): birch-bark rolls and a birch-bark cup in the site waste; twisted spruce-root rope fragments at L’Anse aux Meadows (Wallace / site archaeology). Do not invent feather, vine, acorn, nut, or bone drops here.
 
 ## Sources
 
@@ -79,3 +89,6 @@ Use these and nothing else until this file is revised:
 4. “New horizons at L’Anse aux Meadows,” *PNAS* 2019 — https://doi.org/10.1073/pnas.1907986116 (caribou dung fungi)
 5. Newfoundland & Labrador Wildlife, mammals table — https://www.gov.nl.ca/fal/wildlife/all-species/mammals/ (native vs exotic; moose exotic; wolf extirpated)
 6. Heritage NL, introduction of moose to Newfoundland (1878 / 1904) — https://heritagenl.ca/wp-content/uploads/2020/05/19-Introduction-of-Moose-to-the-Island-of-Newfoundland.pdf
+7. Balsam fir resin (Canada balsam) as pitch / sealant and traditional medicine — Wikipedia `Abies balsamea`; Native American Ethnobotany (BRIT) balsam fir gum uses
+8. Newfoundland spruce gum / “frankgum” — Dictionary of Newfoundland English; Atlantic Canada spruce-gum harvesting tradition
+9. L’Anse aux Meadows birch-bark rolls/cup and spruce-root rope in carpentry waste — Wallace, Newfoundland and Labrador Studies (site archaeology notes)

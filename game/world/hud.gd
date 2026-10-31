@@ -4,6 +4,7 @@ extends CanvasLayer
 signal save_pressed
 signal name_submitted(save_name: String)
 signal name_cancelled
+signal pack_changed
 
 const FLOPPY := "res://art/ui/save_floppy.png"
 const SKILLS := "res://art/ui/skills.png"
@@ -15,6 +16,11 @@ const CREAM := Color(0.95, 0.93, 0.86)
 const _SAVE_DIM := Color(0.72, 0.7, 0.64)
 const _SAVE_LIT := Color(1.45, 1.35, 1.1)
 const PLATE_COLOR := Color(0.24, 0.36, 0.2, 1)
+const SKILLS_X := 384.0
+const PACK_X := 416.0
+const FLOPPY_X := 448.0
+const TILE := 28.0
+const ITEM_TILE := 24.0
 
 var _label: Label
 var _shadow: Label
@@ -37,6 +43,13 @@ var _skill_hover: Label
 var _hover_tip := ""
 var _name_box: Control
 var _name_line: LineEdit
+var _pack_btn: TextureButton
+var _pack_shadow: ColorRect
+var _pack_panel: Control
+var _pack_grid: Control
+var _pack_make: Button
+var _pack: Rucksack
+var _click_times: Dictionary = {}
 
 
 func _ready() -> void:
@@ -48,11 +61,39 @@ func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: S
 		_build()
 	_paint_hearts(supplies)
 	_paint_skills(skills)
+	_paint_pack()
 	var cost := skills.fire_cost() if skills != null else Skills.FIRE_WOOD_START
 	var eat := skills.eat_cost() if skills != null else Skills.EAT_FORAGE_START
 	var body := status_text(world_seed, biome_name, supplies, phase, hint, cost, eat)
 	_label.text = body
 	_shadow.text = body
+
+
+func bind_pack(pack: Rucksack) -> void:
+	_pack = pack
+	if _label == null:
+		_build()
+	_paint_pack()
+
+
+func is_pack_open() -> bool:
+	return _pack_panel != null and _pack_panel.visible
+
+
+func is_skills_open() -> bool:
+	return _skills_panel != null and _skills_panel.visible
+
+
+func close_pack() -> void:
+	if _pack_panel != null:
+		_pack_panel.visible = false
+
+
+func close_skills() -> void:
+	if _skills_panel != null:
+		_skills_panel.visible = false
+	if _skill_hover != null:
+		_skill_hover.visible = false
 
 
 func set_fade(alpha: float) -> void:
@@ -157,6 +198,7 @@ func _build() -> void:
 	_build_minimap()
 	_build_floppy()
 	_build_skills()
+	_build_pack()
 
 
 func _build_death_mark() -> void:
@@ -279,7 +321,7 @@ func _build_floppy() -> void:
 	_floppy.name = "SaveFloppy"
 	# The floppy mark is a 16×16 disc centered in this holder. The clickable square is
 	# the whole 28×28 corner, so a click on the mark still saves.
-	_floppy.position = Vector2(448, 2)
+	_floppy.position = Vector2(FLOPPY_X, 2)
 	_floppy.custom_minimum_size = Vector2(28, 28)
 	_floppy.size = Vector2(28, 28)
 	_floppy.ignore_texture_size = true
@@ -302,17 +344,17 @@ func _build_floppy() -> void:
 func _build_skills() -> void:
 	if _skills_btn != null:
 		return
-	# 3px right and bottom. The 32×32 tile used to draw past the 28×28 button and hide this.
+	# Skills / pack / floppy across the top right.
 	_skills_shadow = ColorRect.new()
 	_skills_shadow.name = "SkillsMarkShadow"
-	_skills_shadow.position = Vector2(416, 2)
+	_skills_shadow.position = Vector2(SKILLS_X, 2)
 	_skills_shadow.size = Vector2(31, 31)
 	_skills_shadow.color = Color(0.0, 0.0, 0.0, 0.72)
 	_skills_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_skills_shadow)
 	_skills_btn = TextureButton.new()
 	_skills_btn.name = "SkillsMark"
-	_skills_btn.position = Vector2(416, 2)
+	_skills_btn.position = Vector2(SKILLS_X, 2)
 	_skills_btn.custom_minimum_size = Vector2(28, 28)
 	_skills_btn.size = Vector2(28, 28)
 	_skills_btn.ignore_texture_size = true
@@ -337,11 +379,11 @@ func _build_skills() -> void:
 	_skills_btn.pressed.connect(_toggle_skills)
 	add_child(_skills_btn)
 	_skills_btn.size = Vector2(28, 28)
-	# Sit under the skills mark and the floppy (416–476). Skills stack down this column.
+	# Sit under the skills mark. Skills stack down this column.
 	_skills_panel = Panel.new()
 	_skills_panel.name = "SkillsPanel"
 	_skills_panel.visible = false
-	_skills_panel.position = Vector2(382, 32)
+	_skills_panel.position = Vector2(380, 32)
 	_skills_panel.size = Vector2(96, 58)
 	_skills_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_skills_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
@@ -529,11 +571,224 @@ func place_skill_hover(mouse: Vector2) -> void:
 func _toggle_skills() -> void:
 	if _skills_panel == null:
 		_build_skills()
-	_skills_panel.visible = not _skills_panel.visible
-	if _skills_panel.visible:
+	var open := not _skills_panel.visible
+	_skills_panel.visible = open
+	if open:
+		close_pack()
 		move_child(_skills_panel, get_child_count() - 1)
 	elif _skill_hover != null:
 		_skill_hover.visible = false
+
+
+func _build_pack() -> void:
+	if _pack_btn != null:
+		return
+	_pack_shadow = ColorRect.new()
+	_pack_shadow.name = "PackMarkShadow"
+	_pack_shadow.position = Vector2(PACK_X, 2)
+	_pack_shadow.size = Vector2(31, 31)
+	_pack_shadow.color = Color(0.0, 0.0, 0.0, 0.72)
+	_pack_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_pack_shadow)
+	_pack_btn = TextureButton.new()
+	_pack_btn.name = "PackMark"
+	_pack_btn.position = Vector2(PACK_X, 2)
+	_pack_btn.custom_minimum_size = Vector2(28, 28)
+	_pack_btn.size = Vector2(28, 28)
+	_pack_btn.ignore_texture_size = true
+	_pack_btn.stretch_mode = TextureButton.STRETCH_SCALE
+	_pack_btn.clip_contents = true
+	_pack_btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_pack_btn.focus_mode = Control.FOCUS_NONE
+	_pack_btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pack_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_pack_btn.modulate = _SAVE_DIM
+	# Cream backpack placeholder until PixelLab.
+	var bag := ColorRect.new()
+	bag.name = "PackMarkFill"
+	bag.size = Vector2(14, 16)
+	bag.position = Vector2(7, 6)
+	bag.color = CREAM
+	bag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pack_btn.add_child(bag)
+	var strap := ColorRect.new()
+	strap.size = Vector2(8, 3)
+	strap.position = Vector2(10, 4)
+	strap.color = Color(0.72, 0.68, 0.55)
+	strap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pack_btn.add_child(strap)
+	_pack_btn.mouse_entered.connect(func() -> void: _pack_btn.modulate = _SAVE_LIT)
+	_pack_btn.mouse_exited.connect(func() -> void: _pack_btn.modulate = _SAVE_DIM)
+	_pack_btn.pressed.connect(_toggle_pack)
+	add_child(_pack_btn)
+	_pack_btn.size = Vector2(28, 28)
+	_pack_panel = Panel.new()
+	_pack_panel.name = "PackPanel"
+	_pack_panel.visible = false
+	_pack_panel.position = Vector2(332, 32)
+	_pack_panel.size = Vector2(146, 118)
+	_pack_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pack_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	var plate := StyleBoxFlat.new()
+	plate.bg_color = PLATE_COLOR
+	plate.set_border_width_all(1)
+	plate.border_color = Color(0.55, 0.66, 0.42, 1)
+	plate.content_margin_left = 4
+	plate.content_margin_top = 4
+	plate.content_margin_right = 4
+	plate.content_margin_bottom = 4
+	_pack_panel.add_theme_stylebox_override("panel", plate)
+	var title := Label.new()
+	title.name = "PackTitle"
+	title.text = "Rucksack"
+	title.position = Vector2(4, 2)
+	title.size = Vector2(138, 14)
+	title.modulate = CREAM
+	title.add_theme_font_size_override("font_size", 10)
+	title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	title.add_theme_constant_override("outline_size", 2)
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pack_panel.add_child(title)
+	_pack_grid = Control.new()
+	_pack_grid.name = "PackGrid"
+	_pack_grid.position = Vector2(4, 18)
+	_pack_grid.size = Vector2(138, 68)
+	_pack_grid.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pack_panel.add_child(_pack_grid)
+	_pack_make = Button.new()
+	_pack_make.name = "PackMake"
+	_pack_make.text = "Make torch"
+	_pack_make.position = Vector2(4, 90)
+	_pack_make.size = Vector2(138, 22)
+	_pack_make.focus_mode = Control.FOCUS_NONE
+	_pack_make.add_theme_font_size_override("font_size", 10)
+	_pack_make.add_theme_color_override("font_color", CREAM)
+	_pack_make.add_theme_color_override("font_hover_color", CREAM)
+	_pack_make.add_theme_color_override("font_pressed_color", CREAM)
+	_pack_make.add_theme_color_override("font_disabled_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
+	_pack_make.pressed.connect(_on_make_torch)
+	_pack_panel.add_child(_pack_make)
+	add_child(_pack_panel)
+
+
+func _toggle_pack() -> void:
+	if _pack_panel == null:
+		_build_pack()
+	var open := not _pack_panel.visible
+	_pack_panel.visible = open
+	if open:
+		close_skills()
+		_paint_pack()
+		move_child(_pack_panel, get_child_count() - 1)
+
+
+func _on_make_torch() -> void:
+	if _pack == null:
+		return
+	if not _pack.craft_torch():
+		return
+	pack_changed.emit()
+	_paint_pack()
+
+
+func _paint_pack() -> void:
+	if _pack_panel == null:
+		_build_pack()
+	if _pack_grid == null:
+		return
+	for child in _pack_grid.get_children():
+		child.queue_free()
+	if _pack == null:
+		if _pack_make != null:
+			_pack_make.disabled = true
+			_pack_make.text = "Make torch"
+		return
+	var cols := 5
+	var i := 0
+	for stack in _pack.stacks:
+		var id := str(stack.get("id", ""))
+		var count := int(stack.get("count", 0))
+		if id.is_empty() or count < 1:
+			i += 1
+			continue
+		var tile := _make_item_tile(i, id, count, i == _pack.equipped_index)
+		var col := i % cols
+		var row := int(i / cols)
+		tile.position = Vector2(col * (ITEM_TILE + 2), row * (ITEM_TILE + 2))
+		_pack_grid.add_child(tile)
+		i += 1
+	if _pack_make != null:
+		_pack_make.disabled = not _pack.can_craft_torch()
+		_pack_make.text = "Make torch (1 stick, 1 pitch)"
+
+
+func _make_item_tile(index: int, id: String, count: int, equipped: bool) -> Control:
+	var tile := Control.new()
+	tile.name = "PackItem_%d" % index
+	tile.size = Vector2(ITEM_TILE, ITEM_TILE)
+	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	var body := ColorRect.new()
+	body.size = Vector2(ITEM_TILE, ITEM_TILE)
+	body.color = _item_color(id)
+	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if equipped:
+		body.modulate = Color(1, 1, 1, 0.45)
+	tile.add_child(body)
+	var count_label := Label.new()
+	count_label.text = str(count)
+	count_label.position = Vector2(0, -1)
+	count_label.size = Vector2(ITEM_TILE - 1, 10)
+	count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	count_label.modulate = CREAM
+	count_label.add_theme_font_size_override("font_size", 8)
+	count_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	count_label.add_theme_constant_override("outline_size", 2)
+	count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tile.add_child(count_label)
+	if equipped:
+		var mark := Label.new()
+		mark.text = "E"
+		mark.position = Vector2(1, ITEM_TILE - 11)
+		mark.size = Vector2(12, 10)
+		mark.modulate = CREAM
+		mark.add_theme_font_size_override("font_size", 8)
+		mark.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+		mark.add_theme_constant_override("outline_size", 2)
+		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tile.add_child(mark)
+	tile.gui_input.connect(func(event: InputEvent) -> void: _on_item_input(event, index, id))
+	return tile
+
+
+func _item_color(id: String) -> Color:
+	match id:
+		Rucksack.ID_PITCH:
+			return Color(0.72, 0.55, 0.22)
+		Rucksack.ID_STICK:
+			return Color(0.55, 0.4, 0.22)
+		Rucksack.ID_TORCH:
+			return Color(0.85, 0.62, 0.28)
+		_:
+			return Color(0.5, 0.5, 0.45)
+
+
+func _on_item_input(event: InputEvent, index: int, id: String) -> void:
+	if not event is InputEventMouseButton:
+		return
+	var mouse := event as InputEventMouseButton
+	if not mouse.pressed or mouse.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var now := Time.get_ticks_msec()
+	var last := int(_click_times.get(index, 0))
+	_click_times[index] = now
+	if now - last > 350:
+		return
+	if id != Rucksack.ID_TORCH or _pack == null:
+		return
+	if _pack.equip_torch_at(index):
+		pack_changed.emit()
+		_paint_pack()
 
 
 func _paint_skills(skills: Skills) -> void:

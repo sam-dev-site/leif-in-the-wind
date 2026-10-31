@@ -111,30 +111,23 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Pack and crafting
 
-He called this a priority shift. These slices are one design. Crafting is the point of the extras. Decide what he wants to make, then ask this forest where those pieces can fall. A gap becomes its own slice. He has not chosen the build order among the rucksack, the drops, and crafting. Do not turn that into a queue.
+He called this a priority shift. These slices are one design. Crafting is the point of the extras. Decide what he wants to make, then ask this forest where those pieces can fall. A gap becomes its own slice.
 
 Wood from a tree and berries from a bush stay as they are. They stay on the HUD at all times. They are the two locked necessities. The rucksack is not a second count of wood or berries.
 
-- **Rucksack.** A backpack icon in the top right. It holds the extras, not wood and not forage.
-  - Ask: The top right already has the skills mark and the floppy. Does the backpack sit with them?
-  - Ask: Is the pack a fixed number of slots, or a list with no cap? He did not say.
-  - Ask: A save already stores wood and forage. Do the extras have to be in that file too?
-  - Ask: Death already drops half the pack. Do extras count in that half?
-- **Drops.** Trees, branches, and bushes can also drop one extra. Wood from chopping does not change. Each kind of tree has a chance at only one extra, besides the wood. He gave examples of the kind of thing, not an assignment: a feather, a vine, sap. Not every tree drops acorns, and apples are not the idea. Some extras might be possible from more than one source. He said a feather could be one of those.
-  - Ask: The trees he can chop are balsam fir and spruce. The bushes are bakeapple and blueberry. Fallen branches are fir. Nothing in `docs/research/biomes/coastal_north.md` names a feather, an acorn, a vine, sap, or a nut as a drop. Research that file’s plants before assigning any extra. Do not invent one.
-  - Ask: He said each tree species drops one extra kind. Does a spruce drop a different thing than a fir? Does a fallen log of that species roll the same extra? Does a branch roll it too, or only a standing tree?
-  - Ask: What is the chance? He said a percent. He did not give the number.
-  - Ask: A bush already gives berries. Is the extra besides those berries, one possible thing per bush species?
-  - Ask: The objects he can use today are fir, spruce, fallen logs, fir branches, bakeapple, and blueberry. Rocks, moss, and needles are not picked. Which of those are allowed to drop an extra?
-- **Crafting.** Work backwards from the thing he wants to make. His worked example, not a locked recipe: a fishing pole wants 1 long stick, 1 cord (hemp, cord, or vine, whichever this forest can actually have), 1 feather, 1 tree nut, and 1 bone. Then assign each need to a source that belongs here.
-  - Ask: Is the fishing pole the first thing crafting makes? Fishing is already its own slice.
-  - Ask: The axe is already in hand, and a fire is already wood plus **F**. Does crafting make things those do not, only?
-  - Ask: Is crafting a screen on the rucksack, or the buttons he already uses?
+- **Rucksack.** In. Backpack between skills and floppy. Mouse area of stacks (cap 99). Floppy and **R** keep extras. Death: 5–10% random tax on extras; wood and berries still half.
+- **Drops (pitch and stick).** In. Stick 25% on a cleared branch. Pitch 10% on a fir/spruce fell (standing or log). Same pitch stack. Bushes: no extra.
+- **Torch.** In. Make 1 stick + 1 pitch. Double-click equip (faded + E). Space on a burning fire lights it. Light only, one night, single use. PixelLab icons wait.
+- **Crafting (more recipes).** Work backwards from the next thing. Fishing pole stays the worked example for later.
+  - Ask: Is the fishing pole the next craft? Fishing is already its own slice.
+  - Ask: Does crafting unlock Fishing, or can Fishing start without a crafted tool?
   - Ask: The raft is its own slice. Do not fold it in unless he says they are the same.
-  - Ask: Which piece of the example is a gap on this map? Bone is one. Feathers have no bird that drops them. A nut is not what a fir or a spruce is. Do not paper over a gap with a drop the research does not support.
-- **Bones.** Opened because the fishing-pole example needs a bone, and nothing he can do today produces one.
+- **Bones.** Still open. The fishing-pole example needs a bone.
   - Ask: How does he get a bone?
   - Ask: Caribou and hare are not hunted. Is a bone from them, from something else, or from a source that is not an animal? Do not invent the source.
+- **More extras.** Birch bark and spruce-root cord are attested at L’Anse aux Meadows but not spawned yet.
+  - Ask: Is birch or cord the next drop, and what does it craft?
+  - Ask: Do not invent feather, vine, acorn, or nut on this coast.
 
 ## A place you made
 - **A house.**

@@ -253,6 +253,8 @@ func _kind_occupies(kind: String) -> bool:
 
 
 func _kind_usable(kind: String, species: String) -> bool:
+	if kind == "campfire":
+		return true
 	if kind == "tree" or kind == "forage" or kind == "fallen" or kind == "branch":
 		return true
 	return kind == "clutter" and Supplies.is_branch(species)
@@ -266,11 +268,14 @@ func _scan_usable() -> Array[Node2D]:
 		var node := child as Node2D
 		if node.is_queued_for_deletion():
 			continue
-		if not node.has_meta("kind") or not node.has_meta("species"):
+		if not node.has_meta("kind"):
+			continue
+		var kind := str(node.get_meta("kind"))
+		if kind != "campfire" and not node.has_meta("species"):
 			continue
 		if bool(node.get_meta("harvested", false)):
 			continue
-		if _kind_usable(str(node.get_meta("kind")), str(node.get_meta("species"))):
+		if _kind_usable(kind, str(node.get_meta("species", ""))):
 			found.append(node)
 	return found
 
