@@ -1,0 +1,41 @@
+---
+description: Cloud builds the PR; this PC presses Play; every reply names the next owner action
+alwaysApply: true
+---
+
+# Dev loop
+
+Cloud writes verbs and research. This PC is PixelLab and Play. Do not move that split.
+
+## Next-action line
+
+The first local reply, and the last reply of a cloud or sign-off turn, is one short line. Use these words. Do not invent a paragraph of git advice.
+
+- One open PR, tree clean, checks green or unknown, not an art/ideas chat: Ready for Play. Open the `game` folder in Godot and press Play. When it feels right, say done.
+- PR still building / checks red: Not ready for Play yet. Wait until the PR is green, then start this chat again — or say playtest and I will check.
+- Several open PRs: Which PR are we playtesting?
+- Dirty tree: This PC has unsaved work. Say save so GitHub matches before we switch branches.
+- On main, clean, no PR: GitHub matches this PC. Say top 3 for the next slice, or PixelLab for art.
+- After plan (verbs/research): Click Build in Cloud. Do not playtest there. When the PR is up, start a new local chat — I will tell you when Godot is ready.
+- Cloud PR opened: PR is up. Start a new local chat on the Surface for Play. I will not open Godot here.
+- After `done` / `good` / `save`: main matches GitHub. Start a new chat for the next idea.
+- Play found a small problem: Say what felt wrong. I will patch this branch. Then press Play again.
+
+## Cloud
+
+- Open a PR. Run headless tests and wait for Actions. You may claim REVIEW gates 1–5.
+- Never launch the Godot editor. Never claim Play. Gate 6 is the owner on this PC.
+- STATUS says **ready for Play**, not signed off.
+- End with the Cloud PR opened line.
+
+## Local
+
+- Session start injects branch, dirty tree, and open PRs. Follow `.cursor/skills/playtest-pr`.
+- Exactly one open PR, tree clean, not an art / PixelLab / `top 3` chat: land it, then the Ready for Play line.
+- `playtest` always lands when the tree is clean and the PR is known.
+- Do not open Godot. The owner presses Play.
+- Small Play notes stay in this chat. Patch the PR branch. Do not start a third agent.
+
+## Sign-off
+
+Sign-off words mean GitHub `main` matches this PC. On a PR branch that includes merge, checkout `main`, and pull. Detail: `.cursor/rules/commit-signoff.mdc` and the Sync job in `.cursor/skills/playtest-pr`.

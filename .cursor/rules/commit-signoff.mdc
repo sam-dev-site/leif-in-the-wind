@@ -1,11 +1,11 @@
 ---
-description: Sign-off words commit and push so GitHub main matches this machine
+description: Sign-off words sync GitHub main to this machine, including merge of a playtest PR
 alwaysApply: true
 ---
 
-# Sign off, then commit and push
+# Sign off, then sync main
 
-A short sign-off means GitHub `main` matches this machine. Commit if anything is uncommitted, then push, in that same turn. Do not ask. Do not describe a commit you have not made. Do not stop after the local commit.
+A short sign-off means GitHub `main` matches this machine. Commit if anything is uncommitted, push, and if this is a playtest PR branch, merge it and leave this PC on `main`. Do not ask. Do not describe a commit you have not made. Do not stop after the local commit.
 
 These close the work:
 
@@ -14,24 +14,30 @@ These close the work:
 - `perfect`, `everything is working`
 - `push`
 
-`perfect. everything is working. save and commit` is one sign-off. It commits and it pushes.
+`perfect. everything is working. save and commit` is one sign-off. It syncs.
 
-If the same message also asks for a change, do that change first, then commit and push.
+If the same message also asks for a change, do that change first, then sync.
 
-A sign-off does not ask for another change. `perfect, but the bars are wrong` is still notes. Finish the notes. Commit and push only when they close it.
+A sign-off does not ask for another change. `perfect, but the bars are wrong` is still notes. Finish the notes. Sync only when they close it.
 
 ## What to run
+
+Follow the Sync job in `.cursor/skills/playtest-pr` when a PR is in play. Otherwise:
 
 1. `git status`, `git diff`, and recent `git log` (match the message style).
 2. Stage the work. Never stage secrets (`PIXELLAB_API_TOKEN`, `.env`).
 3. `git commit` when there is something to commit. On PowerShell pass the message with a here-string, not a bash heredoc.
 4. `git push`. Never force-push `main`.
-5. `git status -sb` and `git log -1 --oneline`. The hash in the reply is that log line. Say it is on GitHub only after the push succeeds and `main` matches `origin/main`.
+5. If this is a PR branch: `gh pr merge <number> --merge` (merge commit, not squash), then `git checkout main` and `git pull`.
+6. `git status -sb` and `git log -1 --oneline`. The hash in the reply is that log line. Say it is on GitHub only after `main` matches `origin/main`.
 
 Nothing new to commit, but `main` is ahead: push. Already in sync: say GitHub already matches.
+
+End the turn with: main matches GitHub. Start a new chat for the next idea.
 
 ## Do not
 
 - Invent a hash, or say "committed as …" before the commit command succeeds.
 - End a sign-off with "has not been pushed" or "only on this machine."
 - Ask "want me to commit?" or "want me to push?" after these words.
+- Leave the owner on a feature branch after a Play sign-off.

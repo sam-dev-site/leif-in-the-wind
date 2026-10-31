@@ -27,7 +27,11 @@ jobs:
           test -f docs/research/biomes/inland_plains.md
           test -f docs/research/biomes/bayou.md
           test -f .cursor/rules/knowledge.mdc
+          test -f .cursor/rules/dev-loop.mdc
+          test -f .cursor/rules/commit-signoff.mdc
+          test -f .cursor/skills/playtest-pr/SKILL.md
           test -f .cursor/hooks.json
+          test -f .cursor/hooks/session-start.js
           test -f .cursor/mcp.json
           test -f docs/PIXELAB.md
           test -f game/project.godot

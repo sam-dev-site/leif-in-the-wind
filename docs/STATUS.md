@@ -13,7 +13,8 @@ PixelLab trial: **2 / 40** generations left. Then 5/day (stack to 20). Paid floo
 ## What exists
 
 - Knowledge harness (mission names MDA fun: sensation / fantasy / discovery / submission now; challenge opening with woodcutting and fire-making; expression later)
-- Sign-off language commits and pushes in that turn (`.cursor/rules/commit-signoff.mdc`): `perfect`, `everything is working`, `save and commit`, `all set`, `good`, `done`, `push`
+- Playtest handoff: session start names branch, dirty tree, and open PRs; `.cursor/skills/playtest-pr` lands one PR for Play; sign-off merges and returns to `main`. Next-action lines live in `.cursor/rules/dev-loop.mdc`. Cloud never opens Godot. Cloud STATUS is **ready for Play**; local sign-off is **Play signed off**.
+- Sign-off language syncs GitHub `main` to this PC (`.cursor/rules/commit-signoff.mdc`): `perfect`, `everything is working`, `save and commit`, `all set`, `good`, `done`, `push`
 - `docs/research/biomes/river_valley.md` is on `main` (Saint John and inner Miramichi). Owner said it looks right. No spawn tables or art.
 - `docs/research/journey.md` is a schematic world map (Newfoundland → rivers south → west). Not in the game.
 - `game/` Godot 4.7 project: World, Biome resources, ChunkGenerator, Player, HUD
@@ -39,12 +40,12 @@ Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 
 
 1. **Open Play check:** Fire-making is signed off in Play: early 7-wood lights can miss, and that is a motivator, not too tough. Woodcutting is signed off in Play. Foraging is signed off in Play: yield bands, eat cost 10→2, no stored berry quality. No heart regen is signed off in Play: day and fire do not heal; berries only. Death is signed off in Play: cream skull on the black, half the pack, wake at the last fire (or landing), one heart. The name box and the floppy mark are signed off in Play. The foliage slider range (−100% to +25%) needs a Play check. The three save files are signed off. The caribou on the trail is signed off in Play (ColorRect until PixelLab walk art).
 2. **Ideas:** `docs/IDEAS.md` has no order. Each line is one slice. When asked what to work on next, read the mission, the decisions, the status, and that file, and choose one slice. Not in build until they say so. The caribou on the trail is in and signed off in Play. Foraging is in and signed off in Play. No heart regen is in and signed off in Play. Death is in and signed off in Play. PixelLab walk art, skill icons, and the death skull wait on generations.
-3. **Cloud + PR:** `river_valley` research is on `main`. Leave it there. No spawn tables or art until you ask.
+3. **Cloud + PR:** `river_valley` research is on `main`. Leave it there. No spawn tables or art until you ask. A cloud verb slice stops at the PR and **ready for Play**. A new local chat lands that PR. `done` merges it.
 4. **Bug backlog:** no open bugs in `docs/BUGS.md`. The Save button overlaps the name field is fixed. The save mark is two pause bars is fixed: cream floppy. The fallen branch is almost as big as the trees is fixed: same sprite, drawn at 0.7. Minimap shows too much is fixed: a look opens a 6-tile circle, and the trail stays clear. Sphagnum is larger than Leif is fixed: the cushion is stamped at half size. Shrubs are missing the bottom right corner is fixed. Running on a diagonal is choppy is passing and stays on the list for a later pass. When you ask for bug fixes, name the open headings before changing the game.
 
 ## Local machine
 
-Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.GodotEngine`). Open the `game` folder, not the repo root. Do not install Unity.
+Surface Pro 6. **Godot 4.7.2 Standard is installed** via winget (`GodotEngine.GodotEngine`). Open the `game` folder, not the repo root. Do not install Unity. A new local chat should say what to do next (Play, `top 3`, or `save`). Do not treat this PC as the CI machine.
 
 ## Checks
 

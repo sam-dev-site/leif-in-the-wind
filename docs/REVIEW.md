@@ -29,12 +29,16 @@ Do not call a unit of work complete until the applicable gates pass. Owner is a 
 
 - GitHub Actions `check` is green
 - When Godot exists: unit tests for seed stability, biome lookup, and the verbs you touched
+- A cloud agent may claim this gate after headless tests and a green Actions run. It may not claim Play.
 
 ## 6. Feel (owner)
 
 - Owner pressed Play (or ran an exported build) when the change is player-visible
-- Result recorded in `docs/STATUS.md`, including what could not be verified
+- This gate is only the owner on this PC. Cloud never launches the Godot editor and never writes “Play signed off.”
+- Cloud writes **ready for Play** in `docs/STATUS.md`. The local sign-off writes **Play signed off**, including what could not be verified.
 
 ## How to review (agents)
 
 Read `MISSION.md`, `STATUS.md`, the biome research file, and the diff. File findings as critical / high / note. Fix critical and high before merge unless the owner accepts them.
+
+Cloud stops after gates 1–5 and the PR. Gate 6 waits for the Surface.

@@ -28,12 +28,23 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 ## How work should happen
 
 1. Prefer a cloud agent + pull request for research, code, tests, and review.
-2. This PC is for PixelLab, `git pull`, and pressing Play. Do not treat it as the CI machine.
+2. This PC is for PixelLab and pressing Play. Local agents land the one open PR. Cloud never opens Godot. Do not treat this laptop as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
 4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. Ideas have no order. When the owner asks what to work on next, read the mission, the decisions, the status, and `docs/IDEAS.md`, and choose one slice.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
-6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — commit if needed, then push, in that same turn. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc`.
+6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — sync GitHub `main` to this PC in that turn: commit if needed, push, merge a playtest PR if that is the branch, checkout `main`, pull. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc` and `.cursor/skills/playtest-pr`.
 7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Taking one in includes a pass over that file: combine the same slice, split a line that is more than one, and drop a duplicate.
+
+## Dev loop
+
+The owner should never have to remember git. Every phase change ends with **one next-action line** (copy in `.cursor/rules/dev-loop.mdc`).
+
+Owner steps after plan: click **Build in Cloud**, start a new local chat when the PR exists, press Play, say `done`. Next idea is a new chat on `main`.
+
+- Cloud: PR + headless + Actions. REVIEW gates 1–5 only. STATUS says **ready for Play**. Last line: start a new local chat on the Surface. Do not open Godot.
+- Local, one open PR, clean tree, not an art / `top 3` chat: land the PR (`.cursor/skills/playtest-pr`), then tell them Godot is ready.
+- Sign-off: merge, return to `main`, both sides match. Last line: start a new chat for the next idea.
+- Play notes stay in the playtest chat. A third agent is not required.
 
 ## Parallel lanes (do not collide)
 

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-10-30 — Playtest handoff, not a new pipeline
+
+**Decision:** Cloud still writes verbs and research as a PR. This PC still presses Play and does PixelLab. The ceremony in between is harnessed. Session start names the branch, whether the tree is dirty, and any open PRs. A new local chat with exactly one open PR lands it and says Godot is ready. Sign-off words (`done`, `good`, `save`, and the rest) sync GitHub `main` to this PC: commit if needed, merge the playtest PR, checkout `main`, pull. Every phase change ends with one next-action line from `.cursor/rules/dev-loop.mdc`. Cloud never launches the Godot editor and never claims Play. Cloud writes **ready for Play** in `docs/STATUS.md`. The local sign-off writes **Play signed off**.
+
+**Why:** The owner is a first-time vibe coder. “Pull the PR,” “tell me when Godot is ready,” and a sign-off that only pushed the feature branch were four prompts for a two-step job. They still click **Build in Cloud**, start a new local chat, and press Play.
+
+**Rejected:** Dropping PRs. Auto-merge when CI is green. Auto-checkout inside the hook. A Cursor Automation for this. Opening Godot from the agent. Making this laptop the CI machine.
+
 ## 2026-10-30 — Death is signed off in Play
 
 **Decision:** Play signed off death as shipped. Cold at the last half-heart fades to black with the cream skull. Sleep stays a blank blink. He wakes at dawn at the last slept fire (or the landing), wood and forage halved, one heart. Skills and the map stay. Hint stays **The cold took him. Half the pack is gone.** The placeholder skull stays; PixelLab does not spend generations on it in this sign-off.
