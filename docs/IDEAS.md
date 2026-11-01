@@ -113,6 +113,8 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 He called this a priority shift. These slices are one design. Crafting is the point of the extras. Decide what he wants to make, then ask this forest where those pieces can fall. A gap becomes its own slice.
 
+He said crafting unlocks other skills. Fishing is the example.
+
 Wood from a tree and berries from a bush stay as they are. They stay on the HUD at all times. They are the two locked necessities. The rucksack is not a second count of wood or berries.
 
 - **Rucksack.** In. Play signed off. Backpack between skills and floppy. Mouse area of stacks (cap 99). Hover names the stack. Clicks are the bag; Space and keys still work the woods while it is open. Floppy and **R** keep extras. Death: 5–10% random tax on extras; wood and berries still half.
@@ -121,6 +123,8 @@ Wood from a tree and berries from a bush stay as they are. They stay on the HUD 
 - **Crafting (more recipes).** Work backwards from the next thing. Fishing pole stays the worked example for later.
   - Ask: Is the fishing pole the next craft? Fishing is already its own slice.
   - Ask: Does crafting unlock Fishing, or can Fishing start without a crafted tool?
+  - Ask: The axe is already in hand, and a fire is already wood plus **F**. Does crafting make things those do not, only?
+  - Ask: Is crafting a screen on the rucksack, or the buttons he already uses?
   - Ask: The raft is its own slice. Do not fold it in unless he says they are the same.
 - **Bones.** Still open. The fishing-pole example needs a bone.
   - Ask: How does he get a bone?
