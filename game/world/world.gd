@@ -12,6 +12,7 @@ var catalog: BiomeCatalog = BiomeCatalog.new()
 var generator: ChunkGenerator = ChunkGenerator.new()
 var supplies: Supplies = Supplies.new()
 var skills: Skills = Skills.new()
+var pack: Rucksack = Rucksack.new()
 var _wang := WangTiles.new()
 var _chunks: Dictionary = {}
 var _chunk: MapChunk
@@ -44,12 +45,17 @@ var _quit_layer: CanvasLayer
 var _opened := false
 var _caribou: Caribou
 var _hares: Array[Hare] = []
+var _torch_light: PointLight2D
+var _torch_rng := RandomNumberGenerator.new()
+var _torch_rng_ready := false
 
 const SLEEP_OUT := 0.4
 const SLEEP_HOLD := 0.12
 const SLEEP_IN := 0.7
 ## Death holds the black longer so the cream skull can be read.
 const DEATH_HOLD := 0.8
+const TORCH_LIGHT_SCALE := Campfire.LIGHT_SCALE * 0.5
+const TORCH_NIGHT_ENERGY := 1.2
 const FIRE_WARM_PIXELS := 56.0
 const PROP_EDGE := 24.0
 const TITLE_SCENE := "res://title/title.tscn"
@@ -98,10 +104,14 @@ func open_play() -> void:
 	_interact = Interact.new()
 	_interact.player = _player
 	_interact.supplies = supplies
+	_interact.pack = pack
 	_interact.skills = skills
 	_interact.world = self
 	_interact.acted.connect(_on_acted)
 	add_child(_interact)
+	if _hud != null:
+		_hud.pack_changed.connect(_on_pack_changed)
+		_hud.bind_pack(pack)
 	_music = AudioStreamPlayer.new()
 	_music.bus = "Master"
 	_music.volume_db = -4.0
@@ -148,6 +158,12 @@ func _process(delta: float) -> void:
 	if _sleep_phase != "":
 		_tick_sleep(delta)
 		return
+	if pack != null and pack.tick_torch(delta):
+		_hint = "The torch burned out."
+		_sync_torch_light()
+		_refresh_hud()
+	else:
+		_sync_torch_light()
 	var warm := is_near_fire(_player.global_position)
 	var change := supplies.tick_vitals(_clock.is_night(), warm, delta)
 	if change == "cold":
@@ -182,11 +198,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _sleep_phase != "":
 			_mark_handled()
 			return
+		if _hud != null and _hud.is_pack_open():
+			_hud.close_pack()
+			_mark_handled()
+			return
+		if _hud != null and _hud.is_skills_open():
+			_hud.close_skills()
+			_mark_handled()
+			return
 		open_quit_ask()
 		_mark_handled()
 		return
 	if key.keycode == KEY_R:
-		# New seed. Wood, forage, and skills stay. Fires were on the old ground.
+		# New seed. Wood, forage, pack, and skills stay. Fires were on the old ground.
 		world_seed = (world_seed * 1103515245 + 12345) & 0x7fffffff
 		rebuild()
 		_mark_handled()
@@ -235,9 +259,83 @@ func _on_acted(action: String, species: String) -> void:
 			if _interact != null:
 				pay = _interact.last_wood
 			_hint = "Chopped %s. +%s wood." % [species, Supplies.wood_label(pay)]
+		if _interact != null and _interact.last_extra == Rucksack.ID_PITCH:
+			_hint += " Pitch."
 	elif action == "clear":
 		_hint = "Cleared a branch. +%s wood." % Supplies.wood_label(Supplies.WOOD_PER_BRANCH)
+		if _interact != null and _interact.last_extra == Rucksack.ID_STICK:
+			_hint += " Stick."
+	elif action == "torch":
+		_hint = "Torch lit."
+		_sync_torch_light()
+	elif action == "torch_need_fire":
+		_hint = "Light it at a fire."
 	_refresh_hud()
+
+
+func torch_lifetime() -> float:
+	return DayClock.cold_seconds()
+
+
+func is_pack_open() -> bool:
+	return _hud != null and _hud.is_pack_open()
+
+
+func _on_pack_changed() -> void:
+	_sync_torch_light()
+	_refresh_hud()
+
+
+func torch_light() -> PointLight2D:
+	return _torch_light
+
+
+func _sync_torch_light() -> void:
+	var want := pack != null and pack.torch_lit
+	if not want:
+		if _torch_light != null and is_instance_valid(_torch_light):
+			_torch_light.enabled = false
+			_torch_light.energy = 0.0
+		return
+	if _player == null or not is_instance_valid(_player):
+		return
+	if _torch_light == null or not is_instance_valid(_torch_light):
+		_torch_light = PointLight2D.new()
+		_torch_light.name = "TorchLight"
+		_torch_light.color = Color(1.0, 0.72, 0.38)
+		_torch_light.blend_mode = Light2D.BLEND_MODE_ADD
+		_torch_light.texture = _torch_radial_texture()
+		_torch_light.texture_scale = TORCH_LIGHT_SCALE
+		_torch_light.shadow_enabled = false
+		_torch_light.top_level = true
+		add_child(_torch_light)
+	elif _torch_light.get_parent() != self:
+		if _torch_light.get_parent() != null:
+			_torch_light.get_parent().remove_child(_torch_light)
+		_torch_light.top_level = true
+		add_child(_torch_light)
+	_torch_light.global_position = _player.global_position + Vector2(0, -6)
+	var dark := 0.0
+	if _clock != null:
+		dark = clampf(DayClock.darkness_now, 0.0, 1.0)
+	_torch_light.energy = TORCH_NIGHT_ENERGY * dark
+	_torch_light.enabled = dark > 0.02
+
+
+func _torch_radial_texture() -> Texture2D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1, 1, 1, 1))
+	gradient.set_offset(0, 0.2)
+	gradient.set_color(1, Color(1, 1, 1, 0))
+	gradient.set_offset(1, 1.0)
+	var tex := GradientTexture2D.new()
+	tex.gradient = gradient
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(0.5, 0.0)
+	tex.width = 64
+	tex.height = 64
+	return tex
 
 
 func rebuild() -> void:
@@ -353,6 +451,7 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		skills.woodcutting_xp = 0
 		skills.firemaking_xp = 0
 		skills.forage_xp = 0
+		pack.clear()
 		var h := float(AdminSettings.hearts)
 		supplies.hearts = h
 		supplies.hearts_max = h
@@ -360,10 +459,14 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
 		skills.forage_xp = int(snapshot.get("forage_xp", 0))
+		pack.from_save(snapshot.get("pack", {}))
 	if snapshot.has("name"):
 		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
 	if snapshot.has("seed"):
 		world_seed = int(snapshot["seed"])
+	if _hud != null:
+		_hud.bind_pack(pack)
+	_sync_torch_light()
 
 
 func run_slot() -> int:
@@ -469,6 +572,7 @@ func capture_walk() -> Dictionary:
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
 		"forage_xp": skills.forage_xp,
+		"pack": pack.to_save(),
 		"elapsed": elapsed,
 		"fog": fog_cells,
 		"fires": _capture_fires(),
@@ -503,6 +607,10 @@ func apply_walk(data: Dictionary) -> void:
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
 	skills.firemaking_xp = int(data.get("firemaking_xp", 0))
 	skills.forage_xp = int(data.get("forage_xp", 0))
+	pack.from_save(data.get("pack", {}))
+	if _hud != null:
+		_hud.bind_pack(pack)
+	_sync_torch_light()
 	if _clock != null and data.has("elapsed"):
 		_clock.elapsed = float(data["elapsed"])
 		DayClock.darkness_now = _clock.darkness()
@@ -1153,6 +1261,8 @@ func _refresh_hud() -> void:
 	var phase := "day"
 	if _clock != null:
 		phase = _clock.phase()
+	if _hud != null:
+		_hud.bind_pack(pack)
 	_hud.show_play(world_seed, biome_name, supplies, phase, _hint, skills)
 
 
@@ -1320,6 +1430,14 @@ func _respawn() -> void:
 			DayClock.darkness_now = _clock.darkness()
 			if _night != null:
 				_night.color = _clock.modulate_color()
+	# Lit torch is single-use on death, then the extras tax, then wood/berries half.
+	if pack != null:
+		pack.extinguish_and_consume()
+		if not _torch_rng_ready:
+			_torch_rng.randomize()
+			_torch_rng_ready = true
+		pack.take_death_tax(_torch_rng)
+	_sync_torch_light()
 	supplies.take_death_tax()
 	supplies.hearts = 1.0
 	supplies.cold_acc = 0.0
@@ -1367,6 +1485,8 @@ func _tick_sleep(delta: float) -> void:
 					return
 				_burn_fires(skipped)
 				supplies.cold_acc = 0.0
+				if pack != null and pack.extinguish_and_consume():
+					_sync_torch_light()
 				# Remember this camp as the death wake tile.
 				if _player != null and is_instance_valid(_player):
 					_has_sleep_mark = true

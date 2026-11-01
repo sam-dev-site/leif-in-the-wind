@@ -2,6 +2,30 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-01 — Pack and torch are signed off in Play
+
+**Decision:** Play signed off pack and torch as shipped. Hover names the stack. The bag stays open for Space and the other woods keys. A lit torch is a walking pool about half the campfire. Double-click unequip does not crash. Cream placeholders stay. PixelLab does not spend generations in this sign-off.
+
+**Why:** Owner Play: very good, this is all working.
+
+**Rejected:** Changing the recipe, adding warmth, or spending PixelLab generations in this sign-off.
+
+## 2026-10-31 — Pack stays open; torch walks with him
+
+**Decision:** Clicks are the pack and the marks. Space, E, F, C, WASD, and R still work the woods while the rucksack is open, so extras can land while he watches. Hover on a stack shows the item name (Pitch, Stick, Torch). Escape still closes the pack. A lit torch is a mobile pool on Leif, about half the campfire’s size. It does not warm. Night still spends hearts.
+
+**Why:** Play: the open bag blocked Space; stacks had no hover name; lighting at a fire did not leave a light that followed him into the dark. He wants to craft, equip, walk to a fire, and Space-light with the bag still up. Click vs keys keeps those from fighting.
+
+**Rejected:** Closing the pack to use Space. A light stuck on the fire. Torch warmth.
+
+## 2026-10-31 — Pack and torch on this biome
+
+**Decision:** Expression opens on `coastal_north` with a mouse-driven **rucksack** and one craft: a **torch**. Wood and berries stay on the HUD. Extras are stacks (cap **99**, then a new pile) with a count badge. Stick is a **25%** extra on a cleared fallen branch (besides 0.5 wood). Pitch is a **10%** extra on a fir or spruce fell (standing or fallen log); fir balsam and spruce gum share one stack. Bushes drop nothing extra. Recipe: **1 stick + 1 pitch → torch**. Double-click a torch stack to equip (stays in the pack, faded, with **E**); double-click again unequips while unlit. **Space on a burning fire** lights it. Light only — night still spends hearts. Burns one cold night. Single use: burn, sleep, or death consumes that torch. Floppy saves stacks and equipped; **R** keeps them. Death still halves wood and forage; extras take a **5–10%** random tax across up to **4** stacks. Crafting does not unlock Fishing. No bone, feather, nut, vine, or birch spawn in this cut.
+
+**Why:** Owner Q&A locked an honest-forest first craft. A moving pool of firelight is sensation and fantasy; finding pitch is discovery. The campfire stays warmth, sleep, and the death wake (submission). Expression starts here without inventing drops the research cannot support.
+
+**Rejected:** Fishing pole as the first craft. Torch warmth. A Light button on the pack. Slot grid. Invented feather/nut/bone/vine drops. Spending PixelLab gens on pack icons.
+
 ## 2026-10-31 — An idea lands with questions, not answers
 
 **Decision:** Logging a wish in `docs/IDEAS.md` includes a few questions the next agent should ask before building. Each question has to come from something already true in the game, the research, or another slice. The questions are not decisions. The agent does not invent a cost, a species, a timer, or a material. Rule: `.cursor/rules/ideas.mdc`.

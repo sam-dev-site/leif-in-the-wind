@@ -10,6 +10,7 @@ signal acted(action: String, species: String)
 
 var player: Player
 var supplies: Supplies
+var pack: Rucksack
 var skills: Skills
 var biome: Biome
 var chunk: MapChunk
@@ -18,6 +19,7 @@ var rng := RandomNumberGenerator.new()
 var last_wood := 0.0
 var last_forage := 0
 var last_levels := 0
+var last_extra := ""
 var _rng_ready := false
 
 
@@ -77,11 +79,16 @@ func best_target(origin: Vector2, facing_name: String, props: Array) -> Node2D:
 func use_on(target: Node2D) -> String:
 	if target == null or supplies == null or not is_instance_valid(target):
 		return ""
-	if not target.has_meta("kind") or not target.has_meta("species"):
+	if not target.has_meta("kind"):
 		return ""
 	if bool(target.get_meta("harvested", false)):
 		return ""
 	var kind := str(target.get_meta("kind"))
+	last_extra = ""
+	if kind == "campfire":
+		return _light_torch(target)
+	if not target.has_meta("species"):
+		return ""
 	var species := str(target.get_meta("species"))
 	var ok := false
 	var action := ""
@@ -92,6 +99,8 @@ func use_on(target: Node2D) -> String:
 	elif kind == "branch" or (kind == "clutter" and Supplies.is_branch(species)):
 		ok = supplies.gather_branch(species)
 		action = "clear"
+		if ok:
+			_maybe_stick()
 	if not ok:
 		return ""
 	target.set_meta("harvested", true)
@@ -111,12 +120,24 @@ func _unhandled_input(event: InputEvent) -> void:
 	var target := best_target(player.global_position, player.facing_name(), _usable_props())
 	var action := use_on(target)
 	if action == "":
+		# Equipped torch but Space missed a lit fire.
+		if pack != null and pack.is_torch_equipped() and not pack.torch_lit:
+			acted.emit("torch_need_fire", "")
+			_mark_handled()
 		return
-	var species := str(target.get_meta("species"))
+	var species := ""
+	if target != null and target.has_meta("species"):
+		species = str(target.get_meta("species"))
 	acted.emit(action, species)
-	if action != "bite":
+	if action != "bite" and action != "torch" and action != "torch_need_fire":
 		_release(target)
-	get_viewport().set_input_as_handled()
+	_mark_handled()
+
+
+func _mark_handled() -> void:
+	var viewport := get_viewport()
+	if viewport != null:
+		viewport.set_input_as_handled()
 
 
 func _usable_props() -> Array:
@@ -147,6 +168,19 @@ func _skills() -> Skills:
 	return skills
 
 
+func _pack() -> Rucksack:
+	if pack == null:
+		pack = Rucksack.new()
+	return pack
+
+
+func _ensure_rng() -> void:
+	if _rng_ready:
+		return
+	rng.randomize()
+	_rng_ready = true
+
+
 func _pick(target: Node2D, species: String) -> String:
 	last_forage = 0
 	last_levels = 0
@@ -166,9 +200,7 @@ func _chop(target: Node2D, species: String) -> String:
 		return ""
 	var skill := _skills()
 	if not target.has_meta("chops_left"):
-		if not _rng_ready:
-			rng.randomize()
-			_rng_ready = true
+		_ensure_rng()
 		var band := Skills.chop_range(skill.level())
 		target.set_meta("chops_left", rng.randi_range(band.x, band.y))
 	var left := int(target.get_meta("chops_left")) - 1
@@ -180,7 +212,44 @@ func _chop(target: Node2D, species: String) -> String:
 	if not supplies.chop_tree(species, biome, last_wood):
 		return ""
 	target.set_meta("harvested", true)
+	_maybe_pitch()
 	return "chop"
+
+
+func _maybe_stick() -> void:
+	var bag := _pack()
+	_ensure_rng()
+	if bag.roll_stick(rng):
+		bag.add(Rucksack.ID_STICK, 1)
+		last_extra = Rucksack.ID_STICK
+
+
+func _maybe_pitch() -> void:
+	var bag := _pack()
+	_ensure_rng()
+	if bag.roll_pitch(rng):
+		bag.add(Rucksack.ID_PITCH, 1)
+		last_extra = Rucksack.ID_PITCH
+
+
+func _light_torch(target: Node2D) -> String:
+	var bag := _pack()
+	if not bag.is_torch_equipped():
+		return ""
+	if bag.torch_lit:
+		return ""
+	if target is Campfire:
+		var fire := target as Campfire
+		if not fire.lit:
+			return "torch_need_fire"
+	elif not bool(target.get_meta("lit", true)):
+		return "torch_need_fire"
+	var life := DayClock.cold_seconds()
+	if world != null and world.has_method("torch_lifetime"):
+		life = float(world.torch_lifetime())
+	if not bag.light_torch(life):
+		return ""
+	return "torch"
 
 
 func _is_usable(node: Node2D) -> bool:
@@ -188,9 +257,13 @@ func _is_usable(node: Node2D) -> bool:
 		return false
 	if bool(node.get_meta("harvested", false)):
 		return false
-	if not node.has_meta("kind") or not node.has_meta("species"):
+	if not node.has_meta("kind"):
 		return false
 	var kind := str(node.get_meta("kind"))
+	if kind == "campfire":
+		return true
+	if not node.has_meta("species"):
+		return false
 	if kind == "tree" or kind == "forage" or kind == "fallen" or kind == "branch":
 		return true
 	return kind == "clutter" and Supplies.is_branch(str(node.get_meta("species")))

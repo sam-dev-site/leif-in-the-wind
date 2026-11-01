@@ -33,11 +33,11 @@ These are how Leif stays in the woods after dark: berries he can eat, a fire for
 9. One woodland caribou on the trail. Walk toward it spooks at 2 tiles; jog toward it at 4. Standing still you can watch it graze. It always runs away, faster than Leif, and stays in the woods — **in now**
 10. Three arctic hares on the moss beside the trail. Walk toward one spooks at 2 tiles; jog toward it at 4. Standing still you can watch it sit. It always runs away, faster than Leif, and stays in the woods — **in now**
 
-Press **R** in-game for a new seed (mission test: different woods). Wood, forage, woodcutting, fire-making, and foraging stay. Fires and the last-sleep mark were on the old ground.
+Press **R** in-game for a new seed (mission test: different woods). Wood, forage, pack extras, woodcutting, fire-making, and foraging stay. Fires and the last-sleep mark were on the old ground.
 
-HUD: hearts (half-pips), wood count, forage count, and a line that says **E** eats. A skills mark left of the floppy opens Woodcutting, Fire-making, and Foraging with their levels. Tiny bottom-left minimap: a small circle around him, and the trail stays clear; **R** wipes it.
+HUD: hearts (half-pips), wood count, forage count, and a line that says **E** eats. Skills mark, **pack** mark, then floppy across the top right. Skills opens Woodcutting, Fire-making, and Foraging. Pack opens a mouse area of extras (pitch, stick, torch) with count badges; hover names the stack; Make torch at the bottom. Double-click a torch to equip (faded + **E**). Clicks are the pack. **Space** and the other keys still work the woods while it is open. **Space** on a burning fire lights an equipped torch (walking pool about half the campfire, light only, one night, single use). Tiny bottom-left minimap: a small circle around him, and the trail stays clear; **R** wipes it.
 
-Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut.
+Species come from the `coastal_north` biome resource, which matches the slice 0 spawn list in the research doc (fir, spruce, bakeapple, blueberry). Cranberry and tamarack stay in that doc and out of this cut. Pack extras: pitch from fir/spruce, stick from branches — see the research note.
 
 ## Mission tests (must all be true)
 
@@ -50,10 +50,10 @@ Species come from the `coastal_north` biome resource, which matches the slice 0 
 
 ## Explicitly not in this cut
 
-A hunger bar or starve clock, wolves, inventory screen, crafting, rafts, weather sim, other biomes as playable land, Steam page, a pause screen, a player options menu. Admin on the title is machine-wide QC, not that options menu. Longer burn and a bigger fire warmth radius stay later. PixelLab art for the death skull waits on generations.
+A hunger bar or starve clock, wolves, fishing pole / bones / more crafts, rafts, weather sim, other biomes as playable land, Steam page, a pause screen, a player options menu. Admin on the title is machine-wide QC, not that options menu. Longer burn and a bigger fire warmth radius stay later. PixelLab art for the death skull and pack icons waits on generations.
 
 Those stay named in the mission and as empty biome stubs.
 
 ## Slice 1 (same world, not a new game)
 
-Warmth, sleep, the corner fog map, smaller ringed stumps, foraging (yield and eat cost), the launch title, the three save files, woodcutting, fire-making, the title admin cog, Escape quit-to-menu, one caribou on the trail, three arctic hares on the moss, and death (half pack, wake at the fire) are in. A longer strip is not the next cut. A hunger meter, the river, pause, and a player options menu wait. Still `coastal_north`.
+Warmth, sleep, the corner fog map, smaller ringed stumps, foraging (yield and eat cost), the launch title, the three save files, woodcutting, fire-making, the title admin cog, Escape quit-to-menu, one caribou on the trail, three arctic hares on the moss, death (half pack, wake at the fire), and the rucksack + torch craft are in. A longer strip is not the next cut. A hunger meter, the river, pause, and a player options menu wait. Still `coastal_north`.
