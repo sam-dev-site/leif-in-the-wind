@@ -115,9 +115,9 @@ He called this a priority shift. These slices are one design. Crafting is the po
 
 Wood from a tree and berries from a bush stay as they are. They stay on the HUD at all times. They are the two locked necessities. The rucksack is not a second count of wood or berries.
 
-- **Rucksack.** In. Backpack between skills and floppy. Mouse area of stacks (cap 99). Floppy and **R** keep extras. Death: 5–10% random tax on extras; wood and berries still half.
+- **Rucksack.** In. Play signed off. Backpack between skills and floppy. Mouse area of stacks (cap 99). Hover names the stack. Clicks are the bag; Space and keys still work the woods while it is open. Floppy and **R** keep extras. Death: 5–10% random tax on extras; wood and berries still half.
 - **Drops (pitch and stick).** In. Stick 25% on a cleared branch. Pitch 10% on a fir/spruce fell (standing or log). Same pitch stack. Bushes: no extra.
-- **Torch.** In. Make 1 stick + 1 pitch. Double-click equip (faded + E). Space on a burning fire lights it. Light only, one night, single use. PixelLab icons wait.
+- **Torch.** In. Play signed off. Make 1 stick + 1 pitch. Double-click equip (faded + E). Space on a burning fire lights it. Walking pool about half the campfire. Light only, one night, single use. PixelLab icons wait.
 - **Crafting (more recipes).** Work backwards from the next thing. Fishing pole stays the worked example for later.
   - Ask: Is the fishing pole the next craft? Fishing is already its own slice.
   - Ask: Does crafting unlock Fishing, or can Fishing start without a crafted tool?

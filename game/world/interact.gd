@@ -112,8 +112,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if world != null and world.is_naming():
 		return
-	if world != null and world.is_pack_open():
-		return
 	if not event is InputEventKey:
 		return
 	var key := event as InputEventKey
@@ -125,7 +123,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Equipped torch but Space missed a lit fire.
 		if pack != null and pack.is_torch_equipped() and not pack.torch_lit:
 			acted.emit("torch_need_fire", "")
-			get_viewport().set_input_as_handled()
+			_mark_handled()
 		return
 	var species := ""
 	if target != null and target.has_meta("species"):
@@ -133,7 +131,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	acted.emit(action, species)
 	if action != "bite" and action != "torch" and action != "torch_need_fire":
 		_release(target)
-	get_viewport().set_input_as_handled()
+	_mark_handled()
+
+
+func _mark_handled() -> void:
+	var viewport := get_viewport()
+	if viewport != null:
+		viewport.set_input_as_handled()
 
 
 func _usable_props() -> Array:

@@ -23,6 +23,18 @@ var torch_lit: bool = false
 var torch_burn_left: float = 0.0
 
 
+static func display_name(id: String) -> String:
+	match id:
+		ID_PITCH:
+			return "Pitch"
+		ID_STICK:
+			return "Stick"
+		ID_TORCH:
+			return "Torch"
+		_:
+			return id.capitalize()
+
+
 func clear() -> void:
 	stacks.clear()
 	equipped_index = -1

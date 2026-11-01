@@ -54,6 +54,8 @@ const SLEEP_HOLD := 0.12
 const SLEEP_IN := 0.7
 ## Death holds the black longer so the cream skull can be read.
 const DEATH_HOLD := 0.8
+const TORCH_LIGHT_SCALE := Campfire.LIGHT_SCALE * 0.5
+const TORCH_NIGHT_ENERGY := 1.2
 const FIRE_WARM_PIXELS := 56.0
 const PROP_EDGE := 24.0
 const TITLE_SCENE := "res://title/title.tscn"
@@ -284,6 +286,10 @@ func _on_pack_changed() -> void:
 	_refresh_hud()
 
 
+func torch_light() -> PointLight2D:
+	return _torch_light
+
+
 func _sync_torch_light() -> void:
 	var want := pack != null and pack.torch_lit
 	if not want:
@@ -299,18 +305,20 @@ func _sync_torch_light() -> void:
 		_torch_light.color = Color(1.0, 0.72, 0.38)
 		_torch_light.blend_mode = Light2D.BLEND_MODE_ADD
 		_torch_light.texture = _torch_radial_texture()
-		_torch_light.texture_scale = 1.35
-		_torch_light.position = Vector2(0, -6)
+		_torch_light.texture_scale = TORCH_LIGHT_SCALE
 		_torch_light.shadow_enabled = false
-		_player.add_child(_torch_light)
-	elif _torch_light.get_parent() != _player:
+		_torch_light.top_level = true
+		add_child(_torch_light)
+	elif _torch_light.get_parent() != self:
 		if _torch_light.get_parent() != null:
 			_torch_light.get_parent().remove_child(_torch_light)
-		_player.add_child(_torch_light)
+		_torch_light.top_level = true
+		add_child(_torch_light)
+	_torch_light.global_position = _player.global_position + Vector2(0, -6)
 	var dark := 0.0
 	if _clock != null:
 		dark = clampf(DayClock.darkness_now, 0.0, 1.0)
-	_torch_light.energy = 1.05 * dark
+	_torch_light.energy = TORCH_NIGHT_ENERGY * dark
 	_torch_light.enabled = dark > 0.02
 
 

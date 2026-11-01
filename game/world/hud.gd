@@ -87,6 +87,8 @@ func is_skills_open() -> bool:
 func close_pack() -> void:
 	if _pack_panel != null:
 		_pack_panel.visible = false
+	if _skill_hover != null and (_skills_panel == null or not _skills_panel.visible):
+		_skill_hover.visible = false
 
 
 func close_skills() -> void:
@@ -250,6 +252,14 @@ func _paint_hearts(supplies: Supplies) -> void:
 		move_child(_skills_btn, get_child_count() - 1)
 	if _skills_panel != null and _skills_panel.visible:
 		move_child(_skills_panel, get_child_count() - 1)
+	if _pack_shadow != null:
+		move_child(_pack_shadow, get_child_count() - 1)
+	if _pack_btn != null:
+		move_child(_pack_btn, get_child_count() - 1)
+	if _pack_panel != null and _pack_panel.visible:
+		move_child(_pack_panel, get_child_count() - 1)
+	if _skill_hover != null and _skill_hover.visible:
+		move_child(_skill_hover, get_child_count() - 1)
 	var on := Color(0.75, 0.18, 0.16)
 	var off := Color(0.28, 0.16, 0.16)
 	for i in _pips.size():
@@ -527,12 +537,17 @@ func _process(_delta: float) -> void:
 
 
 func _follow_skill_hover() -> void:
-	if _skill_hover == null or _skills_panel == null:
+	if _skill_hover == null:
 		return
-	if not _skills_panel.visible or is_naming():
+	if is_naming():
 		_skill_hover.visible = false
 		return
 	var mouse := get_viewport().get_mouse_position()
+	if _follow_pack_hover(mouse):
+		return
+	if _skills_panel == null or not _skills_panel.visible:
+		_skill_hover.visible = false
+		return
 	var rect := _skills_panel.get_global_rect()
 	if not rect.has_point(mouse):
 		_skill_hover.visible = false
@@ -551,6 +566,29 @@ func _follow_skill_hover() -> void:
 	_skill_hover.text = parts[idx] if parts.size() > idx else _hover_tip
 	_skill_hover.reset_size()
 	place_skill_hover(mouse)
+
+
+func _follow_pack_hover(mouse: Vector2) -> bool:
+	if _pack_panel == null or not _pack_panel.visible or _pack_grid == null:
+		return false
+	if not _pack_panel.get_global_rect().has_point(mouse):
+		return false
+	for child in _pack_grid.get_children():
+		if not child is Control:
+			continue
+		if child.is_queued_for_deletion():
+			continue
+		var tile := child as Control
+		if not tile.get_global_rect().has_point(mouse):
+			continue
+		var item_name := str(tile.get_meta("item_name", ""))
+		if item_name.is_empty():
+			break
+		_skill_hover.text = item_name
+		place_skill_hover(mouse)
+		return true
+	_skill_hover.visible = false
+	return true
 
 
 func place_skill_hover(mouse: Vector2) -> void:
@@ -697,6 +735,8 @@ func _paint_pack() -> void:
 	if _pack_grid == null:
 		return
 	for child in _pack_grid.get_children():
+		if child.is_queued_for_deletion():
+			continue
 		child.queue_free()
 	if _pack == null:
 		if _pack_make != null:
@@ -728,6 +768,8 @@ func _make_item_tile(index: int, id: String, count: int, equipped: bool) -> Cont
 	tile.size = Vector2(ITEM_TILE, ITEM_TILE)
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	tile.set_meta("item_id", id)
+	tile.set_meta("item_name", Rucksack.display_name(id))
 	var body := ColorRect.new()
 	body.size = Vector2(ITEM_TILE, ITEM_TILE)
 	body.color = _item_color(id)
@@ -788,7 +830,7 @@ func _on_item_input(event: InputEvent, index: int, id: String) -> void:
 		return
 	if _pack.equip_torch_at(index):
 		pack_changed.emit()
-		_paint_pack()
+		call_deferred("_paint_pack")
 
 
 func _paint_skills(skills: Skills) -> void:

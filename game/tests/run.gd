@@ -2420,12 +2420,34 @@ func _test_rucksack_and_torch() -> void:
 		hud._on_make_torch()
 		_expect(world.pack.total_of(Rucksack.ID_TORCH) == 1, "Make crafts a torch")
 		_expect(world.pack.equip_torch_at(0), "equip from the pack")
-		hud.close_pack()
-		_expect(not hud.is_pack_open(), "Escape path can close the pack")
-	# Place a fire and light the torch from Space.
+		_expect(hud.is_pack_open(), "craft and equip keep the pack open")
+		hud._paint_pack()
+		var hover_name := ""
+		for child in hud._pack_grid.get_children():
+			if child.is_queued_for_deletion():
+				continue
+			var item_name := str(child.get_meta("item_name", ""))
+			if item_name != "":
+				hover_name = item_name
+				break
+		_expect(hover_name == "Torch", "hover name is the item")
+		# Double-click unequip used to free the tile while it was still handling the click.
+		var click := InputEventMouseButton.new()
+		click.pressed = true
+		click.button_index = MOUSE_BUTTON_LEFT
+		hud._on_item_input(click, 0, Rucksack.ID_TORCH)
+		hud._on_item_input(click, 0, Rucksack.ID_TORCH)
+		_expect(not world.pack.is_torch_equipped(), "double-click unequips an unlit torch")
+		_expect(world.pack.equip_torch_at(0), "equip from the pack again")
+	_expect(Rucksack.display_name(Rucksack.ID_PITCH) == "Pitch", "pitch has a name")
+	_expect(Rucksack.display_name(Rucksack.ID_STICK) == "Stick", "stick has a name")
+	# Place a fire and light the torch from Space with the pack still open.
 	if world.pack.total_of(Rucksack.ID_TORCH) < 1:
 		world.pack.add(Rucksack.ID_TORCH, 1)
 		world.pack.equip_torch_at(0)
+	if hud != null and not hud.is_pack_open():
+		var reopen := hud.get_node("PackMark") as BaseButton
+		reopen.pressed.emit()
 	world.supplies.wood = 20.0
 	var ahead := Interact.tile_ahead(world.leif().global_position, world.leif().facing_name())
 	_expect(world.place_saved_fire(ahead, DayClock.cold_seconds()), "a fire is lit ahead")
@@ -2437,9 +2459,29 @@ func _test_rucksack_and_torch() -> void:
 	_expect(fire != null, "the fire is a Space target")
 	if fire != null and world._interact != null:
 		world._interact.pack = world.pack
-		_expect(world._interact.use_on(fire) == "torch", "Space on a fire lights the equipped torch")
-		_expect(world.pack.torch_lit, "the torch is lit")
+		_expect(hud.is_pack_open(), "the pack is open when he lights")
+		_send_key(world._interact, KEY_SPACE)
+		_expect(world.pack.torch_lit, "Space lights the torch while the pack is open")
+		_expect(hud.is_pack_open(), "lighting does not close the pack")
 		_expect(world.supplies.tick_vitals(true, false, Supplies.COLD_SECONDS) == "cold", "a torch does not warm him")
+		DayClock.darkness_now = 1.0
+		world._sync_torch_light()
+		var light := world.torch_light()
+		_expect(light != null, "a lit torch has a pool")
+		if light != null:
+			_expect(light.enabled, "night turns the torch pool on")
+			_expect(
+				is_equal_approx(light.texture_scale, Campfire.LIGHT_SCALE * 0.5),
+				"the torch pool is half the campfire"
+			)
+			_expect(light.get_parent() != world.leif(), "the pool is not stuck on Leif")
+			world.leif().global_position += Vector2(64, 0)
+			world._sync_torch_light()
+			var want_pos := world.leif().global_position + Vector2(0, -6)
+			_expect(light.global_position.distance_to(want_pos) < 2.0, "the torch light follows him")
+		if hud != null:
+			hud.close_pack()
+			_expect(not hud.is_pack_open(), "Escape path can close the pack")
 		world.pack.extinguish_and_consume()
 		_expect(world.pack.total_of(Rucksack.ID_TORCH) == 0, "sleep or death spends the lit torch")
 	# Save round-trip keeps stacks and equipped; old file is empty.
