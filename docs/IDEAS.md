@@ -57,6 +57,15 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## The map
 
+- **Uncovering the map.** To brainstorm. The satisfaction loop is peeling fog off a big blank map until the topography and the natural features come together. The gameplay loop is: explore, learn one or two new skills in that place, use the skills he already has on the new ground, then move to the next place.
+  - The HUD keeps the minimap. Double-click it and a biome or regional map opens. Double-click that and the full world map opens. Fog is one memory: a speck uncovered on the minimap is uncovered on the biome map and on the world map.
+  - Ask: Today the minimap is a small circle in the bottom-left. A look opens about 6 tiles, the trail stays clear, and **R** wipes it. Death and the save keep that fog. Is that same memory what the two bigger maps show?
+  - Ask: A past decision said there is no map he holds, and `docs/research/journey.md` is a design file, not a screen. This brainstorm would reopen that. Do not build the screens until he says the brainstorm is done.
+  - Ask: Double-click already equips a torch in the pack. Is double-click on the minimap the same kind of click, and does the night keep spending hearts while a big map is open?
+  - Ask: Only one forest is playable. The river valley is researched and not walkable. What does the middle map show before a second place exists?
+  - Ask: The continent in the mission is the boreal shore, then river valleys, then grassland, then bayou, then south and west. Is the world map that spine, still mostly blank, or a picture that is not drawn yet? Do not invent the drawing.
+  - Ask: This forest already has woodcutting, fire-making, and foraging. For the next place, which one or two skills are new, and which old ones still apply? Do not assign them.
+  - Ask: **Longer map** is more of this same forest. This slice is the fog and the three zoom levels. They are not the same build.
 - **Longer map.** The walk inland stops at the north edge of the strip.
   - Ask: The strip is built before he walks. Is more map more of that, still this same forest?
   - Ask: The river valley is a different slice. Where does “more of this map” stop and that land start?
