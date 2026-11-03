@@ -62,6 +62,7 @@ func _init() -> void:
 	_test_caribou_on_the_trail()
 	_test_arctic_hare_on_the_moss()
 	_test_rucksack_and_torch()
+	_test_night_on_this_coast()
 	_wipe_admin()
 	if _failed > 0:
 		print("FAILED %d" % _failed)
@@ -2536,6 +2537,137 @@ func _tree_on(chunk: MapChunk, cell: Vector2i) -> Node2D:
 			continue
 		if chunk.cell_of_prop(node) == cell:
 			return node
+	return null
+
+
+func _test_night_on_this_coast() -> void:
+	print("night on this coast")
+	_expect(is_equal_approx(Rucksack.PITCH_CHANCE, 0.10), "a fell still drops pitch at 10 percent")
+	var line: Array[Vector2i] = []
+	for i in 9:
+		line.append(Vector2i(i * 2, 0))
+	var glints := NightField.pick_glints(3, 1, line)
+	_expect(glints.size() == NightField.GLINT_CAP, "a night picks at most five glints")
+	var glint_gap := true
+	for i in glints.size():
+		for j in range(i + 1, glints.size()):
+			if NightField.chebyshev(glints[i], glints[j]) < 2:
+				glint_gap = false
+	_expect(glint_gap, "two glints are not on adjacent tiles")
+	var again := NightField.pick_glints(3, 1, line)
+	_expect(again == glints, "the same night picks the same trees")
+	var row: Array[Vector2i] = []
+	for x in 30:
+		row.append(Vector2i(x, 4))
+	var flecks := NightField.pick_rime(3, 1, row, Vector2i(0, 4))
+	_expect(not flecks.has(Vector2i(0, 4)), "rime skips the bed")
+	var rime_gap := true
+	for i in flecks.size():
+		for j in range(i + 1, flecks.size()):
+			if NightField.chebyshev(flecks[i], flecks[j]) < NightField.RIME_GAP:
+				rime_gap = false
+	_expect(rime_gap and flecks.size() > 1, "rime stays at least four tiles apart")
+	var cold := Supplies.new()
+	cold.hearts = 3.0
+	_expect(cold.tick_vitals(true, false, Supplies.COLD_SECONDS, false) == "cold", "five seconds with no torch spends half a heart")
+	cold.hearts = 3.0
+	cold.cold_acc = 0.0
+	_expect(cold.tick_vitals(true, false, Supplies.COLD_SECONDS, true) == "", "five seconds with a lit torch does not")
+	_expect(cold.tick_vitals(true, false, Supplies.COLD_SECONDS, true) == "cold", "ten seconds with a lit torch does")
+	cold.cold_acc = 0.0
+	_expect(cold.tick_vitals(true, true, 20.0, true) == "", "warmth still costs nothing")
+	cold.hearts = 3.0
+	cold.cold_acc = 0.0
+	_expect(cold.tick_vitals(true, false, Supplies.COLD_SECONDS, false) == "cold", "an unlit torch does not slow the drain")
+	var world := _boot_run(0, {})
+	world.set_clock_elapsed(1.0)
+	_expect(world.glint_cells().is_empty(), "no glint by day")
+	_expect(world.rime_cells().is_empty(), "no rime by day")
+	world.set_clock_elapsed(AdminSettings.day_seconds + 1.0)
+	var night_glints := world.glint_cells()
+	_expect(night_glints.size() > 0 and night_glints.size() <= NightField.GLINT_CAP, "night shows at most five glints")
+	var bed := world.night_bed_cell()
+	_expect(bed.x != NightField.NO_CELL, "the night has a bed")
+	var rimed := world.rime_cells()
+	_expect(not rimed.has(bed), "rime is not on the bed")
+	var rime_clear := true
+	var rime_open := true
+	for i in rimed.size():
+		if _tree_for_world_cell(world, rimed[i]) != null:
+			rime_open = false
+		for j in range(i + 1, rimed.size()):
+			if NightField.chebyshev(rimed[i], rimed[j]) < NightField.RIME_GAP:
+				rime_clear = false
+	_expect(rime_clear, "the woods keep rime four tiles apart")
+	_expect(rime_open and rimed.size() > 0, "rime sits on open moss or trail, not a trunk")
+	var sample := night_glints[0]
+	var tree := _tree_for_world_cell(world, sample)
+	_expect(tree != null, "a glint tree is still standing")
+	if tree != null:
+		var hidden := tree.get_node_or_null("PitchGlint") as CanvasItem
+		_expect(hidden != null and not hidden.visible, "the glint waits for a lit torch")
+		world.leif().global_position = tree.global_position
+		world.pack.add(Rucksack.ID_TORCH, 1)
+		world.pack.equip_torch_at(0)
+		world.pack.light_torch(DayClock.cold_seconds())
+		world.sync_night()
+		var shown := tree.get_node_or_null("PitchGlint") as CanvasItem
+		_expect(shown != null and shown.visible, "the glint shows inside the torch pool")
+		var wood_before := world.supplies.wood
+		var xp_before := world.skills.woodcutting_xp
+		var pitch_before := world.pack.total_of(Rucksack.ID_PITCH)
+		_expect(world._interact.use_on(tree) == "pitch", "space on a glint takes pitch")
+		_expect(world.pack.total_of(Rucksack.ID_PITCH) == pitch_before + 1, "the pitch stack grows by one")
+		_expect(is_equal_approx(world.supplies.wood, wood_before), "the take does not chop")
+		_expect(world.skills.woodcutting_xp == xp_before, "the take grants no woodcutting xp")
+		_expect(str(tree.get_meta("kind", "")) == "tree", "the tree stays standing")
+		_expect(not world.glint_cells().has(sample), "that tree is done until the next night")
+	var deer := world.caribou()
+	_expect(deer != null, "the caribou is out")
+	if deer != null:
+		var guard := 0
+		while not deer.is_bedded() and guard < 800:
+			deer.tick_with(0.2, Vector2(-8000, -8000), Vector2.ZERO, false)
+			guard += 1
+		_expect(deer.is_bedded(), "night moves the caribou off the trail onto the bed")
+		if deer.is_bedded():
+			var tile := float(ChunkGenerator.TILE)
+			var stand := deer.global_position + Vector2(0, tile)
+			deer.tick_with(0.1, stand, Vector2(0, -1), false)
+			_expect(deer.is_bedded() and not deer.is_fleeing(), "a walk onto the bed does not flee")
+			_expect(world._interact.use_on(deer) == "", "space does nothing on the caribou")
+			var shot := world.capture_walk()
+			_expect(bool(shot.get("caribou_bedded", false)), "the save knows he is bedded")
+			var continued := _boot_run(1, shot)
+			var again_deer := continued.caribou()
+			_expect(again_deer != null and again_deer.is_bedded(), "continue keeps a night bed")
+			if again_deer != null:
+				_expect(again_deer.global_position.distance_to(deer.global_position) < 2.0, "continue puts him back on that bed")
+			_expect(not continued.glint_cells().has(sample), "continue remembers the pitch he took")
+			continued.free()
+			var jog_from := deer.global_position + Vector2(0, 4.0 * tile)
+			deer.tick_with(0.1, jog_from, Vector2(0, -1), true)
+			_expect(deer.is_fleeing() and not deer.is_bedded(), "a jog at 4 tiles still spooks the bed")
+	var cycle := AdminSettings.day_seconds + AdminSettings.night_seconds + DayClock.DAWN_SECONDS
+	world.set_clock_elapsed(cycle - DayClock.DAWN_SECONDS + 0.2)
+	_expect(world.glint_cells().is_empty(), "dawn clears an untaken glint")
+	_expect(world.rime_cells().is_empty(), "dawn melts the rime")
+	if deer != null:
+		var back := ChunkGenerator.world_cell_at(deer.global_position)
+		var trail := world.generator.caribou_trail_cells(world.world_seed, World.STRIP_NORTH)
+		_expect(trail.has(back), "dawn puts the caribou back on the trail")
+	world.free()
+
+
+func _tree_for_world_cell(world: World, cell: Vector2i) -> Node2D:
+	var key := ChunkGenerator.chunk_of_cell(cell)
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		if chunk.chunk_x != key.x or chunk.chunk_y != key.y:
+			continue
+		return _tree_on(chunk, ChunkGenerator.local_of_cell(cell))
 	return null
 
 

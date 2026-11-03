@@ -95,6 +95,8 @@ func use_on(target: Node2D) -> String:
 	if kind == "forage":
 		return _pick(target, species)
 	elif kind == "tree" or kind == "fallen":
+		if kind == "tree" and _take_pitch_glint(target):
+			return "pitch"
 		return _chop(target, species)
 	elif kind == "branch" or (kind == "clutter" and Supplies.is_branch(species)):
 		ok = supplies.gather_branch(species)
@@ -129,7 +131,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if target != null and target.has_meta("species"):
 		species = str(target.get_meta("species"))
 	acted.emit(action, species)
-	if action != "bite" and action != "torch" and action != "torch_need_fire":
+	if action != "bite" and action != "torch" and action != "torch_need_fire" and action != "pitch":
 		_release(target)
 	_mark_handled()
 
@@ -222,6 +224,17 @@ func _maybe_stick() -> void:
 	if bag.roll_stick(rng):
 		bag.add(Rucksack.ID_STICK, 1)
 		last_extra = Rucksack.ID_STICK
+
+
+func _take_pitch_glint(target: Node2D) -> bool:
+	if world == null or not world.has_method("try_take_pitch"):
+		return false
+	if not world.try_take_pitch(target):
+		return false
+	last_extra = Rucksack.ID_PITCH
+	last_wood = 0.0
+	last_levels = 0
+	return true
 
 
 func _maybe_pitch() -> void:

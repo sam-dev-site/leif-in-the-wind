@@ -35,6 +35,12 @@ var _frames: Dictionary = {}
 var _walk: Dictionary = {}
 var _walk_time := 0.0
 var _chunk_key := Vector2i(9999, 9999)
+var _bedding := false
+var _bedded := false
+var _bed_abandoned := false
+var _bed_target := Vector2.ZERO
+var _bed_route: Array[Vector2i] = []
+var _bed_pose: Texture2D
 
 
 func _ready() -> void:
@@ -70,7 +76,72 @@ func is_fleeing() -> bool:
 
 
 func is_grazing() -> bool:
-	return _graze_left > 0.0 and not _fleeing
+	return _graze_left > 0.0 and not _fleeing and not _bedded
+
+
+func is_bedded() -> bool:
+	return _bedded
+
+
+func is_bed_abandoned() -> bool:
+	return _bed_abandoned
+
+
+## Walk off the trail to the night bed. Walking does not spook once he is down.
+func begin_night_bed(cell: Vector2i) -> void:
+	_bedding = true
+	_bedded = false
+	_bed_abandoned = false
+	_fleeing = false
+	_graze_left = 0.0
+	_walk_time = 0.0
+	_bed_target = ChunkGenerator.cell_center(cell)
+	_bed_route = _route_to(cell)
+
+
+## Continue put him back already lying there.
+func hold_bed() -> void:
+	_bedding = true
+	_bedded = true
+	_bed_abandoned = false
+	_fleeing = false
+	_graze_left = 0.0
+	_walk_time = 0.0
+	_apply_facing()
+
+
+func note_bed_abandoned() -> void:
+	_bedding = false
+	_bedded = false
+	_bed_abandoned = true
+	_fleeing = false
+	_graze_left = 0.0
+
+
+## Dawn. The bed is gone and he is on the nearest trail tile.
+func wake_on_trail() -> void:
+	_bedding = false
+	_bedded = false
+	_bed_abandoned = false
+	_fleeing = false
+	_graze_left = 0.0
+	_walk_time = 0.0
+	_bed_route.clear()
+	if path.is_empty():
+		_apply_facing()
+		return
+	var here := ChunkGenerator.world_cell_at(global_position)
+	var best_i := 0
+	var best_d := 2147483647
+	for i in path.size():
+		var d := absi(path[i].x - here.x) + absi(path[i].y - here.y)
+		if d < best_d:
+			best_d = d
+			best_i = i
+	path_index = best_i
+	_place_at(path[best_i])
+	_notify_chunk()
+	_apply_facing()
 
 
 func hold_graze(seconds: float = GRAZE_HOLD) -> void:
@@ -124,6 +195,28 @@ static func pick_away(from: Vector2, leif: Vector2, options: Array[Vector2]) -> 
 func tick_with(delta: float, player_px: Vector2, move_dir: Vector2, jogging: bool) -> void:
 	if path.is_empty():
 		return
+	if _bedding and not _bed_abandoned:
+		if _bedded:
+			# A walk can stand on him. A jog still spooks at the day distance.
+			if jogging and should_spook(global_position, player_px, move_dir, true):
+				_fleeing = true
+				_bedded = false
+				_bedding = false
+				_bed_abandoned = true
+				_graze_left = 0.0
+			else:
+				_walk_time = 0.0
+				_apply_facing()
+				return
+		elif should_spook(global_position, player_px, move_dir, jogging):
+			_fleeing = true
+			_bedding = false
+			_bed_abandoned = true
+			_graze_left = 0.0
+		else:
+			_walk_toward_bed(delta)
+			_notify_chunk()
+			return
 	if should_spook(global_position, player_px, move_dir, jogging):
 		_fleeing = true
 		_graze_left = 0.0
@@ -159,6 +252,81 @@ func _process(delta: float) -> void:
 		move_dir = leif.move_vector()
 		jogging = leif.is_jogging()
 	tick_with(delta, player_px, move_dir, jogging)
+
+
+func _walk_toward_bed(delta: float) -> void:
+	if _bed_route.is_empty() and global_position.distance_to(_bed_target) > ARRIVE:
+		_bed_route = _route_to(ChunkGenerator.world_cell_at(_bed_target))
+	var step := _bed_target
+	if not _bed_route.is_empty():
+		step = ChunkGenerator.cell_center(_bed_route[0])
+		if global_position.distance_to(step) <= ARRIVE:
+			_bed_route.pop_front()
+			if _bed_route.is_empty():
+				_arrive_bed()
+				return
+			step = ChunkGenerator.cell_center(_bed_route[0])
+	elif global_position.distance_to(_bed_target) > ARRIVE:
+		var around := _detour_toward(_bed_target)
+		if around.distance_to(global_position) > 0.5:
+			step = around
+	_face_point(step)
+	_step_toward(step, WALK_SPEED, delta)
+	_walk_time += delta
+	_apply_facing()
+	if global_position.distance_to(_bed_target) <= ARRIVE:
+		_arrive_bed()
+
+
+func _arrive_bed() -> void:
+	global_position = _bed_target
+	_bed_route.clear()
+	_bedded = true
+	_walk_time = 0.0
+	_apply_facing()
+
+
+## Open tiles around trunks, so a bed a few steps off the trail is still a walk.
+func _route_to(goal: Vector2i) -> Array[Vector2i]:
+	var route: Array[Vector2i] = []
+	var start := ChunkGenerator.world_cell_at(global_position)
+	if start == goal:
+		return route
+	var queue: Array[Vector2i] = [start]
+	var came := {}
+	var seen := {start: true}
+	var dirs: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	var found := false
+	var guard := 0
+	while not queue.is_empty() and guard < 2500:
+		guard += 1
+		var cur: Vector2i = queue.pop_front()
+		for dir in dirs:
+			var nxt := cur + dir
+			if seen.has(nxt):
+				continue
+			if nxt != goal and _blocked(ChunkGenerator.cell_center(nxt)):
+				continue
+			seen[nxt] = true
+			came[nxt] = cur
+			if nxt == goal:
+				found = true
+				queue.clear()
+				break
+			queue.append(nxt)
+	if not found:
+		return route
+	var walk: Vector2i = goal
+	var back: Array[Vector2i] = []
+	var safety := 0
+	while walk != start and safety < 2500:
+		back.append(walk)
+		if not came.has(walk):
+			return route
+		walk = came[walk]
+		safety += 1
+	back.reverse()
+	return back
 
 
 func _walk_along(delta: float) -> void:
@@ -305,11 +473,9 @@ func _snap_nearest() -> void:
 
 
 func _place_at(cell: Vector2i) -> void:
-	var keep := ChunkGenerator.cell_center(cell)
-	if is_inside_tree():
-		global_position = keep
-	else:
-		position = keep
+	# global_position still honors the chunk parent when the coast is built
+	# before the world enters the tree. A raw position would add the chunk origin twice.
+	global_position = ChunkGenerator.cell_center(cell)
 
 
 func _notify_chunk() -> void:
@@ -335,6 +501,9 @@ func _face_point(target: Vector2) -> void:
 func _apply_facing() -> void:
 	if _sprite == null:
 		return
+	if _bedded and _bed_pose != null:
+		_sprite.texture = _bed_pose
+		return
 	if _walk.has(_facing) and _walk_time > 0.0:
 		var steps: Array = _walk[_facing]
 		var fps := FLEE_FPS if _fleeing else WALK_FPS
@@ -346,6 +515,9 @@ func _apply_facing() -> void:
 
 
 func _load_frames() -> void:
+	var bed_path := "res://art/coastal_north/caribou/bed.png"
+	if ResourceLoader.exists(bed_path):
+		_bed_pose = load(bed_path) as Texture2D
 	for name in DIR_NAMES:
 		var idle_path := "res://art/coastal_north/caribou/%s.png" % name
 		if ResourceLoader.exists(idle_path):

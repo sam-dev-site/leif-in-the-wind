@@ -30,10 +30,12 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Night
 
-- **A reason to be out at night.** Going out costs hearts, and there is no reason to risk it yet. Pinned. Brainstorm later.
-  - Ask: Night away from a fire spends hearts, and the last half-heart is death. What is out there that is worth that?
-  - Ask: Is it something you can only do at night, or something that is gone by dawn?
-  - Ask: Fireflies are a separate slice. Do not assume they are this reason.
+On this coast. In the build, ready for Play, not signed off. Four slices. Dawn clears them. Sleep skips the night. The land bridge is not one of them.
+
+- **Torchlight pitch.** At night a lit torch makes balsam blisters glint on standing fir and spruce. Space takes one pitch and does not chop. Dawn wipes a glint he left. The day fell still drops pitch at 10%. At most five a night, not on adjacent tiles, and only inside the torch pool. No woodcutting XP.
+- **Rime.** Pale flecks on open moss and on the trail, at least four tiles apart, never on a trunk or on the caribou’s bed. They show with no torch. Look only. Dawn melts them.
+- **The caribou’s bed.** The one caribou walks to a moss or peat cell 3–6 tiles off the trail and stays. Walking close does not make it run. A jog at 4 tiles still does, and then it does not return until the next night. Dawn puts it back on the nearest trail tile. Space does nothing.
+- **Exploring with a torch.** A lit torch, away from a fire, makes the same half-heart take 10 seconds instead of 5. Walking and standing both count. An unlit torch does not. This is a rule on the torch, not the perk menu.
 
 ## Skills
 
@@ -44,6 +46,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
   - Ask: Is the bonus on one skill’s levels, or one track for him?
   - Ask: A skills mark already opens a panel. Is the perk list that panel, or another screen?
   - Ask: A perk has to change something the game already does, or is it allowed to add a new action? Do not invent the list.
+  - The torch’s slower night drain is a rule on the lit torch, under Night. This menu does not add it.
 - **Level-up animations.** Woodcutting and foraging burst leaves for now. Fire-making and foraging still want their own.
   - Ask: Foraging uses the leaf burst as a stand-in. Is its own animation a different picture, and what should fire-making show? Do not pick the picture.
   - Ask: The level line already says the skill and the new number. Does that line stay with the burst?
@@ -100,6 +103,10 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
   - Ask: The crossing is the raft slice. Does this slice stop at the bank?
   - Ask: Plants and animals have to come from `docs/research/biomes/river_valley.md`. Do not add a species that is not in that file.
   - Ask: The playable map is one forest, built before he walks. Is this the next place after that strip, or a later one?
+- **Land bridge when the water draws back.** Pinned. Not the first beach. Another biome: a river mouth, or something more swampy. The water recedes and he can cross. Not a coast night slice.
+  - Ask: The valley notes mention estuary bars that ships clear on the tide. The swamp is a later biome. Which land is this, when that land exists?
+  - Ask: This coast’s clock is day and night. A real tide is not only at night. Does the crossing use that night clock?
+  - Ask: Raft or timber bridge is its own slice. Is this the same crossing, or the water leaving on its own?
 - **Raft or timber bridge.** A way across the river once that land exists.
   - Ask: Wood is what he carries today. Pack and crafting may add other materials. Is a raft still only wood, or does it wait until those extras exist?
   - Ask: The river is not on the map yet. Does this wait for the river valley slice?
