@@ -15,11 +15,11 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 - **Fire-making.** In. Catch chance climbs through level 30; wood cost starts at 7 and drops after 30. Longer burn and a bigger warmth radius stay open wishes below if they return.
 - **Admin mode.** In. A cream cog on the title opens QC sliders (day/night, hearts, XP curve, foliage %, walk/run). Save writes `user://admin_settings.json`. More knobs can still be added to the same panel.
 - **Quit to the menu.** In. Escape in the woods asks quit to the main menu? Y/N. Yes returns to the title without closing the game. Not a pause screen.
-- **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. PixelLab walk art waits on generations.
+- **Caribou.** In. Play signed off. One woodland caribou walks the trail, grazes, and runs away if he jogs at 4 tiles or walks at 2. No hunt. Eight-direction idle and walk are in. See [ART.md](ART.md).
 - **Foraging.** In. Play signed off. Bakeapple and blueberry share it. Yield and eat cost follow the skill. PixelLab icon waits on generations.
 - **No heart regen.** In. Play signed off. Day and fire warmth do not heal. Berries (**E**) are the only way hearts come back. Fire still sits the night.
 - **Death and respawn.** In. Play signed off. Cold at the last half-heart is death. Cream skull on the black. Wake at the last slept fire (or the landing), half the pack gone, one heart, skills and map kept. PixelLab skull waits on generations.
-- **Arctic hare.** In. Play signed off. Three arctic hares hop the moss beside the caribou trail, sit, and run away if he jogs at 4 tiles or walks at 2. No hunt. ColorRect until PixelLab walk art.
+- **Arctic hare.** In. Play signed off. Three arctic hares hop the moss beside the caribou trail, sit, and run away if he jogs at 4 tiles or walks at 2. No hunt. Eight-direction idle is in. The hop cycle still waits. See [ART.md](ART.md).
 
 ## Hearts
 

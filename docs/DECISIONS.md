@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-02 — Caribou walk and hare idle spent the stack
+
+**Decision:** The woodland caribou is a 64px high top-down quadruped (horse template, Leif’s south sprite as the style anchor), drawn at the same half size as Leif. Idle and an 8-frame walk, all eight directions, live in `game/art/coastal_north/caribou/`. The arctic hare is the same canvas (cat template, same style anchor), drawn at **0.32** so it stays smaller than the caribou. Idle only, in `game/art/coastal_north/hare/`. Feet use Leif’s **-28** offset. The hare hop, the campfire sprite, and the bag and skill icons stay on `docs/ART.md`. The account had nothing left; the campfire job was refused.
+
+**Why:** Owner order was caribou, then hare, then campfire, then the bag and the foraging mark. A caribou character was 6 generations and each walk direction was 1, and this trial runs one direction at a time. The hare idle was the last 6. That is the scenery that was affordable.
+
+**Rejected:** A 10-generation pro character. Animating all eight directions in one call (the plan allows one). Spending the hare’s generations on the campfire first. Drawing the hare at the caribou’s size.
+
 ## 2026-11-02 — A held picture is a row on the art list
 
 **Decision:** If an agent leaves a picture as a box, skips a generation, or says the art waits, that picture is added to `docs/ART.md` in the same session. A line in the decision log, status, or ideas does not count as the hold. Those files may point at the art list. The rule is in `.cursor/rules/pixellab-art.mdc` and `.cursor/rules/knowledge.mdc`.
