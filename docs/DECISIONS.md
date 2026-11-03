@@ -10,6 +10,30 @@ Append only. Newest at the top. Date, decision, why, what we rejected.
 
 **Rejected:** Putting the tide on this beach. Torch warmth. Pitch XP on a standing take. A perk menu for the slower drain. Spending a generation on the fleck, the sparkle, or the moss mark.
 
+## 2026-11-02 — Caribou walk and hare idle spent the stack
+
+**Decision:** The woodland caribou is a 64px high top-down quadruped (horse template, Leif’s south sprite as the style anchor), drawn at the same half size as Leif. Idle and an 8-frame walk, all eight directions, live in `game/art/coastal_north/caribou/`. The arctic hare is the same canvas (cat template, same style anchor), drawn at **0.32** so it stays smaller than the caribou. Idle only, in `game/art/coastal_north/hare/`. Feet use Leif’s **-28** offset. The hare hop, the campfire sprite, and the bag and skill icons stay on `docs/ART.md`. The account had nothing left; the campfire job was refused.
+
+**Why:** Owner order was caribou, then hare, then campfire, then the bag and the foraging mark. A caribou character was 6 generations and each walk direction was 1, and this trial runs one direction at a time. The hare idle was the last 6. That is the scenery that was affordable.
+
+**Rejected:** A 10-generation pro character. Animating all eight directions in one call (the plan allows one). Spending the hare’s generations on the campfire first. Drawing the hare at the caribou’s size.
+
+## 2026-11-02 — A held picture is a row on the art list
+
+**Decision:** If an agent leaves a picture as a box, skips a generation, or says the art waits, that picture is added to `docs/ART.md` in the same session. A line in the decision log, status, or ideas does not count as the hold. Those files may point at the art list. The rule is in `.cursor/rules/pixellab-art.mdc` and `.cursor/rules/knowledge.mdc`.
+
+**Why:** Holds were written next to the feature and never gathered, so the next art session had to hunt for them.
+
+**Rejected:** Treating the decision log as the art backlog. Spending generations in the turn that wrote the rule.
+
+## 2026-11-02 — Art needs live in docs/ART.md
+
+**Decision:** Pictures that are still boxes or missing files are listed in `docs/ART.md`. That file is the art backlog. `docs/IDEAS.md` stays wishes and slices. A generation is spent only when the owner names a row. The death skull stays the in-repo drawing until they say otherwise.
+
+**Why:** Art waits were scattered across status, ideas, and decisions, so there was no single list. The trial has 2 generations left and a full daily stack of 20. That is enough to replace the cheap on-screen boxes. One animal walk is the same class of job as Leif and can use a large share of that stack.
+
+**Rejected:** Queuing pictures inside `docs/IDEAS.md`. Spending the stack in the turn that wrote the list. Buying a paid plan.
+
 ## 2026-11-01 — Pack and torch are signed off in Play
 
 **Decision:** Play signed off pack and torch as shipped. Hover names the stack. The bag stays open for Space and the other woods keys. A lit torch is a walking pool about half the campfire. Double-click unequip does not crash. Cream placeholders stay. PixelLab does not spend generations in this sign-off.

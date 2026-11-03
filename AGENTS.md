@@ -15,6 +15,7 @@ GitHub `main` is the brain. Chat memory is not.
 | [docs/REVIEW.md](docs/REVIEW.md) | Do not call work done until these gates pass. |
 | [docs/IDEAS.md](docs/IDEAS.md) | Unordered slices. No queue. Each open slice has questions for the next agent. When asked what is next, choose one from the whole project. |
 | [docs/BUGS.md](docs/BUGS.md) | Breaks that are not the current Play. Log them. A fix session names the open headings before changing the game. |
+| [docs/ART.md](docs/ART.md) | Pictures still missing or standing in as boxes. Spend a generation only when the owner names a row. A hold in the same session must add the row here. |
 | [docs/research/biomes/](docs/research/biomes/) | Flora and fauna with sources. |
 
 Before doing project work, read `MISSION.md`, the latest `DECISIONS.md` and `STATUS.md`, and any biome research file you will touch.

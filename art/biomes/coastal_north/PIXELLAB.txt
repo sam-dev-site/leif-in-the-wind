@@ -1,0 +1,12 @@
+woodland caribou (Rangifer tarandus)
+  character_id: fdeb44e3-c125-43b7-bf75-540b7101a398
+  mode: pro flash, template horse, 64px, high top-down
+  style: Leif south rotation
+  walk group: c6cf4bf9-b4b0-499b-bead-b531cb3f24b1
+  walk: walk-8-frames, 8 directions, 1 generation each
+
+arctic hare (Lepus arcticus)
+  character_id: f2402d5a-2593-4727-9bae-5233c81bc69d
+  mode: pro flash, template cat, 64px, high top-down
+  style: Leif south rotation
+  walk: not generated (stack empty after the idle)
