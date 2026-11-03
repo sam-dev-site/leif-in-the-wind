@@ -1,6 +1,6 @@
 # Art backlog
 
-Checked 2026-11-02 on this PC, after the caribou and the hare. This is the list of pictures. `docs/IDEAS.md` stays wishes and slices. A generation is spent only when you name a row.
+Checked 2026-11-03, after the night slices landed on the caribou walk. This is the list of pictures. `docs/IDEAS.md` stays wishes and slices. A generation is spent only when you name a row.
 
 ## When you hold a picture
 
@@ -31,6 +31,7 @@ Known prices, from earlier work on this coast:
 - Coast: fir, spruce, bakeapple, blueberry, ringed stumps, granite, sphagnum, needles, fallen fir, fir branch
 - Ground: Wang sheets for water, shore, moss, trail (`game/art/tiles/`)
 - Marks: skills, woodcutting (axe), fire-making (campfire icon), fir leaf, floppy, admin cog
+- Night, drawn in the repo, not a PixelLab generation: pitch glint (`game/art/coastal_north/pitch_glint.png`), rime (`game/art/coastal_north/rime.png`), and the pressed bed in the moss (`game/art/coastal_north/caribou_bed.png`).
 
 ## Open
 
@@ -41,6 +42,7 @@ What is still a box or a missing file on this coast.
 3. **Foraging icon.** The skills row is blank until `game/art/ui/skill_foraging.png` exists. Woodcutting and fire-making already have icons.
 4. **Rucksack mark.** A cream rectangle sits between the skills mark and the floppy.
 5. **Pitch, stick, torch.** The bag draws three colored squares. Hover already says the names.
+6. **Caribou bedded.** The night bed uses the standing idle until a resting pose exists. File: `game/art/coastal_north/caribou/bed.png`, one direction. Held on 2026-11-03: the stack is not spent on this slice. One still when that row is named. Not eight directions.
 
 ## Hold
 

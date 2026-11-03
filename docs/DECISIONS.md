@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-03 — Night on this coast is four slices, ready for Play
+
+**Decision:** `coastal_north` night now has four slices, in the build and not signed off. A lit torch shows at most five balsam glints on standing fir or spruce; Space takes one pitch and does not chop or grant woodcutting XP. Day fells still drop pitch at 10%. Rime is pale flecks on open moss and trail, at least four tiles apart, not on trunks or the bed, a look only. The caribou walks to a moss or peat cell 3–6 tiles off the trail; walking does not spook it; a jog at 4 tiles does. Dawn puts it back on the trail. A lit torch makes the same half-heart take 10 seconds instead of 5, away from a fire. That is a rule on the torch, not the perk menu. The glint, the fleck, and the bed mark are drawn in the repo. The bedded pose waits as one still. The land bridge, when the water draws back, stays pinned for a river mouth or a swampier biome.
+
+**Why:** He locked that set and asked for it to be built. Night is a reason to carry the torch, and the fire is still the place that stops the cold.
+
+**Rejected:** Putting the tide on this beach. Torch warmth. Pitch XP on a standing take. A perk menu for the slower drain. Spending a generation on the fleck, the sparkle, or the moss mark.
+
 ## 2026-11-02 — Caribou walk and hare idle spent the stack
 
 **Decision:** The woodland caribou is a 64px high top-down quadruped (horse template, Leif’s south sprite as the style anchor), drawn at the same half size as Leif. Idle and an 8-frame walk, all eight directions, live in `game/art/coastal_north/caribou/`. The arctic hare is the same canvas (cat template, same style anchor), drawn at **0.32** so it stays smaller than the caribou. Idle only, in `game/art/coastal_north/hare/`. Feet use Leif’s **-28** offset. The hare hop, the campfire sprite, and the bag and skill icons stay on `docs/ART.md`. The account had nothing left; the campfire job was refused.
