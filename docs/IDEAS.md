@@ -6,7 +6,7 @@ When you ask what to work on next, read the mission, the decisions, the status, 
 
 Taking in a new idea includes a pass over this file. Combine lines that are the same slice. Split a line that is more than one slice. Drop a duplicate. Then add questions. The questions are for the next agent to ask. They are not decisions. Do not fill in an answer that was not said. Rule: `.cursor/rules/ideas.mdc`.
 
-[SLICE_0.md](SLICE_0.md) is what you can play now. The word for the land you walk is the map.
+[SLICE_0.md](SLICE_0.md) is what you can play now. The word for the land you walk is the map. Pictures that are still boxes live in [ART.md](ART.md). This file does not queue them.
 
 ## In
 

@@ -21,6 +21,7 @@ jobs:
           test -f docs/REVIEW.md
           test -f docs/IDEAS.md
           test -f docs/BUGS.md
+          test -f docs/ART.md
           test -f docs/research/biomes/_template.md
           test -f docs/research/biomes/coastal_north.md
           test -f docs/research/biomes/river_valley.md

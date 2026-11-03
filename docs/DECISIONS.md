@@ -2,6 +2,22 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-02 — A held picture is a row on the art list
+
+**Decision:** If an agent leaves a picture as a box, skips a generation, or says the art waits, that picture is added to `docs/ART.md` in the same session. A line in the decision log, status, or ideas does not count as the hold. Those files may point at the art list. The rule is in `.cursor/rules/pixellab-art.mdc` and `.cursor/rules/knowledge.mdc`.
+
+**Why:** Holds were written next to the feature and never gathered, so the next art session had to hunt for them.
+
+**Rejected:** Treating the decision log as the art backlog. Spending generations in the turn that wrote the rule.
+
+## 2026-11-02 — Art needs live in docs/ART.md
+
+**Decision:** Pictures that are still boxes or missing files are listed in `docs/ART.md`. That file is the art backlog. `docs/IDEAS.md` stays wishes and slices. A generation is spent only when the owner names a row. The death skull stays the in-repo drawing until they say otherwise.
+
+**Why:** Art waits were scattered across status, ideas, and decisions, so there was no single list. The trial has 2 generations left and a full daily stack of 20. That is enough to replace the cheap on-screen boxes. One animal walk is the same class of job as Leif and can use a large share of that stack.
+
+**Rejected:** Queuing pictures inside `docs/IDEAS.md`. Spending the stack in the turn that wrote the list. Buying a paid plan.
+
 ## 2026-11-01 — Pack and torch are signed off in Play
 
 **Decision:** Play signed off pack and torch as shipped. Hover names the stack. The bag stays open for Space and the other woods keys. A lit torch is a walking pool about half the campfire. Double-click unequip does not crash. Cream placeholders stay. PixelLab does not spend generations in this sign-off.
