@@ -48,7 +48,9 @@ var _pack_shadow: ColorRect
 var _pack_panel: Control
 var _pack_grid: Control
 var _pack_make: Button
+var _pack_raft: Button
 var _pack: Rucksack
+var _supplies: Supplies
 var _click_times: Dictionary = {}
 
 
@@ -57,11 +59,14 @@ func _ready() -> void:
 
 
 func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: String, hint: String, skills: Skills = null) -> void:
+	_supplies = supplies
 	if _label == null:
 		_build()
 	_paint_hearts(supplies)
 	_paint_skills(skills)
-	_paint_pack()
+	if _pack_panel != null and _pack_panel.visible and _pack_raft != null and _pack != null:
+		_pack_raft.disabled = not _pack.can_craft_raft(supplies.wood)
+		_pack_raft.text = "Make raft (12 wood)"
 	var cost := skills.fire_cost() if skills != null else Skills.FIRE_WOOD_START
 	var eat := skills.eat_cost() if skills != null else Skills.EAT_FORAGE_START
 	var body := status_text(world_seed, biome_name, supplies, phase, hint, cost, eat)
@@ -664,7 +669,7 @@ func _build_pack() -> void:
 	_pack_panel.name = "PackPanel"
 	_pack_panel.visible = false
 	_pack_panel.position = Vector2(332, 32)
-	_pack_panel.size = Vector2(146, 118)
+	_pack_panel.size = Vector2(146, 142)
 	_pack_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pack_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	var plate := StyleBoxFlat.new()
@@ -706,6 +711,19 @@ func _build_pack() -> void:
 	_pack_make.add_theme_color_override("font_disabled_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
 	_pack_make.pressed.connect(_on_make_torch)
 	_pack_panel.add_child(_pack_make)
+	_pack_raft = Button.new()
+	_pack_raft.name = "PackRaft"
+	_pack_raft.text = "Make raft"
+	_pack_raft.position = Vector2(4, 114)
+	_pack_raft.size = Vector2(138, 22)
+	_pack_raft.focus_mode = Control.FOCUS_NONE
+	_pack_raft.add_theme_font_size_override("font_size", 10)
+	_pack_raft.add_theme_color_override("font_color", CREAM)
+	_pack_raft.add_theme_color_override("font_hover_color", CREAM)
+	_pack_raft.add_theme_color_override("font_pressed_color", CREAM)
+	_pack_raft.add_theme_color_override("font_disabled_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
+	_pack_raft.pressed.connect(_on_make_raft)
+	_pack_panel.add_child(_pack_raft)
 	add_child(_pack_panel)
 
 
@@ -729,6 +747,15 @@ func _on_make_torch() -> void:
 	_paint_pack()
 
 
+func _on_make_raft() -> void:
+	if _pack == null or _supplies == null:
+		return
+	if not _pack.craft_raft(_supplies):
+		return
+	pack_changed.emit()
+	_paint_pack()
+
+
 func _paint_pack() -> void:
 	if _pack_panel == null:
 		_build_pack()
@@ -742,6 +769,9 @@ func _paint_pack() -> void:
 		if _pack_make != null:
 			_pack_make.disabled = true
 			_pack_make.text = "Make torch"
+		if _pack_raft != null:
+			_pack_raft.disabled = true
+			_pack_raft.text = "Make raft"
 		return
 	var cols := 5
 	var i := 0
@@ -760,6 +790,10 @@ func _paint_pack() -> void:
 	if _pack_make != null:
 		_pack_make.disabled = not _pack.can_craft_torch()
 		_pack_make.text = "Make torch (1 stick, 1 pitch)"
+	if _pack_raft != null:
+		var wood := 0.0 if _supplies == null else _supplies.wood
+		_pack_raft.disabled = not _pack.can_craft_raft(wood)
+		_pack_raft.text = "Make raft (12 wood)"
 
 
 func _make_item_tile(index: int, id: String, count: int, equipped: bool) -> Control:
@@ -811,6 +845,8 @@ func _item_color(id: String) -> Color:
 			return Color(0.55, 0.4, 0.22)
 		Rucksack.ID_TORCH:
 			return Color(0.85, 0.62, 0.28)
+		Rucksack.ID_RAFT:
+			return Color(0.45, 0.32, 0.16)
 		_:
 			return Color(0.5, 0.5, 0.45)
 
@@ -826,9 +862,11 @@ func _on_item_input(event: InputEvent, index: int, id: String) -> void:
 	_click_times[index] = now
 	if now - last > 350:
 		return
-	if id != Rucksack.ID_TORCH or _pack == null:
+	if _pack == null:
 		return
-	if _pack.equip_torch_at(index):
+	if id != Rucksack.ID_TORCH and id != Rucksack.ID_RAFT:
+		return
+	if _pack.equip_held_at(index):
 		pack_changed.emit()
 		call_deferred("_paint_pack")
 

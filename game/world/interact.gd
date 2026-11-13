@@ -126,6 +126,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	var target := best_target(player.global_position, player.facing_name(), _usable_props())
 	var action := use_on(target)
 	if action == "":
+		if pack != null and pack.is_raft_equipped() and world != null:
+			var crossed := world.try_pole_raft()
+			if crossed != "":
+				_mark_handled()
+				return
 		# Equipped torch but Space missed a lit fire.
 		if pack != null and pack.is_torch_equipped() and not pack.torch_lit:
 			acted.emit("torch_need_fire", "")

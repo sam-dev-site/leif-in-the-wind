@@ -74,6 +74,8 @@ const TITLE_SCENE := "res://title/title.tscn"
 const PLATE_COLOR := Color(0.24, 0.36, 0.2, 1)
 const CREAM := Color(0.95, 0.93, 0.86)
 const DEATH_HINT := "The cold took him. Half the pack is gone."
+const RAFT_WIDE := "The river is too wide here."
+const RAFT_WADE := "He can wade this."
 
 
 func _ready() -> void:
@@ -1208,6 +1210,49 @@ func _sample_world_tile(world_tx: int, world_ty: int) -> int:
 		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS:
 			return ChunkGenerator.TILE_SHORE
 	return ChunkGenerator.TILE_MOSS
+
+
+## Pole the equipped raft. Returns cross, wide, wade, sea, or "" when this Space is not a launch.
+func try_pole_raft() -> String:
+	if pack == null or not pack.is_raft_equipped():
+		return ""
+	if _player == null or not is_instance_valid(_player):
+		return ""
+	var origin := ChunkGenerator.world_cell_at(_player.global_position)
+	var dir := Interact.facing_vector(_player.facing_name())
+	var step := Vector2i(int(round(dir.x)), int(round(dir.y)))
+	var result := ChunkGenerator.raft_landing(origin, step, _sample_world_tile)
+	var reason := str(result.get("reason", ""))
+	if reason == "cross":
+		var dest: Vector2i = result["cell"]
+		var guard := 0
+		while guard < 8 and is_blocked_pixel(ChunkGenerator.cell_center(dest)):
+			var nxt := dest + step
+			var kind := _sample_world_tile(nxt.x, nxt.y)
+			if kind == ChunkGenerator.TILE_WATER:
+				break
+			dest = nxt
+			guard += 1
+		if is_blocked_pixel(ChunkGenerator.cell_center(dest)):
+			return ""
+		_player.global_position = ChunkGenerator.cell_center(dest)
+		_reparent_player()
+		_sync_interact()
+		stick_camera()
+		_hint = ""
+		_refresh_hud()
+		return "cross"
+	if reason == "wide":
+		_hint = RAFT_WIDE
+		_refresh_hud()
+		return "wide"
+	if reason == "wade":
+		_hint = RAFT_WADE
+		_refresh_hud()
+		return "wade"
+	if reason == "sea":
+		return "sea"
+	return ""
 
 
 func _try_eat() -> void:

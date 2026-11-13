@@ -22,6 +22,8 @@ const VALLEY_NORTH := -7
 const STEM_NORTH := -243
 const STEM_SOUTH := -238
 const FLOOD_REACH := 4
+## He will not pole a gap wider than this. The stem is 6, so the bank is in reach.
+const RAFT_REACH := 24
 const UPLAND_TREES: PackedStringArray = [
 	"sugar_maple", "yellow_birch", "beech", "red_oak", "white_pine", "hemlock",
 ]
@@ -202,6 +204,40 @@ static func stem_distance(world_ty: int) -> int:
 	if world_ty > STEM_SOUTH:
 		return world_ty - STEM_SOUTH
 	return STEM_NORTH - world_ty
+
+
+## Where a pole from origin along step would land.
+## sample(world_tx, world_ty) -> tile kind.
+## stem, if set, takes a world y and says whether that row is the main stem.
+## Reasons: "cross", "wide", "wade", "sea", or "" when he is not facing water.
+static func raft_landing(origin: Vector2i, step: Vector2i, sample: Callable, stem: Callable = Callable()) -> Dictionary:
+	var none := {"ok": false, "reason": "", "cell": origin}
+	if step == Vector2i.ZERO or not sample.is_valid():
+		return none
+	var cell := origin + step
+	var kind := int(sample.call(cell.x, cell.y))
+	if kind == TILE_BROOK:
+		return {"ok": false, "reason": "wade", "cell": cell}
+	if kind != TILE_WATER:
+		return none
+	if not _raft_on_stem(cell.y, stem):
+		return {"ok": false, "reason": "sea", "cell": cell}
+	var crossed := 0
+	while crossed < RAFT_REACH and kind == TILE_WATER and _raft_on_stem(cell.y, stem):
+		crossed += 1
+		cell += step
+		kind = int(sample.call(cell.x, cell.y))
+	if kind == TILE_WATER and _raft_on_stem(cell.y, stem):
+		return {"ok": false, "reason": "wide", "cell": cell}
+	if kind == TILE_WATER:
+		return {"ok": false, "reason": "wide", "cell": cell}
+	return {"ok": true, "reason": "cross", "cell": cell}
+
+
+static func _raft_on_stem(world_ty: int, stem: Callable) -> bool:
+	if stem.is_valid():
+		return bool(stem.call(world_ty))
+	return stem_distance(world_ty) == 0
 
 
 ## Moss/peat beside the caribou trail, around the same inland band as the caribou.

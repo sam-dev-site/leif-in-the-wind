@@ -69,7 +69,7 @@ The first player-visible land. He can walk to the bank. He cannot cross yet. He 
 
 **Tests:** craft spends 12 and refuses under that. Launch lands on the far bank. A 25-tile width refuses. A brook refuses. The sea refuses. Save round-trip.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The raft is in this branch. The picture stays a square until the row in `docs/ART.md` is named.
 
 ## Phase E — Fishing
 

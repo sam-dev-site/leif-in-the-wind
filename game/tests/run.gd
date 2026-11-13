@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_origin_biome_is_coastal_north()
 	_test_inland_bands_and_the_coast_strip()
 	_test_river_valley_ground()
+	_test_raft()
 	_test_shore_south_trail_inland()
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
@@ -254,6 +255,130 @@ func _test_river_valley_ground() -> void:
 	dummy.free()
 	interact.free()
 	deer.free()
+
+
+func _test_raft() -> void:
+	print("raft")
+	var supplies := Supplies.new()
+	var bag := Rucksack.new()
+	supplies.wood = 11
+	_expect(not bag.craft_raft(supplies), "11 wood does not make a raft")
+	_expect(is_equal_approx(supplies.wood, 11.0), "a refused craft keeps the wood")
+	_expect(bag.total_of(Rucksack.ID_RAFT) == 0, "a refused craft adds no raft")
+	supplies.wood = 12
+	_expect(bag.craft_raft(supplies), "12 wood makes a raft")
+	_expect(is_equal_approx(supplies.wood, 0.0), "the craft spends the 12")
+	_expect(bag.total_of(Rucksack.ID_RAFT) == 1, "the raft is one stack")
+	supplies.wood = 12
+	_expect(not bag.craft_raft(supplies), "a second raft is refused")
+	_expect(is_equal_approx(supplies.wood, 12.0), "a refused second craft keeps the wood")
+	_expect(bag.equip_held_at(0), "the raft equips")
+	_expect(bag.is_raft_equipped(), "the raft is the held tool")
+	_expect(Rucksack.display_name(Rucksack.ID_RAFT) == "Raft", "the raft has a name")
+	var kept := bag.to_save()
+	var loaded := Rucksack.new()
+	loaded.from_save(kept)
+	_expect(loaded.total_of(Rucksack.ID_RAFT) == 1, "the shore file stores the raft")
+	_expect(loaded.is_raft_equipped(), "the shore file stores the held raft")
+	bag.add(Rucksack.ID_TORCH, 1)
+	_expect(bag.equip_torch_at(1), "equipping the torch puts the raft down")
+	_expect(bag.is_torch_equipped() and not bag.is_raft_equipped(), "one held tool")
+	_expect(bag.total_of(Rucksack.ID_RAFT) == 1, "the raft stays in the pack")
+	_expect(bag.light_torch(10.0), "the torch still lights")
+	_expect(not bag.equip_held_at(0), "a lit torch stays in hand")
+	var wide_stem := func(y: int) -> bool: return y >= 1 and y <= 25
+	var wide_sample := func(tx: int, ty: int) -> int:
+		if ty >= 1 and ty <= 25:
+			return ChunkGenerator.TILE_WATER
+		return ChunkGenerator.TILE_MOSS
+	var wide := ChunkGenerator.raft_landing(Vector2i(3, 0), Vector2i(0, 1), wide_sample, wide_stem)
+	_expect(str(wide.get("reason", "")) == "wide", "a 25-tile width refuses")
+	var fit_stem := func(y: int) -> bool: return y >= 1 and y <= 24
+	var fit_sample := func(tx: int, ty: int) -> int:
+		if ty >= 1 and ty <= 24:
+			return ChunkGenerator.TILE_WATER
+		return ChunkGenerator.TILE_MOSS
+	var fit := ChunkGenerator.raft_landing(Vector2i(3, 0), Vector2i(0, 1), fit_sample, fit_stem)
+	_expect(str(fit.get("reason", "")) == "cross", "a 24-tile width still lands")
+	_expect((fit.get("cell") as Vector2i).y == 25, "a 24-tile width lands on the far bank")
+	var brook_sample := func(_tx: int, ty: int) -> int:
+		if ty == 1:
+			return ChunkGenerator.TILE_BROOK
+		return ChunkGenerator.TILE_MOSS
+	var wade := ChunkGenerator.raft_landing(Vector2i(3, 0), Vector2i(0, 1), brook_sample)
+	_expect(str(wade.get("reason", "")) == "wade", "a brook refuses")
+	var sea_sample := func(_tx: int, ty: int) -> int:
+		if ty == 42:
+			return ChunkGenerator.TILE_WATER
+		return ChunkGenerator.TILE_SHORE
+	var sea := ChunkGenerator.raft_landing(Vector2i(10, 41), Vector2i(0, 1), sea_sample)
+	_expect(str(sea.get("reason", "")) == "sea", "the sea refuses")
+	var gen := ChunkGenerator.new()
+	var bank := Vector2i(4, ChunkGenerator.STEM_SOUTH + 1)
+	var landed := ChunkGenerator.raft_landing(bank, Vector2i(0, -1), func(tx: int, ty: int) -> int: return gen.peek_ground(11, tx, ty))
+	_expect(str(landed.get("reason", "")) == "cross", "the stem is a crossing")
+	var far: Vector2i = landed.get("cell")
+	_expect(far.x == bank.x and far.y == ChunkGenerator.STEM_NORTH - 1, "launch lands on the far bank")
+	var world := _boot_run(0, {})
+	var start := Vector2i(4, ChunkGenerator.STEM_SOUTH + 1)
+	for tx in range(2, 20):
+		var open_here := not world.is_blocked_pixel(ChunkGenerator.cell_center(Vector2i(tx, start.y)))
+		var open_far := false
+		for extra in 8:
+			var y := ChunkGenerator.STEM_NORTH - 1 - extra
+			if world.is_blocked_pixel(ChunkGenerator.cell_center(Vector2i(tx, y))):
+				continue
+			open_far = true
+			break
+		if open_here and open_far:
+			start.x = tx
+			break
+	_expect(not world.is_blocked_pixel(ChunkGenerator.cell_center(start)), "the near bank has a place to stand")
+	world.supplies.wood = 12
+	_expect(world.pack.craft_raft(world.supplies), "the pack crafts the raft")
+	_expect(world.pack.equip_held_at(world.pack.stack_count() - 1), "he holds the raft")
+	world.leif().set_facing("north")
+	world.leif().global_position = ChunkGenerator.cell_center(start)
+	var crossed := world.try_pole_raft()
+	var at := ChunkGenerator.world_cell_at(world.leif().global_position)
+	_expect(crossed == "cross", "Space on the bank poles across")
+	_expect(at.x == start.x and at.y <= ChunkGenerator.STEM_NORTH - 1, "he stands on the far bank")
+	_expect(world.pack.is_raft_equipped(), "the raft stays after the crossing")
+	var bridge := false
+	for node in world.get_children():
+		if node.has_meta("kind") and str(node.get_meta("kind")) == "bridge":
+			bridge = true
+	_expect(not bridge, "the crossing leaves no bridge")
+	var shot := world.capture_walk()
+	world.pack.clear()
+	world.apply_walk(shot)
+	_expect(world.pack.total_of(Rucksack.ID_RAFT) == 1, "continue restores the raft")
+	_expect(world.pack.is_raft_equipped(), "continue restores the held raft")
+	world.rebuild()
+	_expect(world.pack.total_of(Rucksack.ID_RAFT) == 1, "R keeps the raft")
+	var brook_x := -1
+	for tx in ChunkGenerator.WIDTH:
+		if world.generator.peek_ground(world.world_seed, tx, -220) == ChunkGenerator.TILE_BROOK:
+			brook_x = tx
+			break
+	_expect(brook_x > 0, "a brook is there to refuse")
+	if brook_x > 0:
+		var beside := Vector2i(brook_x - 1, -220)
+		var before := ChunkGenerator.cell_center(beside)
+		world.leif().set_facing("east")
+		world.leif().global_position = before
+		var refused := world.try_pole_raft()
+		_expect(refused == "wade", "the brook tells him to wade")
+		_expect(world._hint == World.RAFT_WADE, "the brook hint is he can wade this")
+		_expect(world.leif().global_position.distance_to(before) < 1.0, "he stays on the bank of the brook")
+	var shore := Vector2i(8, ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - 1)
+	var shore_px := ChunkGenerator.cell_center(shore)
+	world.leif().set_facing("south")
+	world.leif().global_position = shore_px
+	var sea_reason := world.try_pole_raft()
+	_expect(sea_reason == "sea", "the landing sea refuses the raft")
+	_expect(world.leif().global_position.distance_to(shore_px) < 1.0, "he stays off the sea")
+	world.free()
 
 
 func _test_shore_south_trail_inland() -> void:

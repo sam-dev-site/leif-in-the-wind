@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The crossing is a carried raft
+
+**Decision:** Phase D of `docs/PLAN.md`. Make raft spends 12 wood and caps at one. It is the held tool, the same slot as the torch. Space on a bank facing the main stem poles him to the far bank, up to 24 tiles of water. Wider than that says "The river is too wide here." A brook says "He can wade this." The landing sea does not launch. The raft stays in the pack, so the shore file and **R** keep it. Death’s extras tax uses the same rounding as any other extra. No bridge is written into the world.
+
+**Why:** The bank was walkable. The next thing that land is for is getting to the other side without leaving a road behind.
+
+**Rejected:** A timber bridge saved on the map. Launching on a brook or the landing sea. Spending the raft on the crossing. A second held tool beside the torch.
+
 ## 2026-11-12 — The valley is the next walkable land
 
 **Decision:** Phase C of `docs/PLAN.md`. `chunk_y` −4 through −7 generates `river_valley`: silt near the water, clay on the slopes, a six-tile stem from world y −243 through −238, and brooks that stop at the bank. Timber and food are the lists in `docs/LOOP.md`. Pitch still falls only from fir and spruce. One white-tailed deer walks the trail and is not a resource. Coast skill numbers stay as signed off. The floor and the animals are colored boxes until a row in `docs/ART.md` is named. Cloud does not call PixelLab.

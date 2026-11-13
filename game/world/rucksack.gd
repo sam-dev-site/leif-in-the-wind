@@ -7,17 +7,19 @@ const STACK_CAP := 99
 const ID_PITCH := "pitch"
 const ID_STICK := "stick"
 const ID_TORCH := "torch"
+const ID_RAFT := "raft"
 const STICK_CHANCE := 0.25
 const PITCH_CHANCE := 0.10
 const TORCH_STICK := 1
 const TORCH_PITCH := 1
+const RAFT_WOOD := 12
 const DEATH_TAX_MIN := 5
 const DEATH_TAX_MAX := 10
 const DEATH_TAX_STACKS_MAX := 4
 
 ## Ordered piles: { "id": String, "count": int }
 var stacks: Array = []
-## Index of the equipped torch stack, or -1.
+## Index of the one held tool (torch or raft), or -1.
 var equipped_index: int = -1
 var torch_lit: bool = false
 var torch_burn_left: float = 0.0
@@ -31,6 +33,8 @@ static func display_name(id: String) -> String:
 			return "Stick"
 		ID_TORCH:
 			return "Torch"
+		ID_RAFT:
+			return "Raft"
 		_:
 			return id.capitalize()
 
@@ -92,16 +96,42 @@ func craft_torch() -> bool:
 	return true
 
 
+func can_craft_raft(wood: float) -> bool:
+	return total_of(ID_RAFT) < 1 and wood + 0.0001 >= float(RAFT_WOOD)
+
+
+func craft_raft(supplies: Supplies) -> bool:
+	if supplies == null or total_of(ID_RAFT) >= 1:
+		return false
+	if not supplies.try_spend_wood(float(RAFT_WOOD)):
+		return false
+	add(ID_RAFT, 1)
+	return true
+
+
 func is_torch_equipped() -> bool:
-	return _valid_equip()
+	return _equipped_id() == ID_TORCH
+
+
+func is_raft_equipped() -> bool:
+	return _equipped_id() == ID_RAFT
 
 
 func equip_torch_at(index: int) -> bool:
+	if index < 0 or index >= stacks.size():
+		return false
+	if str(stacks[index].get("id", "")) != ID_TORCH:
+		return false
+	return equip_held_at(index)
+
+
+func equip_held_at(index: int) -> bool:
 	if torch_lit:
 		return false
 	if index < 0 or index >= stacks.size():
 		return false
-	if str(stacks[index].get("id", "")) != ID_TORCH:
+	var id := str(stacks[index].get("id", ""))
+	if id != ID_TORCH and id != ID_RAFT:
 		return false
 	if int(stacks[index].get("count", 0)) < 1:
 		return false
@@ -115,7 +145,7 @@ func equip_torch_at(index: int) -> bool:
 func light_torch(lifetime: float) -> bool:
 	if torch_lit:
 		return false
-	if not _valid_equip():
+	if not is_torch_equipped():
 		return false
 	if lifetime <= 0.0:
 		return false
@@ -228,6 +258,10 @@ func from_save(data: Variant) -> void:
 		torch_lit = false
 		torch_burn_left = 0.0
 		return
+	if _equipped_id() != ID_TORCH:
+		torch_lit = false
+		torch_burn_left = 0.0
+		return
 	torch_lit = bool(d.get("torch_lit", false))
 	torch_burn_left = float(d.get("torch_burn_left", 0.0))
 	if torch_lit and torch_burn_left <= 0.0:
@@ -235,18 +269,28 @@ func from_save(data: Variant) -> void:
 		torch_burn_left = 0.0
 
 
-func _valid_equip() -> bool:
+func _equipped_id() -> String:
 	if equipped_index < 0 or equipped_index >= stacks.size():
-		return false
+		return ""
 	var stack: Dictionary = stacks[equipped_index]
-	return str(stack.get("id", "")) == ID_TORCH and int(stack.get("count", 0)) >= 1
+	if int(stack.get("count", 0)) < 1:
+		return ""
+	var id := str(stack.get("id", ""))
+	if id == ID_TORCH or id == ID_RAFT:
+		return id
+	return ""
+
+
+func _valid_equip() -> bool:
+	return _equipped_id() != ""
 
 
 func _consume_equipped_torch() -> void:
 	torch_lit = false
 	torch_burn_left = 0.0
-	if not _valid_equip():
-		equipped_index = -1
+	if not is_torch_equipped():
+		torch_lit = false
+		torch_burn_left = 0.0
 		return
 	var count := int(stacks[equipped_index].get("count", 0)) - 1
 	if count < 1:
