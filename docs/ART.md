@@ -41,7 +41,7 @@ What is still a box or a missing file on this coast.
 2. **Campfire.** Stones and flame in the woods are colored boxes (`game/world/campfire.gd`). The warm pool is already the night light. A map object is 1 generation. Held on 2026-11-02: the account refused the job, no generations left.
 3. **Foraging icon.** The skills row is blank until `game/art/ui/skill_foraging.png` exists. Woodcutting and fire-making already have icons.
 4. **Rucksack mark.** A cream rectangle sits between the skills mark and the floppy.
-5. **Pitch, stick, torch.** The bag draws three colored squares. Hover already says the names.
+5. **Pitch, stick, torch, raft.** The bag draws colored squares. Hover already says the names. The raft square waits on `game/art/ui/raft.png`. Held on 2026-11-12: this pass is a cloud agent, and PixelLab stays on the playtest PC.
 6. **Caribou bedded.** The night bed uses the standing idle until a resting pose exists. File: `game/art/coastal_north/caribou/bed.png`, one direction. Held on 2026-11-03: the stack is not spent on this slice. One still when that row is named. Not eight directions.
 
 ## Hold
