@@ -103,19 +103,17 @@ The mission’s intent is mixed grassland, large game, and a mineral that become
 
 No `.tres` species, no art, no spawn, no PixelLab.
 
-**Done when:** the research file has sources and a draft signature list, and the resources are still empty. Not a Play.
+**Done when:** the research file has sources and a draft signature list, and the resources are still empty. Not a Play. This pass names the Rice Lake Plains and names no travel tool.
 
 ## Phase H — Plains band
 
 Only after Phase G is on `main`.
 
-- Generate `chunk_y` −8..−11. Quiet edge moves north.
-- Spawn only species from that research file.
-- One new skill or craft: the travel tool the research supports. Levels use the shared table. A level changes the work. The tool is something the next land needs for the walk, the way the raft is. It is not a weapon ladder.
-- If the research named no tool, stop. Add the gap to `docs/IDEAS.md`. Do not invent one in the spawn PR.
-- Color boxes. Rows in `docs/ART.md`. Old skills apply only where that file lists a tree, a forage, or fuel.
+The research file names no tool. **This phase stops.** Do not generate `chunk_y` −8..−11. Do not invent iron, a bloomery, or a chert knife. The gap is in `docs/IDEAS.md` under “Interior travel tool.” A later pass may research a different corridor. It does not spawn this one to fill the mission line.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+When a tool has been named in that file, the spawn is: that band only, species from the file only, one craft that the walk needs the way the raft does, color boxes, and rows in `docs/ART.md`. Not a weapon ladder. Old skills apply only where the file lists a tree, a forage, or fuel.
+
+**Done when:** it has not started. The empty resource is the proof. Not a Play.
 
 ## Phase I — Bayou research
 

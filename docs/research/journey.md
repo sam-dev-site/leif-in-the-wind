@@ -18,7 +18,7 @@ Fantasy is **journey length**. The walk is shortened. The places are not invente
 |---|---|---|---|---|
 | 0 | `coastal_north` | L’Anse aux Meadows / Great Northern Peninsula, Newfoundland | **Playable now** | Boreal coast: fir, spruce, peat, granite, caribou trail, bakeapple, blueberry |
 | 1 | `river_valley` | Saint John River valley and inner Southwest Miramichi, New Brunswick | **Researched.** Spawn in `docs/PLAN.md` Phase C. Empty `.tres` until then | Hardwood floodplain, intervale silt over clay, a river you cannot ford. Carried raft |
-| 2 | `inland_plains` | Interior mainland after the first valleys (mixed grassland / mineral hills) | **Stub.** Research is Phase G | Distance, large game, a travel tool if the research names the material |
+| 2 | `inland_plains` | Rice Lake Plains, Oak Ridges Moraine, Ontario: tallgrass and black-oak savanna. Not the Madawaska highlands. | **Researched.** Spawn is Phase H, and that phase stops: no travel tool was named. Empty `.tres` until a later pass opens it on purpose | Grass, scattered oaks, eastern elk. Iron is not an 11th-century craft here |
 | 3 | `bayou` | Interior south of a compressed continent | **Stub.** Research is Phase I | Swamp as proof you crossed a lot of land. Species only after that research |
 | 4 | Later river country | One real corridor from the Maritimes into the later eastern rivers | **No file yet.** Phase K names it | The main stem is a barrier. Tributaries may be waded. No species until that file |
 | 5 | Western shore | Compressed crossing toward the Pacific | **Long aim.** Phases M–N | The win is the first step onto that shore. No species list yet |
@@ -34,7 +34,7 @@ These are implied by the ground, not a crafting tree.
 | Walk, forage, chop, eat, fire | Night on the shore; 3 berries heal half a heart | Slice 0 (in now). A hunger meter is not |
 | Carried raft, 12 wood | The Saint John / Miramichi main stem is not a brook | `docs/PLAN.md` Phase D. A bridge left on the map is not this crossing |
 | Later boat | Southbound rivers, then larger water | After the first crossing exists, and only if that land’s research asks for one |
-| A travel tool from a named mineral | Interior hills in the mission ladder | `inland_plains` research, Phase G, before any spawn |
+| A travel tool from a named mineral | Interior hills in the mission ladder | Phase G looked. The Rice Lake hills do not support an 11th-century iron tool. Phase H does not invent one |
 | Corner minimap, then one continent view of the same fog | So the next band is a rumor before he can walk it | The corner map is in. The continent view is Phase F. Not a held item |
 
 ## River spine (southbound)
@@ -51,7 +51,7 @@ After that, the compressed walk keeps using **rivers as the road**, not a fantas
 ## What is not next
 
 - Phase B is the band table. A playable `river_valley` chunk waits for Phase C in `docs/PLAN.md`.
-- No `inland_plains`, bayou, or west-shore species until that land’s research phase is on `main`.
+- `inland_plains` is researched and stays empty. Phase H does not spawn it. No bayou or west-shore species until that land’s research phase is on `main`.
 - No PixelLab for maple, grape, or a map UI. Cloud leaves boxes and adds the `docs/ART.md` row.
 - No villages, meetings, or combat (the valley was already lived in; that is a later design pass)
 - No baked overworld scene that would replace seed / chunk / biome-as-data

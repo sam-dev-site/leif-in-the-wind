@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The interior grass is the Rice Lake Plains, and iron is not a craft there
+
+**Decision:** Phase G of `docs/PLAN.md`. `inland_plains` is the Rice Lake Plains of the Oak Ridges Moraine: tallgrass and black-oak savanna, about 44°N, inland of the Saint John only because the walk is shortened. The Madawaska highlands are the land actually beside that valley, and they are still forest, so they are not this biome. Draft signature: big bluestem and the other tall grasses, scattered black oak and white oak, New Jersey tea as the one forage, one eastern elk, no hunt. Bison stay out. Bog iron and Flint Ridge chert are real and are not an 11th-century travel tool on these hills. Phase H stops. The resource stays empty.
+
+**Why:** The mission asked for grassland, large game, and iron. The sources support the first two on this corridor and refuse the third. Inventing a vein, or painting the Madawaska as prairie, would break the rule that the plants are the plants.
+
+**Rejected:** Shortgrass and a bison horizon. A bloomery. Moving the Ohio flint ridge onto the savanna. Spawning the upland fir and maple woods as if they were the plains.
+
 ## 2026-11-12 — Hearts are earned per land, and the map is six bands
 
 **Decision:** Phase F of `docs/PLAN.md`. The first **C** sleep in a ladder land adds one to the earned maximum and does not fill hearts. The file stores that maximum and the slept-land list. A file with no list stays at 3. When the admin slider is 3, he plays the earned maximum. Any other slider is the session maximum, and a sleep under it does not pay and does not mark the land. The cap is 9. A single click on the corner map toggles six bands: Coastal North, River valley, Interior, Bayou, River country, The other sea. A band with no revealed tile is a blank block and its name. A band he has entered draws the same fog, sampled every 8 tiles across the built strip (`chunk_x` −1..1). The coast drawing is chunk rows −3 through 0. Escape closes the map before the quit ask. The clock keeps running.
