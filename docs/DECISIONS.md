@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The southern swamp is the Atchafalaya, and cypress stays there
+
+**Decision:** Phase I of `docs/PLAN.md`. `bayou` is the Atchafalaya Basin: baldcypress and water tupelo in the backswamp, overcup oak and water hickory on the higher floodplain, muscadine and pecan as the foods, Spanish moss as a look and not a pickup. Channels and tupelo sloughs are not waded. The cypress margin and the higher ground are the walk. That is not one raft stem, and this file gives no tile depth. No new animal in the first spawn. The alligator is recorded and waits. The resource stays empty. Pondcypress is not the river-swamp tree. The modern stalled, hypoxic basin is not the 11th-century picture.
+
+**Why:** The mission asked for bayou, cypress, and swamp as proof of a long walk. Cypress is real on this coast and up the Mississippi valley, and it is not real on the lands already in the game. Copying spruce or maple south would hide that.
+
+**Rejected:** Cypress in Newfoundland or on the Rice Lake Plains. One Saint John stem repeated in the swamp. Nutria, water hyacinth, and hydrilla as the old cover. A deer trail copied from the valley. A warm night.
+
 ## 2026-11-12 — The interior grass is the Rice Lake Plains, and iron is not a craft there
 
 **Decision:** Phase G of `docs/PLAN.md`. `inland_plains` is the Rice Lake Plains of the Oak Ridges Moraine: tallgrass and black-oak savanna, about 44°N, inland of the Saint John only because the walk is shortened. The Madawaska highlands are the land actually beside that valley, and they are still forest, so they are not this biome. Draft signature: big bluestem and the other tall grasses, scattered black oak and white oak, New Jersey tea as the one forage, one eastern elk, no hunt. Bison stay out. Bog iron and Flint Ridge chert are real and are not an 11th-century travel tool on these hills. Phase H stops. The resource stays empty.

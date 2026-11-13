@@ -119,11 +119,11 @@ When a tool has been named in that file, the spawn is: that band only, species f
 
 Docs only, same gate as Phase G, for `docs/research/biomes/bayou.md`. Real interior-south swamp on the compressed walk. Cypress only if the sources place it. No Newfoundland species copied south to fill space.
 
-**Done when:** the research file has sources and a draft signature list. Resources stay empty. Not a Play.
+**Done when:** the research file has sources and a draft signature list. Resources stay empty. Not a Play. This pass names the Atchafalaya Basin. Cypress stays in that file.
 
 ## Phase J — Bayou band
 
-Only after Phase I is on `main`. Generate `chunk_y` −12..−15. One new way through water that is not a single stem, taken from that file (a per-tile walk rule the research supports). Color boxes. `docs/ART.md` rows.
+Only after Phase I is on `main`. Generate `chunk_y` −12..−15 from `docs/research/biomes/bayou.md` only. The water rule is the one in that file: bayou channels and tupelo sloughs are not waded, the cypress margin and the higher floodplain are the walk, and it is not one stem. Do not invent a tile depth, a flood calendar, or a second boat. Color boxes. `docs/ART.md` rows. No alligator in this phase.
 
 **Done when:** Actions is green. STATUS says **ready for Play**.
 
