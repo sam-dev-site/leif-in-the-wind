@@ -26,6 +26,12 @@ const BAYOU_TREES: PackedStringArray = ["overcup_oak", "water_hickory"]
 ## Connecticut band. One tile of stem is the drawing. The research gave no width.
 const COUNTRY_SOUTH := -16
 const COUNTRY_NORTH := -19
+## Pacific band. Chunk x -3 is the ocean. The walkable shore starts at -2.
+const SHORE_SOUTH := -20
+const SHORE_NORTH := -23
+const SHORE_WATER := -3
+const SHORE_TREES: PackedStringArray = ["sitka_spruce", "western_hemlock", "western_redcedar"]
+const SHORE_FOOD: PackedStringArray = ["salmonberry", "salal"]
 const COUNTRY_STEM_Y := -816
 const FLOOD_TREES_CT: PackedStringArray = ["eastern_cottonwood", "american_sycamore"]
 const TERRACE_TREES: PackedStringArray = ["american_chestnut", "shagbark_hickory"]
@@ -84,12 +90,15 @@ func generate(world_seed: int, chunk_x: int, chunk_y: int, biome: Biome) -> Dict
 	var valley := biome != null and biome.id == &"river_valley"
 	var bayou := biome != null and biome.id == &"bayou"
 	var country := biome != null and biome.id == &"river_country"
+	var shore := biome != null and biome.id == &"western_shore"
 	if valley:
 		_fill_valley(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	elif bayou:
 		_fill_bayou(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	elif country:
 		_fill_country(world_seed, chunk_x, chunk_y, tiles, trees, forage)
+	elif shore:
+		_fill_shore(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	else:
 		_carve_caribou_trail(world_seed, chunk_x, chunk_y, tiles)
 		if biome != null and not biome.tree_species.is_empty():
@@ -129,6 +138,8 @@ func peek_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
 		return _bayou_ground(world_seed, world_tx, world_ty)
 	if cy <= COUNTRY_SOUTH and cy >= COUNTRY_NORTH:
 		return _country_ground(world_seed, world_tx, world_ty)
+	if cy <= SHORE_SOUTH and cy >= SHORE_NORTH:
+		return _shore_ground(cx)
 	return _ground_tile(world_seed, cx, cy, local_x, local_y)
 
 
@@ -564,6 +575,36 @@ func _fill_country(
 					trees[i] = TERRACE_TREES[_hash(world_seed, tx, ty, 35) % TERRACE_TREES.size()]
 				elif _rand01(world_seed, wx, wy, 48) <= clampf(0.04 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
 					forage[i] = "chestnut"
+
+
+## The ocean is the chunk west of the walkable shore. Not a measured surf.
+func _shore_ground(chunk_x: int) -> int:
+	if chunk_x <= SHORE_WATER:
+		return TILE_WATER
+	return TILE_MOSS
+
+
+func _fill_shore(
+	world_seed: int,
+	chunk_x: int,
+	chunk_y: int,
+	tiles: PackedInt32Array,
+	trees: Array[String],
+	forage: Array[String],
+) -> void:
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			var wx := chunk_x * WIDTH + tx
+			var wy := chunk_y * HEIGHT + ty
+			var i := _idx(tx, ty)
+			tiles[i] = _shore_ground(chunk_x)
+			if tiles[i] == TILE_WATER:
+				continue
+			var chance := clampf(0.12 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, wx, wy, 21) <= chance:
+				trees[i] = SHORE_TREES[_hash(world_seed, tx, ty, 36) % SHORE_TREES.size()]
+			elif _rand01(world_seed, wx, wy, 49) <= clampf(0.05 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
+				forage[i] = SHORE_FOOD[_hash(world_seed, tx, ty, 37) % SHORE_FOOD.size()]
 
 
 func _ground_tile(world_seed: int, chunk_x: int, chunk_y: int, tx: int, ty: int) -> int:
