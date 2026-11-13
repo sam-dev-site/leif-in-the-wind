@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The Connecticut is one tile of water, not a measured mouth
+
+**Decision:** Phase L of `docs/PLAN.md`. `chunk_y` −16 through −19 generates `river_country`. The stem is one meandering water tile. The tile beside it is the floodplain (cottonwood and sycamore). The rest is terrace (American chestnut, shagbark hickory, and the chestnut nut). Three brooks are the tributaries he can wade. The raft can cross the stem. The hand-line cannot fish it. No new animal and no new skill. The plains rows stay unbuilt. The one-tile width is the drawing, because the research file gave no width and forbade turning the modern mouth into tiles.
+
+**Why:** The band had to be one river, not the bayou’s channels and not the Saint John’s six-tile stem. A numbered sounding would have been invented.
+
+**Rejected:** A six-tile stem. A tide, a dam, and a second boat. Fishing this river. Copying silver maple in as the new tree. Generating the plains so he can walk here from the coast.
+
 ## 2026-11-12 — The later river is the Connecticut, and it teaches no new skill
 
 **Decision:** Phase K of `docs/PLAN.md`. `river_country` is the Connecticut River: eastern cottonwood and American sycamore on the floodplain, American chestnut and shagbark hickory on the terrace, and the chestnut nut as the food. One stem he does not wade. Tributaries he can. The raft he already carries is the crossing. The hand-line does not gain a water. No new animal. No resource until the spawn phase. The ladder name stays River country.

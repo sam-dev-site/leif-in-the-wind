@@ -137,7 +137,7 @@ Docs only. Pick one real southbound corridor from the Maritimes into the later e
 
 Only after Phase K is on `main`. Generate `chunk_y` −16..−19 from `docs/research/biomes/river_country.md` only. That file supports old woodcutting and old foraging on cottonwood, sycamore, chestnut, shagbark hickory, and the chestnut nut. It does not support a new skill, a new boat, or a new catch. One stem he does not wade, and tributaries he can. Do not invent a tile width, a dam, or a tide. Do not invent a second Mississippi. Color boxes. `docs/ART.md` rows. No new animal.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The Connecticut band is in this branch. The one-tile stem is a drawing. The plains rows are still not generated, so a walk from the coast does not reach it yet. He can walk into it from the bayou.
 
 ## Phase M — Western shore, research
 

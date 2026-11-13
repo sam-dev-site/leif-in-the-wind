@@ -6,6 +6,7 @@ const PATHS := {
 	&"river_valley": "res://data/biomes/river_valley.tres",
 	&"inland_plains": "res://data/biomes/inland_plains.tres",
 	&"bayou": "res://data/biomes/bayou.tres",
+	&"river_country": "res://data/biomes/river_country.tres",
 }
 
 var _by_id: Dictionary = {}
@@ -33,7 +34,7 @@ const BAYOU_NORTH := -15
 const RIVER_COUNTRY_NORTH := -19
 const WESTERN_NORTH := -23
 
-## Display names for the continent map. The last two have no biome resource yet.
+## Display names for the continent map. The western shore has no biome resource yet.
 const LADDER: Array[Dictionary] = [
 	{"id": "coastal_north", "name": "Coastal North", "north": -3, "south": 1000000},
 	{"id": "river_valley", "name": "River valley", "north": -7, "south": -4},
@@ -64,7 +65,7 @@ static func ladder_name(id: String) -> String:
 
 
 ## Landing sea (chunk_y > 0) stays coastal_north. The generator paints that as water.
-## Past the bayou band there is no id yet, so nothing there can be built.
+## Past the Connecticut band there is no id yet, so the western shore is not built.
 func biome_id_at(_world_tx: int, world_ty: int) -> StringName:
 	var cy := ChunkGenerator.floor_div(world_ty, ChunkGenerator.HEIGHT)
 	if cy >= COAST_NORTH:
@@ -75,4 +76,6 @@ func biome_id_at(_world_tx: int, world_ty: int) -> StringName:
 		return &"inland_plains"
 	if cy >= BAYOU_NORTH:
 		return &"bayou"
+	if cy >= RIVER_COUNTRY_NORTH:
+		return &"river_country"
 	return &""
