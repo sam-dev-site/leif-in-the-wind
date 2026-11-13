@@ -63,16 +63,18 @@ func bake_floor_step(rows: int) -> bool:
 	var end := mini(_bake_ty + maxi(rows, 1), ChunkGenerator.HEIGHT)
 	var tiles: PackedInt32Array = data["tiles"]
 	var row_from := _bake_ty
+	var flat := biome.id == &"river_valley"
 	for ty in range(row_from, end):
 		for tx in ChunkGenerator.WIDTH:
-			if not _wang.blit_to_image(_floor_img, tx, ty, _sample_ground):
+			if flat or not _wang.blit_to_image(_floor_img, tx, ty, _sample_ground):
 				_floor_img.fill_rect(
 					Rect2i(tx * ChunkGenerator.TILE, ty * ChunkGenerator.TILE, ChunkGenerator.TILE, ChunkGenerator.TILE),
 					_color_for(tiles[ty * ChunkGenerator.WIDTH + tx])
 				)
-	for ty in range(row_from, end):
-		for tx in ChunkGenerator.WIDTH:
-			_stamp_paint_clutter(_floor_img, tx, ty)
+	if not flat:
+		for ty in range(row_from, end):
+			for tx in ChunkGenerator.WIDTH:
+				_stamp_paint_clutter(_floor_img, tx, ty)
 	_bake_ty = end
 	if _bake_ty < ChunkGenerator.HEIGHT:
 		return false
@@ -356,6 +358,8 @@ func _color_for(kind: int) -> Color:
 			return biome.granite_color
 		ChunkGenerator.TILE_TRAIL:
 			return biome.trail_color
+		ChunkGenerator.TILE_BROOK:
+			return biome.water_color.lightened(0.35)
 		_:
 			return biome.moss_color
 
@@ -461,7 +465,7 @@ func _make_tree(species: String, origin: Vector2) -> Node2D:
 		var crown := ColorRect.new()
 		crown.size = Vector2(10, 12)
 		crown.position = Vector2(-5, -20)
-		crown.color = Color(0.12, 0.24, 0.14) if species == "fir" else Color(0.16, 0.28, 0.16)
+		crown.color = _crown_color(species)
 		node.add_child(crown)
 	node.set_meta("species", species)
 	node.set_meta("kind", "tree")
@@ -484,7 +488,7 @@ func _make_forage(species: String, origin: Vector2) -> Node2D:
 		var berry := ColorRect.new()
 		berry.size = Vector2(2, 2)
 		berry.position = Vector2(-1, -5)
-		berry.color = Color(0.78, 0.42, 0.16) if species == "bakeapple" else Color(0.22, 0.22, 0.48)
+		berry.color = _forage_color(species)
 		node.add_child(berry)
 	node.set_meta("species", species)
 	node.set_meta("kind", "forage")
@@ -492,12 +496,22 @@ func _make_forage(species: String, origin: Vector2) -> Node2D:
 
 
 func _prop_sprite(kind: String, species: String) -> Sprite2D:
-	var path := "res://art/coastal_north/%s_%s.png" % [kind, species]
-	if not ResourceLoader.exists(path) and kind == "fallen":
+	var folders: Array[String] = []
+	if biome != null and str(biome.id) != "":
+		folders.append(str(biome.id))
+	if not folders.has("coastal_north"):
+		folders.append("coastal_north")
+	var path := ""
+	for folder in folders:
+		path = _sprite_path(folder, kind, species)
+		if ResourceLoader.exists(path):
+			break
+		path = ""
+	if path == "" and kind == "fallen":
 		path = "res://art/coastal_north/fallen_fir.png"
-	if not ResourceLoader.exists(path) and kind == "branch":
+	if path == "" and kind == "branch":
 		path = "res://art/coastal_north/clutter_%s.png" % species
-	if not ResourceLoader.exists(path):
+	if path == "" or not ResourceLoader.exists(path):
 		return null
 	var tex: Texture2D = _tex_cache.get(path) as Texture2D
 	if tex == null:
@@ -512,6 +526,43 @@ func _prop_sprite(kind: String, species: String) -> Sprite2D:
 	sprite.centered = true
 	sprite.offset = Vector2(0, -float(tex.get_height()) * 0.5)
 	return sprite
+
+
+func _sprite_path(folder: String, kind: String, species: String) -> String:
+	if kind == "forage" and species.begins_with("forage_"):
+		return "res://art/%s/%s.png" % [folder, species]
+	return "res://art/%s/%s_%s.png" % [folder, kind, species]
+
+
+func _crown_color(species: String) -> Color:
+	var colors := {
+		"fir": Color(0.12, 0.24, 0.14),
+		"spruce": Color(0.16, 0.28, 0.16),
+		"sugar_maple": Color(0.55, 0.28, 0.12),
+		"yellow_birch": Color(0.62, 0.55, 0.18),
+		"beech": Color(0.35, 0.48, 0.22),
+		"red_oak": Color(0.28, 0.36, 0.14),
+		"white_pine": Color(0.20, 0.38, 0.28),
+		"hemlock": Color(0.10, 0.26, 0.18),
+		"silver_maple": Color(0.48, 0.58, 0.30),
+		"butternut": Color(0.42, 0.40, 0.16),
+		"bur_oak": Color(0.32, 0.30, 0.14),
+		"elm": Color(0.46, 0.50, 0.18),
+		"green_ash": Color(0.24, 0.46, 0.16),
+		"basswood": Color(0.50, 0.58, 0.22),
+	}
+	return colors.get(species, Color(0.16, 0.28, 0.16))
+
+
+func _forage_color(species: String) -> Color:
+	var colors := {
+		"bakeapple": Color(0.78, 0.42, 0.16),
+		"blueberry": Color(0.22, 0.22, 0.48),
+		"forage_butternut": Color(0.55, 0.40, 0.18),
+		"riverbank_grape": Color(0.36, 0.16, 0.38),
+		"fiddlehead": Color(0.30, 0.62, 0.22),
+	}
+	return colors.get(species, Color(0.22, 0.22, 0.48))
 
 
 func _make_named_prop(kind: String, species: String, origin: Vector2, fallback: Color, size: Vector2) -> Node2D:

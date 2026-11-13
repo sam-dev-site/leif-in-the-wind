@@ -13,6 +13,24 @@ const TILE_MOSS := 2
 const TILE_PEAT := 3
 const TILE_GRANITE := 4
 const TILE_TRAIL := 5
+## A brook he can wade. Not the main stem, and not fishable water.
+const TILE_BROOK := 6
+
+## Valley band and the six-tile stem centered on the seam between chunk -6 and -5.
+const VALLEY_SOUTH := -4
+const VALLEY_NORTH := -7
+const STEM_NORTH := -243
+const STEM_SOUTH := -238
+const FLOOD_REACH := 4
+const UPLAND_TREES: PackedStringArray = [
+	"sugar_maple", "yellow_birch", "beech", "red_oak", "white_pine", "hemlock",
+]
+const FLOOD_TREES: PackedStringArray = [
+	"silver_maple", "butternut", "bur_oak", "elm", "green_ash", "basswood",
+]
+const VALLEY_FORAGE: PackedStringArray = [
+	"forage_butternut", "riverbank_grape", "fiddlehead",
+]
 
 const TREE_NONE := ""
 const FORAGE_NONE := ""
@@ -51,15 +69,18 @@ func generate(world_seed: int, chunk_x: int, chunk_y: int, biome: Biome) -> Dict
 			var i := _idx(tx, ty)
 			tiles[i] = _ground_tile(world_seed, chunk_x, chunk_y, tx, ty)
 
-	_carve_caribou_trail(world_seed, chunk_x, chunk_y, tiles)
-
-	if biome != null and not biome.tree_species.is_empty():
-		_scatter_trees(world_seed, chunk_x, chunk_y, tiles, trees, biome)
-	if biome != null and not biome.forage_species.is_empty():
-		_scatter_forage(world_seed, chunk_x, chunk_y, tiles, trees, forage, biome)
-	_scatter_rocks(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks)
-	_scatter_fallen(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks, fallen, biome)
-	_scatter_clutter(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks, fallen, clutter)
+	var valley := biome != null and biome.id == &"river_valley"
+	if valley:
+		_fill_valley(world_seed, chunk_x, chunk_y, tiles, trees, forage)
+	else:
+		_carve_caribou_trail(world_seed, chunk_x, chunk_y, tiles)
+		if biome != null and not biome.tree_species.is_empty():
+			_scatter_trees(world_seed, chunk_x, chunk_y, tiles, trees, biome)
+		if biome != null and not biome.forage_species.is_empty():
+			_scatter_forage(world_seed, chunk_x, chunk_y, tiles, trees, forage, biome)
+		_scatter_rocks(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks)
+		_scatter_fallen(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks, fallen, biome)
+		_scatter_clutter(world_seed, chunk_x, chunk_y, tiles, trees, forage, rocks, fallen, clutter)
 
 	var spawn := _spawn_on_shore(tiles)
 	return {
@@ -82,7 +103,11 @@ func is_blocked(tile_kind: int) -> bool:
 func peek_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
 	var cx := floor_div(world_tx, WIDTH)
 	var cy := floor_div(world_ty, HEIGHT)
-	return _ground_tile(world_seed, cx, cy, posmod(world_tx, WIDTH), posmod(world_ty, HEIGHT))
+	var local_x := posmod(world_tx, WIDTH)
+	var local_y := posmod(world_ty, HEIGHT)
+	if cy <= VALLEY_SOUTH and cy >= VALLEY_NORTH:
+		return _valley_ground(world_seed, cx, cy, local_x, local_y)
+	return _ground_tile(world_seed, cx, cy, local_x, local_y)
 
 
 static func floor_div(value: int, size: int) -> int:
@@ -142,6 +167,43 @@ func caribou_seed_index(path: Array[Vector2i]) -> int:
 	return i
 
 
+## Intervale path from the coast seam to the near bank. Same chunk_x as the caribou trail.
+func deer_trail_cells(world_seed: int) -> Array[Vector2i]:
+	var path: Array[Vector2i] = []
+	var coast := caribou_trail_cells(world_seed, VALLEY_SOUTH + 1)
+	if coast.is_empty():
+		return path
+	var tx := coast[coast.size() - 1].x
+	var wy := coast[coast.size() - 1].y - 1
+	var bank := STEM_SOUTH + 1
+	while wy >= bank:
+		if tx >= 1 and tx < WIDTH - 1:
+			path.append(Vector2i(tx, wy))
+		if wy == bank:
+			break
+		var wiggle := _hash(world_seed, tx, wy, 91) % 5
+		if wiggle == 0 and tx > 2:
+			tx -= 1
+		elif wiggle == 1 and tx < WIDTH - 3:
+			tx += 1
+		wy -= 1
+	return path
+
+
+func deer_seed_index(path: Array[Vector2i]) -> int:
+	if path.is_empty():
+		return 0
+	return clampi(int(round(float(path.size()) * 0.35)), 0, path.size() - 1)
+
+
+static func stem_distance(world_ty: int) -> int:
+	if world_ty <= STEM_SOUTH and world_ty >= STEM_NORTH:
+		return 0
+	if world_ty > STEM_SOUTH:
+		return world_ty - STEM_SOUTH
+	return STEM_NORTH - world_ty
+
+
 ## Moss/peat beside the caribou trail, around the same inland band as the caribou.
 ## Off the path by 3–6 tiles. At least 12 tiles apart. Extra cells let the woods skip trees.
 func hare_seed_cells(world_seed: int, north_chunk_y: int, want: int = 3) -> Array[Vector2i]:
@@ -198,6 +260,90 @@ func _hash(world_seed: int, x: int, y: int, salt: int) -> int:
 
 func _rand01(world_seed: int, x: int, y: int, salt: int) -> float:
 	return float(_hash(world_seed, x, y, salt) % 10000) / 10000.0
+
+
+func _fill_valley(
+	world_seed: int,
+	chunk_x: int,
+	chunk_y: int,
+	tiles: PackedInt32Array,
+	trees: Array[String],
+	forage: Array[String],
+) -> void:
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			tiles[_idx(tx, ty)] = _valley_ground(world_seed, chunk_x, chunk_y, tx, ty)
+	_paint_deer_trail(world_seed, chunk_x, chunk_y, tiles)
+	_scatter_valley_plants(world_seed, chunk_x, chunk_y, tiles, trees, forage)
+
+
+func _valley_ground(world_seed: int, chunk_x: int, chunk_y: int, tx: int, ty: int) -> int:
+	var wy := chunk_y * HEIGHT + ty
+	if stem_distance(wy) == 0:
+		return TILE_WATER
+	if _is_brook(world_seed, chunk_x, tx):
+		return TILE_BROOK
+	if stem_distance(wy) <= FLOOD_REACH:
+		return TILE_MOSS
+	return TILE_PEAT
+
+
+func _is_brook(world_seed: int, chunk_x: int, tx: int) -> bool:
+	var shift := _hash(world_seed, chunk_x, 0, 120) % 5
+	return tx == 8 + shift or tx == 36 + shift
+
+
+func _paint_deer_trail(world_seed: int, chunk_x: int, chunk_y: int, tiles: PackedInt32Array) -> void:
+	if chunk_x != 0:
+		return
+	var bank := STEM_SOUTH + 1
+	for cell in deer_trail_cells(world_seed):
+		if floor_div(cell.y, HEIGHT) != chunk_y:
+			continue
+		var lty := posmod(cell.y, HEIGHT)
+		if tiles[_idx(cell.x, lty)] == TILE_WATER:
+			continue
+		var gap := _hash(world_seed, cell.x, cell.y, 93) % 6
+		var on_seam := lty == 0 or lty == HEIGHT - 1 or cell.y == bank
+		if gap != 0 or on_seam:
+			tiles[_idx(cell.x, lty)] = TILE_TRAIL
+
+
+func _scatter_valley_plants(
+	world_seed: int,
+	chunk_x: int,
+	chunk_y: int,
+	tiles: PackedInt32Array,
+	trees: Array[String],
+	forage: Array[String],
+) -> void:
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			var i := _idx(tx, ty)
+			var kind := tiles[i]
+			if kind == TILE_WATER or kind == TILE_TRAIL or kind == TILE_BROOK:
+				continue
+			var wy := chunk_y * HEIGHT + ty
+			var flood := stem_distance(wy) >= 1 and stem_distance(wy) <= FLOOD_REACH
+			var chance := clampf((0.14 if flood else 0.12) * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, chunk_x * WIDTH + tx, wy, 21) > chance:
+				continue
+			var list := FLOOD_TREES if flood else UPLAND_TREES
+			trees[i] = list[_hash(world_seed, tx, ty, 33) % list.size()]
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			var i := _idx(tx, ty)
+			if trees[i] != TREE_NONE:
+				continue
+			if tiles[i] != TILE_MOSS:
+				continue
+			var wy := chunk_y * HEIGHT + ty
+			if stem_distance(wy) < 1 or stem_distance(wy) > FLOOD_REACH:
+				continue
+			var chance := clampf(0.06 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+			if _rand01(world_seed, chunk_x * WIDTH + tx, wy, 44) > chance:
+				continue
+			forage[i] = VALLEY_FORAGE[_hash(world_seed, tx, ty, 45) % VALLEY_FORAGE.size()]
 
 
 func _ground_tile(world_seed: int, chunk_x: int, chunk_y: int, tx: int, ty: int) -> int:

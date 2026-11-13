@@ -6,7 +6,9 @@ extends Node2D
 const STRIP_WEST := -1
 const STRIP_EAST := 1
 const STRIP_SOUTH := 0
+## Coast trail and caribou stop here. The valley continues to LAND_NORTH.
 const STRIP_NORTH := -3
+const LAND_NORTH := -7
 
 var catalog: BiomeCatalog = BiomeCatalog.new()
 var generator: ChunkGenerator = ChunkGenerator.new()
@@ -44,6 +46,7 @@ var _quit_ask := false
 var _quit_layer: CanvasLayer
 var _opened := false
 var _caribou: Caribou
+var _deer: Deer
 var _hares: Array[Hare] = []
 var _torch_light: PointLight2D
 var _glint_cells: Array[Vector2i] = []
@@ -245,6 +248,27 @@ func _mark_handled() -> void:
 		viewport.set_input_as_handled()
 
 
+func _plant_name(species: String) -> String:
+	var names := {
+		"sugar_maple": "sugar maple",
+		"yellow_birch": "yellow birch",
+		"beech": "beech",
+		"red_oak": "red oak",
+		"white_pine": "white pine",
+		"hemlock": "hemlock",
+		"silver_maple": "silver maple",
+		"butternut": "butternut",
+		"bur_oak": "bur oak",
+		"elm": "elm",
+		"green_ash": "green ash",
+		"basswood": "basswood",
+		"forage_butternut": "butternut",
+		"riverbank_grape": "riverbank grape",
+		"fiddlehead": "fiddlehead",
+	}
+	return str(names.get(species, species))
+
+
 func _on_phase_changed(_next: String) -> void:
 	sync_night()
 	_refresh_hud()
@@ -259,7 +283,7 @@ func _on_acted(action: String, species: String) -> void:
 			var pay := skills.forage_pay()
 			if _interact != null:
 				pay = _interact.last_forage
-			_hint = "Picked %s. +%d forage." % [species, pay]
+			_hint = "Picked %s. +%d forage." % [_plant_name(species), pay]
 	elif action == "bite":
 		_hint = "The tree holds."
 	elif action == "chop":
@@ -270,7 +294,7 @@ func _on_acted(action: String, species: String) -> void:
 			var pay := skills.wood_at()
 			if _interact != null:
 				pay = _interact.last_wood
-			_hint = "Chopped %s. +%s wood." % [species, Supplies.wood_label(pay)]
+			_hint = "Chopped %s. +%s wood." % [_plant_name(species), Supplies.wood_label(pay)]
 		if _interact != null and _interact.last_extra == Rucksack.ID_PITCH:
 			_hint += " Pitch."
 	elif action == "clear":
@@ -373,6 +397,7 @@ func rebuild() -> void:
 		_hud.set_fade(0.0)
 		_hud.set_death_mark(0.0)
 	_drop_caribou()
+	_drop_deer()
 	_drop_hares()
 	if _player.get_parent() != null:
 		_player.get_parent().remove_child(_player)
@@ -396,10 +421,7 @@ func begin_staged_boot() -> void:
 	catalog.load_all()
 	if not _wang.ready():
 		_wang.load_coastal()
-	_stage_keys.clear()
-	for cy in range(STRIP_NORTH, STRIP_SOUTH + 1):
-		for cx in range(STRIP_WEST, STRIP_EAST + 1):
-			_stage_keys.append(Vector2i(cx, cy))
+	_stage_keys = _land_keys()
 	_stage_index = 0
 	_stage_phase = 0
 
@@ -438,6 +460,7 @@ func _finish_arrival() -> void:
 		_player.global_position = landing.position + landing.spawn_local()
 	_reparent_player()
 	_spawn_caribou()
+	_spawn_deer()
 	_spawn_hares()
 	_fog.clear()
 	_minimap_cell = Vector2i(99999, 99999)
@@ -570,6 +593,13 @@ func capture_walk() -> Dictionary:
 		caribou_px = _caribou.global_position
 		caribou_facing = _caribou.facing_name()
 		caribou_dir = _caribou.travel_dir
+	var deer_px := Vector2.ZERO
+	var deer_facing := "north"
+	var deer_dir := 1
+	if _deer != null and is_instance_valid(_deer):
+		deer_px = _deer.global_position
+		deer_facing = _deer.facing_name()
+		deer_dir = _deer.travel_dir
 	var hare_rows: Array = []
 	for hare in _hares:
 		if hare == null or not is_instance_valid(hare):
@@ -602,6 +632,10 @@ func capture_walk() -> Dictionary:
 		"caribou_y": caribou_px.y,
 		"caribou_facing": caribou_facing,
 		"caribou_dir": caribou_dir,
+		"deer_x": deer_px.x,
+		"deer_y": deer_px.y,
+		"deer_facing": deer_facing,
+		"deer_dir": deer_dir,
 		"hares": hare_rows,
 	}
 	if _night_active:
@@ -672,6 +706,7 @@ func apply_walk(data: Dictionary) -> void:
 		_has_sleep_mark = false
 		_sleep_mark = Vector2.ZERO
 	_apply_caribou(data)
+	_apply_deer(data)
 	_apply_hares(data)
 	_night_restore = {
 		"has_bed": data.has("caribou_bedded"),
@@ -893,17 +928,28 @@ func _cull_far_chunks() -> void:
 
 
 func _build_strip() -> void:
-	for cy in range(STRIP_NORTH, STRIP_SOUTH + 1):
-		for cx in range(STRIP_WEST, STRIP_EAST + 1):
-			_make_chunk(Vector2i(cx, cy))
+	for key in _land_keys():
+		_make_chunk(key)
 	for chunk: MapChunk in _chunks.values():
 		if chunk != null and is_instance_valid(chunk):
 			chunk.bake_floor()
 			chunk.spawn_interactive()
 
 
+## Coast rows first, so the landing still loads before the valley.
+func _land_keys() -> Array[Vector2i]:
+	var keys: Array[Vector2i] = []
+	for cy in range(STRIP_NORTH, STRIP_SOUTH + 1):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			keys.append(Vector2i(cx, cy))
+	for cy in range(LAND_NORTH, STRIP_NORTH):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			keys.append(Vector2i(cx, cy))
+	return keys
+
+
 func _make_chunk(key: Vector2i) -> MapChunk:
-	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y < STRIP_NORTH or key.y > STRIP_SOUTH:
+	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y < LAND_NORTH or key.y > STRIP_SOUTH:
 		return null
 	if _chunks.has(key) and is_instance_valid(_chunks[key]):
 		return _chunks[key]
@@ -942,12 +988,26 @@ func _reparent_player() -> void:
 		_player.get_parent().remove_child(_player)
 	host.add_child(_player)
 	_player.global_position = keep
+	var previous := _chunk
 	_chunk = host
 	stick_camera()
+	var prev_id := &""
+	if previous != null and previous.biome != null:
+		prev_id = previous.biome.id
+	var next_id := &""
+	if host.biome != null:
+		next_id = host.biome.id
+	if prev_id != next_id:
+		_ensure_music()
+		_refresh_hud()
 
 
 func reparent_caribou() -> void:
 	_reparent_actor(_caribou)
+
+
+func reparent_deer() -> void:
+	_reparent_actor(_deer)
 
 
 func reparent_hare(hare: Hare) -> void:
@@ -988,6 +1048,43 @@ func _drop_caribou() -> void:
 			host.remove_child(_caribou)
 		_caribou.queue_free()
 	_caribou = null
+
+
+func deer() -> Deer:
+	return _deer
+
+
+func _spawn_deer() -> void:
+	_drop_deer()
+	var trail := generator.deer_trail_cells(world_seed)
+	if trail.is_empty():
+		return
+	_deer = Deer.new()
+	_deer.world = self
+	add_child(_deer)
+	var start := generator.deer_seed_index(trail)
+	_deer.setup(trail, start)
+	_deer.global_position = ChunkGenerator.cell_center(trail[start])
+	_reparent_actor(_deer)
+
+
+func _apply_deer(data: Dictionary) -> void:
+	if _deer == null or not is_instance_valid(_deer):
+		return
+	if not data.has("deer_x") or not data.has("deer_y"):
+		return
+	_deer.global_position = Vector2(float(data["deer_x"]), float(data["deer_y"]))
+	_deer.travel_dir = 1 if int(data.get("deer_dir", 1)) >= 0 else -1
+	_reparent_actor(_deer)
+
+
+func _drop_deer() -> void:
+	if _deer != null and is_instance_valid(_deer):
+		var host := _deer.get_parent()
+		if host != null:
+			host.remove_child(_deer)
+		_deer.queue_free()
+	_deer = null
 
 
 func _spawn_hares() -> void:
@@ -1349,6 +1446,8 @@ func _minimap_color(kind: int) -> Color:
 			return biome.granite_color
 		ChunkGenerator.TILE_TRAIL:
 			return biome.trail_color
+		ChunkGenerator.TILE_BROOK:
+			return biome.water_color.lightened(0.35)
 		_:
 			return biome.moss_color
 
@@ -1367,12 +1466,15 @@ func is_blocked_pixel(global_px: Vector2, mover: Node2D = null) -> bool:
 	if _caribou != null and is_instance_valid(_caribou) and mover != _caribou:
 		if ChunkGenerator.world_cell_at(_caribou.global_position) == cell:
 			return true
+	if _deer != null and is_instance_valid(_deer) and mover != _deer:
+		if ChunkGenerator.world_cell_at(_deer.global_position) == cell:
+			return true
 	for hare in _hares:
 		if hare == null or not is_instance_valid(hare) or mover == hare:
 			continue
 		if ChunkGenerator.world_cell_at(hare.global_position) == cell:
 			return true
-	var animal_mover := mover == _caribou or mover is Hare
+	var animal_mover := mover == _caribou or mover == _deer or mover is Hare
 	if animal_mover and _player != null and is_instance_valid(_player):
 		if ChunkGenerator.world_cell_at(_player.global_position) == cell:
 			return true
@@ -1722,6 +1824,8 @@ func _rime_ground_cells() -> Array[Vector2i]:
 	for key in _chunks.keys():
 		var chunk: MapChunk = _chunks[key]
 		if chunk == null or not is_instance_valid(chunk):
+			continue
+		if chunk.biome == null or chunk.biome.id != &"coastal_north":
 			continue
 		for ty in ChunkGenerator.HEIGHT:
 			for tx in ChunkGenerator.WIDTH:

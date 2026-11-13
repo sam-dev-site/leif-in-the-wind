@@ -6,6 +6,10 @@ extends Node
 
 const MIN_FACING_DOT := 0.5
 
+
+static func drops_pitch(species: String) -> bool:
+	return species == "fir" or species == "spruce"
+
 signal acted(action: String, species: String)
 
 var player: Player
@@ -214,7 +218,8 @@ func _chop(target: Node2D, species: String) -> String:
 	if not supplies.chop_tree(species, biome, last_wood):
 		return ""
 	target.set_meta("harvested", true)
-	_maybe_pitch()
+	if Interact.drops_pitch(species):
+		_maybe_pitch()
 	return "chop"
 
 
