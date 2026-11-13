@@ -1,6 +1,6 @@
 # Slice 0 — current cut
 
-This is **not** the game. The game is [MISSION.md](MISSION.md). This file is the vertical cut we are building now.
+This is **not** the game. The game is [MISSION.md](MISSION.md). The locked loop, lands, and win are [LOOP.md](LOOP.md). This file is the vertical cut we are building now.
 
 ## Playable content
 

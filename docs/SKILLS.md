@@ -79,4 +79,8 @@ So the first heal is ten bushes. At 30 it is four bushes (2 each, cost 8). At 99
 
 ## How this helps the woods
 
-Getting better at the chop, the light, and the pick is why this biome stays interesting after the first few steps. It does not replace sitting by the fire, and it does not unlock the river valley. The river comes after this biome is worth staying in.
+Getting better at the chop, the light, and the pick is why this biome stays interesting after the first few steps. It does not replace sitting by the fire. These three numbers stay. The next skill is Fishing, on the river, on a different table. Both are locked in `docs/LOOP.md`.
+
+## After this biome
+
+Do not retune this file when the valley lands. Valley trees and valley forage use the numbers above. Fishing, the raft, the hearts, and the win are specified in `docs/LOOP.md` and built in `docs/PLAN.md`.

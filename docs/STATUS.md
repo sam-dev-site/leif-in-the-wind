@@ -1,6 +1,10 @@
 # Status
 
-Updated: 2026-11-03
+Updated: 2026-11-12
+
+## Locked
+
+The loop, the skills, the six lands, the hearts, and the win are locked in `docs/LOOP.md`. The build order is `docs/PLAN.md`. Phase A is this lock. The next code phase is the band table (Phase B), which does not change a walk on the coast. Night on this coast is still the open Play. This lock does not sign it off and does not retune the three coast skills.
 
 ## Where we are
 
@@ -44,7 +48,9 @@ PixelLab trial: **0** generations left. The daily stack is empty and refills +5 
 
 ## Blocked / next
 
-Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off.
+Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off. The next build is `docs/PLAN.md` Phase B, then the valley ground. Do not start plains, the bayou, or the win until their research phase is on `main`.
+
+
 
 1. **Open Play check:** Night on this coast is ready for Play, not signed off. Pack and torch are signed off in Play: hover names, bag stays open, walking pool, double-click unequip. Fire-making is signed off in Play: early 7-wood lights can miss, and that is a motivator, not too tough. Woodcutting is signed off in Play. Foraging is signed off in Play: yield bands, eat cost 10→2, no stored berry quality. No heart regen is signed off in Play: day and fire do not heal; berries only. Death is signed off in Play: cream skull on the black, half the pack, wake at the last fire (or landing), one heart. The name box and the floppy mark are signed off in Play. The foliage slider range (−100% to +25%) needs a Play check. The three save files are signed off. The caribou on the trail is signed off in Play, and it now has walk art that still needs a look. The arctic hares on the moss are signed off in Play (beside the trail). Their idle is in; the hop cycle is not.
 2. **Ideas:** `docs/IDEAS.md` has no order. Each open slice has questions for the next agent. Those questions are not decisions. When asked what to work on next, read the mission, the decisions, the status, and that file, and choose one slice. Not in build until they say so. Night on this coast is in and ready for Play: torchlight pitch, scattered rime, the caribou’s bed, and a lit torch that slows the cold. The land bridge, when the water draws back, is pinned for a river mouth or a swampier biome. Pack / torch / pitch / stick are in and signed off in Play. Fishing pole, bones, more extras stay open. Pictures that are still boxes are `docs/ART.md`. Say a row there to spend generations. The caribou’s resting pose waits there.

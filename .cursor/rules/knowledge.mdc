@@ -7,7 +7,7 @@ alwaysApply: true
 
 This repo (`sam-dev-site/leif-in-the-wind`) is the source of truth. Chat memory is not.
 
-Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/DECISIONS.md`, and `docs/STATUS.md`.
+Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, `docs/DECISIONS.md`, and `docs/STATUS.md`. The loop is locked. Take the next unfinished phase in the plan. Do not reopen it.
 
 If you make a lasting decision, append `docs/DECISIONS.md` in the same session. Update `docs/STATUS.md` before you finish.
 
@@ -21,4 +21,4 @@ Prefer cloud agent + PR over loading this Surface Pro. Local machine is for play
 
 Slice docs do not override `docs/MISSION.md`. Features serve the named aesthetics (sensation, fantasy, discovery, submission), not only inland movement.
 
-`docs/IDEAS.md` is an unordered set of slices. When the owner asks what to work on next, read the mission, decisions, status, and that file, and choose one slice. Do not treat the ideas file as a queue. Logging a wish adds questions grounded in the game and does not invent answers. See `.cursor/rules/ideas.mdc`.
+`docs/IDEAS.md` is an unordered set of slices. Wishes that the loop already locked stay locked. When the owner asks what to work on next, the next unfinished phase in `docs/PLAN.md` is the answer, unless they asked for art, a bug, or a new wish. Do not treat the ideas file as a queue. Logging a wish adds questions grounded in the game and does not invent answers. See `.cursor/rules/ideas.mdc`.

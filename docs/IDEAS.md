@@ -2,7 +2,9 @@
 
 No order. Each open slice is one thing you could build. A heading only means those slices belong together. Nothing here is in build until you say so.
 
-When you ask what to work on next, read the mission, the decisions, the status, and this file, and choose one slice.
+The loop, the skills, the lands, the hearts, the raft, fishing, the continent map, and the win are locked in [LOOP.md](LOOP.md). The build order is [PLAN.md](PLAN.md). A slice marked **Locked** points there. Do not re-ask it. When you ask what to work on next, the next unfinished phase in the plan is the answer, unless you asked for art, a bug, or a new wish.
+
+When you ask what to work on next outside that plan, read the mission, the decisions, the status, and this file, and choose one open slice.
 
 Taking in a new idea includes a pass over this file. Combine lines that are the same slice. Split a line that is more than one slice. Drop a duplicate. Then add questions. The questions are for the next agent to ask. They are not decisions. Do not fill in an answer that was not said. Rule: `.cursor/rules/ideas.mdc`.
 
@@ -23,10 +25,7 @@ Taking in a new idea includes a pass over this file. Combine lines that are the 
 
 ## Hearts
 
-- **More hearts.** Pinned. Brainstorm later: how do you get more? Through tasks, new areas, or a skill?
-  - Ask: He wakes from death with one heart. If the maximum can grow, does that wake still give one?
-  - Ask: Admin already has a hearts slider for QC on this machine. Is a higher maximum the same number, or only something a player can earn?
-  - Ask: Berries are the only way a heart comes back. Does “more hearts” mean a higher maximum, or a heart that does not last?
+- **More hearts.** Locked. He starts at 3. The first sleep in each ladder land adds one to the maximum, cap 9. Death still wakes him at 1 heart and does not lower the maximum. Berries, and later a fish from the pack, are still the only heal. See [LOOP.md](LOOP.md).
 
 ## Night
 
@@ -39,9 +38,7 @@ On this coast. In the build, ready for Play, not signed off. Four slices. Dawn c
 
 ## Skills
 
-- **Leveling.** The shared curve for skills that are not in yet. Old School RuneScape’s experience curve is the inspiration ([Experience](https://oldschool.runescape.wiki/w/Experience)). Each skill has its own XP, and you get it by doing that skill. The step to the next level costs about 10% more XP than the step before it. From about level 30 the curve runs away: every 7 levels costs about as much as everything before them, so level 92 is half the XP of level 99. Their level 99 is 13,034,431 XP. That shape is what I like. Their grind is too long. Effort here from 0 to 99 starts at half of theirs, on that same kind of curve. What a level changes in the other systems is still open. It will matter. One case already dumped: how many logs a tree gives, or how fast a chop is. Woodcutting, fire-making, and foraging shipped on their own numbers in [SKILLS.md](SKILLS.md). It is not this curve.
-  - Ask: The three skills that are in have their own numbers. Does the next skill use this shared curve, or its own table the way they did?
-  - Ask: Perks are a separate slice. Does the level itself change the work, or only open a perk choice?
+- **Leveling.** Locked. Woodcutting, fire-making, and foraging keep the numbers in [SKILLS.md](SKILLS.md). Every skill that is not in yet uses the Old School RuneScape cumulative table, integer-divided by 2, so level 92 is half of level 99 and level 99 is 6,517,215. A level changes the work. Nothing in the journey checks a level. See [LOOP.md](LOOP.md).
 - **Perks.** To brainstorm. A menu like Skyrim’s perks: at certain levels you add a bonus.
   - Ask: Is the bonus on one skill’s levels, or one track for him?
   - Ask: A skills mark already opens a panel. Is the perk list that panel, or another screen?
@@ -51,28 +48,12 @@ On this coast. In the build, ready for Play, not signed off. Four slices. Dawn c
   - Ask: Foraging uses the leaf burst as a stand-in. Is its own animation a different picture, and what should fire-making show? Do not pick the picture.
   - Ask: The level line already says the skill and the new number. Does that line stay with the burst?
   - Ask: New pictures go through PixelLab. Generations are scarce. Is this worth a generation, or a picture already in the game?
-- **Fishing skill.**
-  - Ask: The water on the map is the sea to the south. Is that where he fishes, or water that is not in the game yet?
-  - Ask: The coast research names Atlantic fish as a group, not a catch list. Which fish, and does that need a research note before art or a spawn?
-  - Ask: Berries are the only food that heals. Is a catch eaten for hearts, or is it something else?
-  - Ask: A fishing pole is the worked example under Pack and crafting. Is this skill what that pole is for?
-  - Ask: A new skill needs a level-up animation. That is its own slice.
+- **Fishing skill.** Locked. It is learned on the river valley’s main stem, not the landing sea. The tool is a hand-line (1 stick + 1 pitch), not a bone pole. The catch is smelt, gaspereau, shad, eel, and salmon. A fish is eaten from the pack for half a heart. **E** still spends forage. The level-up line uses the leaf burst until a picture is named. See [LOOP.md](LOOP.md).
 
 ## The map
 
-- **Uncovering the map.** To brainstorm. The satisfaction loop is peeling fog off a big blank map until the topography and the natural features come together. The gameplay loop is: explore, learn one or two new skills in that place, use the skills he already has on the new ground, then move to the next place.
-  - The HUD keeps the minimap. Double-click it and a biome or regional map opens. Double-click that and the full world map opens. Fog is one memory: a speck uncovered on the minimap is uncovered on the biome map and on the world map.
-  - Ask: Today the minimap is a small circle in the bottom-left. A look opens about 6 tiles, the trail stays clear, and **R** wipes it. Death and the save keep that fog. Is that same memory what the two bigger maps show?
-  - Ask: A past decision said there is no map he holds, and `docs/research/journey.md` is a design file, not a screen. This brainstorm would reopen that. Do not build the screens until he says the brainstorm is done.
-  - Ask: Double-click already equips a torch in the pack. Is double-click on the minimap the same kind of click, and does the night keep spending hearts while a big map is open?
-  - Ask: Only one forest is playable. The river valley is researched and not walkable. What does the middle map show before a second place exists?
-  - Ask: The continent in the mission is the boreal shore, then river valleys, then grassland, then bayou, then south and west. Is the world map that spine, still mostly blank, or a picture that is not drawn yet? Do not invent the drawing.
-  - Ask: This forest already has woodcutting, fire-making, and foraging. For the next place, which one or two skills are new, and which old ones still apply? Do not assign them.
-  - Ask: **Longer map** is more of this same forest. This slice is the fog and the three zoom levels. They are not the same build.
-- **Longer map.** The walk inland stops at the north edge of the strip.
-  - Ask: The strip is built before he walks. Is more map more of that, still this same forest?
-  - Ask: The river valley is a different slice. Where does “more of this map” stop and that land start?
-  - Ask: A save stores the seed and where he stands. More land has to still load from that file.
+- **Uncovering the map.** Locked. The corner minimap stays. One click on it opens the six ladder bands. The same fog is on both. A band he has not entered is a blank block. The clock keeps running. It is not an item in the pack. Double-click stays equip in the pack. There is no third zoom. See [LOOP.md](LOOP.md).
+- **Longer map.** Locked as the next land, not more of this forest. The coast strip stays `chunk_y` 0 through −3. The river valley is the next band. A save still loads from the seed. See [LOOP.md](LOOP.md) and [PLAN.md](PLAN.md) Phases B and C.
 - **Tree and bush regrowth.** After a harvest, if that kind is gone from the area, a grow cycle starts on its own. A sapling appears, and after some time it is a tree. Bushes do the same. Today a chopped tree or a picked bush comes back from the seed when the file loads. This is a timed grow, not that.
   - Ask: How long is that time, in the days and nights the game already has? Do not invent the number.
   - Ask: How big is “the area”? A chunk, or what he can see?
@@ -99,24 +80,16 @@ On this coast. In the build, ready for Play, not signed off. Four slices. Dawn c
 
 ## The river
 
-- **River valley.** Land you can walk. Research is written. No art until you ask.
-  - Ask: The crossing is the raft slice. Does this slice stop at the bank?
-  - Ask: Plants and animals have to come from `docs/research/biomes/river_valley.md`. Do not add a species that is not in that file.
-  - Ask: The playable map is one forest, built before he walks. Is this the next place after that strip, or a later one?
-- **Land bridge when the water draws back.** Pinned. Not the first beach. Another biome: a river mouth, or something more swampy. The water recedes and he can cross. Not a coast night slice.
+- **River valley.** Locked as the next land after the coast strip. The first playable slice stops at the bank (Phase C). The raft is the phase after that. Species come from `docs/research/biomes/river_valley.md` and the spawn list in [LOOP.md](LOOP.md). Pictures stay boxes until you name a row in [ART.md](ART.md).
+- **Land bridge when the water draws back.** Pinned. Not the first beach. Another biome: a river mouth, or something more swampy. The water recedes and he can cross. Not a coast night slice. Not the raft.
   - Ask: The valley notes mention estuary bars that ships clear on the tide. The swamp is a later biome. Which land is this, when that land exists?
   - Ask: This coast’s clock is day and night. A real tide is not only at night. Does the crossing use that night clock?
   - Ask: Raft or timber bridge is its own slice. Is this the same crossing, or the water leaving on its own?
-- **Raft or timber bridge.** A way across the river once that land exists.
-  - Ask: Wood is what he carries today. Pack and crafting may add other materials. Is a raft still only wood, or does it wait until those extras exist?
-  - Ask: The river is not on the map yet. Does this wait for the river valley slice?
-  - Ask: Can he enter the water anywhere, or only at a spot?
-  - Ask: He said raft or timber bridge. Which, or both?
-  - Ask: If it breaks, what is left?
+- **Raft.** Locked. 12 wood, made in the pack, poled from a bank across the main stem, and it stays in the pack so he can come back. Brooks he wades. The landing sea refuses. A timber bridge left on the map is not this crossing. See [LOOP.md](LOOP.md).
 
 ## Creatures
 
-- **Animals.** Beaver and later species. The caribou on the trail is in. The arctic hare on the moss is in.
+- **Animals.** Beaver and later species. The caribou on the trail is in. The arctic hare on the moss is in. The valley’s first animal is locked: one white-tailed deer on the intervale, look-don’t-touch, same spook as the caribou. See [LOOP.md](LOOP.md).
   - Ask: Beaver is already in the coast research. Is that the next animal?
   - Ask: Caribou and hare are not hunted. Does a new animal stay that way?
   - Ask: Bear and wolf are in that research as later threats. Is a threat a different slice from an animal that only runs away?
@@ -136,15 +109,11 @@ Wood from a tree and berries from a bush stay as they are. They stay on the HUD 
 - **Rucksack.** In. Play signed off. Backpack between skills and floppy. Mouse area of stacks (cap 99). Hover names the stack. Clicks are the bag; Space and keys still work the woods while it is open. Floppy and **R** keep extras. Death: 5–10% random tax on extras; wood and berries still half.
 - **Drops (pitch and stick).** In. Stick 25% on a cleared branch. Pitch 10% on a fir/spruce fell (standing or log). Same pitch stack. Bushes: no extra.
 - **Torch.** In. Play signed off. Make 1 stick + 1 pitch. Double-click equip (faded + E). Space on a burning fire lights it. Walking pool about half the campfire. Light only, one night, single use. PixelLab icons wait.
-- **Crafting (more recipes).** Work backwards from the next thing. Fishing pole stays the worked example for later.
-  - Ask: Is the fishing pole the next craft? Fishing is already its own slice.
-  - Ask: Does crafting unlock Fishing, or can Fishing start without a crafted tool?
-  - Ask: The axe is already in hand, and a fire is already wood plus **F**. Does crafting make things those do not, only?
-  - Ask: Is crafting a screen on the rucksack, or the buttons he already uses?
-  - Ask: The raft is its own slice. Do not fold it in unless he says they are the same.
-- **Bones.** Still open. The fishing-pole example needs a bone.
-  - Ask: How does he get a bone?
-  - Ask: Caribou and hare are not hunted. Is a bone from them, from something else, or from a source that is not an animal? Do not invent the source.
+- **Crafting (more recipes).** The hand-line and the raft are locked in [LOOP.md](LOOP.md). They are pack buttons, like the torch. They make things the axe and **F** do not. Further recipes stay open.
+  - Ask: The axe is already in hand, and a fire is already wood plus **F**. A new recipe has to be something those do not already do.
+- **Bones.** Still open. The hand-line does not need one. The locked fishing craft is stick and pitch.
+  - Ask: How does he get a bone, if a later recipe still wants one?
+  - Ask: Caribou, hare, and the valley deer are not hunted. Is a bone from them, from something else, or from a source that is not an animal? Do not invent the source.
 - **More extras.** Birch bark and spruce-root cord are attested at L’Anse aux Meadows but not spawned yet.
   - Ask: Is birch or cord the next drop, and what does it craft?
   - Ask: Do not invent feather, vine, acorn, or nut on this coast.

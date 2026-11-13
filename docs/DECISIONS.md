@@ -2,6 +2,20 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The loop, the lands, and the win are locked
+
+**Decision:** The game is three beats: a night (gather, fire or a light, eat, sleep or die with skills kept), a place (use the skills he has, learn the one new thing that land teaches, sleep once), and the journey inland. The win is the first step onto the western shore. The line is **The other sea.** The save continues. Level 99, a house, a town, and a filled map are not the win. Death stays a tax, not a wiped run.
+
+The six lands, in mission order, run inland from the landing sea (decreasing `chunk_y`): `coastal_north`, `river_valley`, `inland_plains`, `bayou`, the later river country, the western shore. The landing sea is not the road south. Bands and chunk rows are in `docs/LOOP.md`. Empty lands stay ungenerated until their phase.
+
+Woodcutting, fire-making, and foraging stay on their signed-off numbers. New skills use the Old School RuneScape cumulative table, integer-divided by 2 (level 99 is 6,517,215; level 92 is half of that). A level changes the work. Nothing in the journey checks a level. Fishing is the valley’s new skill: a hand-line of 1 stick + 1 pitch, main-stem only, the five river fish named in `docs/LOOP.md`, eaten from the pack. The crossing is a carried raft that costs 12 wood and is poled back and forth. No bone, no hunt, no bridge left on the ground. Maximum hearts start at 3 and gain one on the first sleep in each ladder land, cap 9. One click on the minimap opens the continent bands. The clock keeps running.
+
+The build order is `docs/PLAN.md`, one phase per PR, research before spawn. Night on this coast stays its own Play. Detail lives in `docs/LOOP.md`. Agents do not reopen this lock. A new wish still goes in `docs/IDEAS.md`.
+
+**Why:** The coast skills, the night, and the death are already in. The open ideas were the same questions every time: what the loop is, which skills the next land teaches, what winning is. He asked to lock them so an agent can build for a while without another brainstorm.
+
+**Rejected:** More of this same forest as the next land. Fishing the landing sea. A bone hook, or hunting the caribou, the hare, or the deer. A timber bridge saved into the world. Halving or otherwise retuning the three coast skills. A perk menu as the way levels matter. A quest, an NPC, or a town as the win. Walking into the landing sea to “go south.” Three stacked map screens. Pausing the night while the continent map is open. Inventing plains, bayou, or Pacific species in this lock. PixelLab in the lock PR.
+
 ## 2026-11-03 — Night on this coast is four slices, ready for Play
 
 **Decision:** `coastal_north` night now has four slices, in the build and not signed off. A lit torch shows at most five balsam glints on standing fir or spruce; Space takes one pitch and does not chop or grant woodcutting XP. Day fells still drop pitch at 10%. Rime is pale flecks on open moss and trail, at least four tiles apart, not on trunks or the bed, a look only. The caribou walks to a moss or peat cell 3–6 tiles off the trail; walking does not spook it; a jog at 4 tiles does. Dawn puts it back on the trail. A lit torch makes the same half-heart take 10 seconds instead of 5, away from a fire. That is a rule on the torch, not the perk menu. The glint, the fleck, and the bed mark are drawn in the repo. The bedded pose waits as one still. The land bridge, when the water draws back, stays pinned for a river mouth or a swampier biome.
