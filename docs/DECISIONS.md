@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — Fishing uses the half-size table
+
+**Decision:** Phase E of `docs/PLAN.md`. The hand-line is 1 stick and 1 pitch, cap 1, and it takes the one held-tool slot. Space on a bank facing the main stem casts. A prop in front still chops or picks. A brook and the landing sea do not. The catch is smelt, gaspereau, shad, eel, or salmon, at the weights in `docs/LOOP.md`. A miss spends nothing. Fish are eaten from the pack for half a heart. **E** still spends forage. Fishing XP is the Old School total integer-divided by 2. Woodcutting, fire-making, and foraging stay on the coast table, and coast level 99 stays 341,036. The QC slider does not rewrite the fishing anchors.
+
+**Why:** The raft gets him across. This is the skill that valley is there to teach, and the coast numbers were already signed off.
+
+**Rejected:** Fishing the landing sea. A bone hook. Sturgeon or striped bass. Putting fish into the forage count. Retuning the three coast skills onto the half-size table.
+
 ## 2026-11-12 — The crossing is a carried raft
 
 **Decision:** Phase D of `docs/PLAN.md`. Make raft spends 12 wood and caps at one. It is the held tool, the same slot as the torch. Space on a bank facing the main stem poles him to the far bank, up to 24 tiles of water. Wider than that says "The river is too wide here." A brook says "He can wade this." The landing sea does not launch. The raft stays in the pack, so the shore file and **R** keep it. Death’s extras tax uses the same rounding as any other extra. No bridge is written into the world.

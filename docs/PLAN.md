@@ -82,7 +82,7 @@ The first player-visible land. He can walk to the bank. He cannot cross yet. He 
 
 **Tests:** the four XP anchors (41, 6681, 3258626, 6517215). Coast woodcutting level 99 is still 341036. Catch weights sum to 100 and reject sturgeon. A miss spends nothing. Eat heals half a heart and does not change forage. **E** still spends forage. The sea and a brook refuse a cast. A facing prop still chops or picks.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The hand-line is in this branch. The fishing icon stays empty until the row in `docs/ART.md` is named.
 
 ## Phase F — Hearts and the continent map
 

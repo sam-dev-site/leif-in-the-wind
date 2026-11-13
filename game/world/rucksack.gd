@@ -8,6 +8,7 @@ const ID_PITCH := "pitch"
 const ID_STICK := "stick"
 const ID_TORCH := "torch"
 const ID_RAFT := "raft"
+const ID_LINE := "line"
 const STICK_CHANCE := 0.25
 const PITCH_CHANCE := 0.10
 const TORCH_STICK := 1
@@ -35,6 +36,8 @@ static func display_name(id: String) -> String:
 			return "Torch"
 		ID_RAFT:
 			return "Raft"
+		ID_LINE:
+			return "Hand-line"
 		_:
 			return id.capitalize()
 
@@ -109,12 +112,32 @@ func craft_raft(supplies: Supplies) -> bool:
 	return true
 
 
+func can_craft_line() -> bool:
+	return total_of(ID_LINE) < 1 and total_of(ID_STICK) >= TORCH_STICK and total_of(ID_PITCH) >= TORCH_PITCH
+
+
+func craft_line() -> bool:
+	if total_of(ID_LINE) >= 1 or not can_craft_line():
+		return false
+	if not _spend(ID_STICK, TORCH_STICK):
+		return false
+	if not _spend(ID_PITCH, TORCH_PITCH):
+		add(ID_STICK, TORCH_STICK)
+		return false
+	add(ID_LINE, 1)
+	return true
+
+
 func is_torch_equipped() -> bool:
 	return _equipped_id() == ID_TORCH
 
 
 func is_raft_equipped() -> bool:
 	return _equipped_id() == ID_RAFT
+
+
+func is_line_equipped() -> bool:
+	return _equipped_id() == ID_LINE
 
 
 func equip_torch_at(index: int) -> bool:
@@ -131,7 +154,7 @@ func equip_held_at(index: int) -> bool:
 	if index < 0 or index >= stacks.size():
 		return false
 	var id := str(stacks[index].get("id", ""))
-	if id != ID_TORCH and id != ID_RAFT:
+	if id != ID_TORCH and id != ID_RAFT and id != ID_LINE:
 		return false
 	if int(stacks[index].get("count", 0)) < 1:
 		return false
@@ -276,7 +299,7 @@ func _equipped_id() -> String:
 	if int(stack.get("count", 0)) < 1:
 		return ""
 	var id := str(stack.get("id", ""))
-	if id == ID_TORCH or id == ID_RAFT:
+	if id == ID_TORCH or id == ID_RAFT or id == ID_LINE:
 		return id
 	return ""
 
@@ -335,6 +358,27 @@ func _spend(id: String, amount: int) -> bool:
 		else:
 			i += 1
 	return left == 0
+
+
+func eat_fish_at(index: int, supplies: Supplies) -> String:
+	if supplies == null or index < 0 or index >= stacks.size():
+		return ""
+	var id := str(stacks[index].get("id", ""))
+	if not Skills.is_fish(id):
+		return ""
+	if supplies.hearts + 0.001 >= supplies.hearts_max:
+		return "full"
+	var count := int(stacks[index].get("count", 0)) - 1
+	if count < 1:
+		stacks.remove_at(index)
+		if equipped_index == index:
+			equipped_index = -1
+		elif equipped_index > index:
+			equipped_index -= 1
+	else:
+		stacks[index]["count"] = count
+	supplies.hearts = snappedf(minf(supplies.hearts_max, supplies.hearts + Supplies.HEART_STEP), Supplies.HEART_STEP)
+	return "eat:" + id
 
 
 func _prune_empty() -> void:

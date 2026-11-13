@@ -15,6 +15,7 @@ func _init() -> void:
 	_test_inland_bands_and_the_coast_strip()
 	_test_river_valley_ground()
 	_test_raft()
+	_test_fishing()
 	_test_shore_south_trail_inland()
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
@@ -378,6 +379,151 @@ func _test_raft() -> void:
 	var sea_reason := world.try_pole_raft()
 	_expect(sea_reason == "sea", "the landing sea refuses the raft")
 	_expect(world.leif().global_position.distance_to(shore_px) < 1.0, "he stays off the sea")
+	world.free()
+
+
+func _test_fishing() -> void:
+	print("fishing")
+	_expect(Skills.journey_xp_for_level(2) == 41, "journey level 2 is 41")
+	_expect(Skills.journey_xp_for_level(30) == 6681, "journey level 30 is 6681")
+	_expect(Skills.journey_xp_for_level(92) == 3258626, "journey level 92 is 3258626")
+	_expect(Skills.journey_xp_for_level(99) == 6517215, "journey level 99 is 6517215")
+	_expect(Skills.xp_for_level(99) == 341036, "coast woodcutting level 99 is still 341036")
+	_expect(Skills.fish_weight_total() == 100, "catch weights sum to 100")
+	var counts := {"smelt": 0, "gaspereau": 0, "shad": 0, "eel": 0, "salmon": 0}
+	var sturgeon := false
+	for n in 100:
+		var species := Skills.fish_species(n)
+		if species == "sturgeon" or species == "striped_bass" or not counts.has(species):
+			sturgeon = true
+		else:
+			counts[species] = int(counts[species]) + 1
+	_expect(not sturgeon, "the table rejects sturgeon")
+	_expect(int(counts["smelt"]) == 40 and int(counts["gaspereau"]) == 30, "smelt and gaspereau keep their weights")
+	_expect(int(counts["shad"]) == 12 and int(counts["eel"]) == 10 and int(counts["salmon"]) == 8, "shad, eel, and salmon keep their weights")
+	var bag := Rucksack.new()
+	var hands := Supplies.new()
+	_expect(not bag.craft_line(), "a line needs a stick and pitch")
+	bag.add(Rucksack.ID_STICK, 1)
+	bag.add(Rucksack.ID_PITCH, 1)
+	_expect(bag.craft_line(), "one stick and one pitch make a line")
+	_expect(bag.total_of(Rucksack.ID_LINE) == 1, "the line is one stack")
+	_expect(bag.total_of(Rucksack.ID_STICK) == 0 and bag.total_of(Rucksack.ID_PITCH) == 0, "the line spends the recipe")
+	bag.add(Rucksack.ID_STICK, 1)
+	bag.add(Rucksack.ID_PITCH, 1)
+	_expect(not bag.craft_line(), "a second line is refused")
+	_expect(bag.equip_held_at(0), "the line equips")
+	_expect(bag.is_line_equipped(), "the line is the held tool")
+	var tree := _prop(Vector2i(0, 0), "tree", "fir")
+	var interact := Interact.new()
+	interact.supplies = Supplies.new()
+	interact.skills = Skills.new()
+	interact.pack = bag
+	interact.biome = _coast()
+	var chopped := interact.use_on(tree)
+	_expect(chopped == "bite" or chopped == "chop", "a facing tree still chops")
+	_expect(bag.total_of(Rucksack.ID_LINE) == 1, "a chop does not spend the line")
+	_expect(bag.total_of("smelt") == 0, "a chop does not catch a fish")
+	tree.free()
+	interact.free()
+	var world := _boot_run(0, {})
+	var start := Vector2i(4, ChunkGenerator.STEM_SOUTH + 1)
+	for tx in range(2, 20):
+		if world.is_blocked_pixel(ChunkGenerator.cell_center(Vector2i(tx, start.y))):
+			continue
+		start.x = tx
+		break
+	world.pack.add(Rucksack.ID_STICK, 1)
+	world.pack.add(Rucksack.ID_PITCH, 1)
+	_expect(world.pack.craft_line(), "the pack crafts the line")
+	_expect(world.pack.equip_held_at(0), "he holds the line")
+	world.leif().set_facing("north")
+	world.leif().global_position = ChunkGenerator.cell_center(start)
+	world.skills.fish_override = 0
+	var before_xp := world.skills.fishing_xp
+	var missed := world.try_cast()
+	_expect(missed == "miss", "a miss is a cast")
+	_expect(world.skills.fishing_xp == before_xp, "a miss grants no xp")
+	_expect(world.pack.total_of(Rucksack.ID_LINE) == 1, "a miss does not spend the line")
+	_expect(world.pack.total_of("smelt") + world.pack.total_of("salmon") == 0, "a miss adds no fish")
+	_expect(world._hint == World.FISH_MISS, "a miss says the line came back empty")
+	world.skills.fish_override = 1
+	var forage_before := world.supplies.forage
+	var caught := world.try_cast()
+	_expect(caught == "catch", "a hit lands a fish")
+	_expect(world.skills.fishing_xp == Skills.XP_PER_CAST, "a catch grants 20")
+	var held_fish := ""
+	for id in Skills.FISH_IDS:
+		if world.pack.total_of(id) > 0:
+			held_fish = id
+	_expect(held_fish != "", "the catch is one of the five")
+	_expect(world.pack.total_of(held_fish) == 1, "level 1 pays one fish")
+	_expect(world.supplies.forage == forage_before, "a catch does not change forage")
+	world.skills.fishing_xp = 21
+	_expect(world.try_cast() == "catch", "the next cast still hits")
+	_expect(world.skills.fishing_level() == 2, "41 xp is fishing level 2")
+	_expect(world._hint == "Fishing is now 2.", "the line says fishing is now 2")
+	world.supplies.hearts = 2.0
+	world.supplies.hearts_max = 3.0
+	world.supplies.forage = 10
+	var fish_left := world.pack.total_of(held_fish)
+	_expect(world.supplies.try_eat(world.skills.eat_cost()) == "eat", "E still spends forage")
+	_expect(world.supplies.forage == 0, "E spends the berries")
+	_expect(world.pack.total_of(held_fish) == fish_left, "E does not spend the fish")
+	world.supplies.hearts = 2.0
+	var fish_index := -1
+	for i in world.pack.stack_count():
+		if str(world.pack.stacks[i].get("id", "")) == held_fish:
+			fish_index = i
+	var ate := world.pack.eat_fish_at(fish_index, world.supplies)
+	_expect(ate.begins_with("eat:"), "Eat spends a fish")
+	_expect(is_equal_approx(world.supplies.hearts, 2.5), "a fish heals half a heart")
+	_expect(world.supplies.forage == 0, "eating a fish does not change forage")
+	_expect(world.pack.total_of(held_fish) == fish_left - 1, "Eat spends one fish")
+	var kept_fish := world.pack.total_of(held_fish)
+	world.pack.add(held_fish, 1)
+	world.supplies.hearts = world.supplies.hearts_max
+	var full_index := -1
+	for i in world.pack.stack_count():
+		if str(world.pack.stacks[i].get("id", "")) == held_fish:
+			full_index = i
+	var full := world.pack.eat_fish_at(full_index, world.supplies)
+	_expect(full == "full", "full hearts refuse the fish")
+	_expect(world.pack.total_of(held_fish) == kept_fish + 1, "a refused eat spends nothing")
+	var shore := Vector2i(8, ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - 1)
+	var shore_px := ChunkGenerator.cell_center(shore)
+	world.leif().set_facing("south")
+	world.leif().global_position = shore_px
+	_expect(world.try_cast() == "sea", "the sea refuses a cast")
+	_expect(world.leif().global_position.distance_to(shore_px) < 1.0, "a refused cast leaves him there")
+	var brook_x := -1
+	for tx in ChunkGenerator.WIDTH:
+		if world.generator.peek_ground(world.world_seed, tx, -220) == ChunkGenerator.TILE_BROOK:
+			brook_x = tx
+			break
+	if brook_x > 0:
+		var beside := ChunkGenerator.cell_center(Vector2i(brook_x - 1, -220))
+		world.leif().set_facing("east")
+		world.leif().global_position = beside
+		_expect(world.try_cast() == "wade", "a brook refuses a cast")
+		_expect(world._hint == World.RAFT_WADE, "the brook still says he can wade this")
+	world.skills.fishing_xp = 41
+	world.pack.add("smelt", 2)
+	var smelt_kept := world.pack.total_of("smelt")
+	var shot := world.capture_walk()
+	_expect(int(shot["fishing_xp"]) == 41, "the floppy stores fishing")
+	world.skills.fishing_xp = 0
+	world.pack.clear()
+	world.apply_walk(shot)
+	_expect(world.skills.fishing_xp == 41, "continue restores fishing")
+	_expect(world.pack.total_of("smelt") == smelt_kept, "continue restores the fish")
+	var old := shot.duplicate(true)
+	old.erase("fishing_xp")
+	world.apply_walk(old)
+	_expect(world.skills.fishing_xp == 0, "an old file loads fishing at 0")
+	world.skills.fishing_xp = 80
+	world.rebuild()
+	_expect(world.skills.fishing_xp == 80, "R keeps the fishing xp")
 	world.free()
 
 
@@ -1860,14 +2006,18 @@ func _test_floppy_writes_the_walk() -> void:
 			_expect(panel != null and panel.visible, "the skills mark opens a panel")
 			_expect(panel.position.y >= 30.0, "the panel sits under the marks")
 			_expect(panel.position.x >= 370.0, "the panel stays in the right column")
-			_expect(panel.size.x <= 100.0 and panel.size.y <= 64.0, "the panel is three small rows")
-			_expect(panel.size.y >= 54.0, "the panel has room for foraging")
+			_expect(panel.size.x <= 100.0 and panel.size.y <= 80.0, "the panel is four small rows")
+			_expect(panel.size.y >= 72.0, "the panel has room for fishing")
 			_expect((hud._skill_level as Label).text == "1", "the panel shows woodcutting")
 			_expect(hud.get_node_or_null("SkillsPanel/FiremakingLevel") != null, "fire-making has a row")
 			_expect((hud._fire_level as Label).text == "1", "the panel shows fire-making")
 			_expect(hud.get_node_or_null("SkillsPanel/ForagingLevel") != null, "foraging has a row")
 			_expect((hud._forage_level as Label).text == "1", "the panel shows foraging")
-			_expect(hud._hover_tip == "25/83|40/83|10/83", "hover keeps three skill steps")
+			_expect(hud.get_node_or_null("SkillsPanel/FishingLevel") != null, "fishing has a row")
+			_expect((hud._fish_level as Label).text == "1", "the panel shows fishing")
+			_expect(hud._fish_level.get_parent().get_node_or_null("FishingIcon") != null, "fishing has an icon slot")
+			_expect((hud._fish_level.get_parent().get_node_or_null("FishingIcon") as TextureRect).texture == null, "the fishing icon is still empty")
+			_expect(hud._hover_tip == "25/83|40/83|10/83|0/41", "hover keeps the skill steps")
 			_expect(str(panel.tooltip_text) == "", "the native tooltip stays off")
 			var hover := hud.get_node_or_null("SkillHover") as Label
 			_expect(hover != null and hover.text == "25/83", "the hover chip has the woodcutting step")

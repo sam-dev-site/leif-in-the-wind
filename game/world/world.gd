@@ -76,6 +76,7 @@ const CREAM := Color(0.95, 0.93, 0.86)
 const DEATH_HINT := "The cold took him. Half the pack is gone."
 const RAFT_WIDE := "The river is too wide here."
 const RAFT_WADE := "He can wade this."
+const FISH_MISS := "Nothing takes the line."
 
 
 func _ready() -> void:
@@ -125,6 +126,8 @@ func open_play() -> void:
 	add_child(_interact)
 	if _hud != null:
 		_hud.pack_changed.connect(_on_pack_changed)
+		if not _hud.fish_eaten.is_connected(_on_fish_eaten):
+			_hud.fish_eaten.connect(_on_fish_eaten)
 		_hud.bind_pack(pack)
 	_music = AudioStreamPlayer.new()
 	_music.bus = "Master"
@@ -327,6 +330,15 @@ func _on_pack_changed() -> void:
 	_refresh_hud()
 
 
+func _on_fish_eaten(result: String) -> void:
+	if result == "full":
+		_hint = "Hearts are already full."
+	elif result.begins_with("eat:"):
+		var id := result.substr(4)
+		_hint = "Ate %s. +%s heart." % [Skills.fish_name(id), Supplies.wood_label(Supplies.HEART_STEP)]
+	_refresh_hud()
+
+
 func torch_light() -> PointLight2D:
 	return _torch_light
 
@@ -498,6 +510,7 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		skills.woodcutting_xp = 0
 		skills.firemaking_xp = 0
 		skills.forage_xp = 0
+		skills.fishing_xp = 0
 		pack.clear()
 		var h := float(AdminSettings.hearts)
 		supplies.hearts = h
@@ -506,6 +519,7 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
 		skills.forage_xp = int(snapshot.get("forage_xp", 0))
+		skills.fishing_xp = int(snapshot.get("fishing_xp", 0))
 		pack.from_save(snapshot.get("pack", {}))
 	if snapshot.has("name"):
 		_save_name = ShoreSave.clean_name(str(snapshot["name"]))
@@ -626,6 +640,7 @@ func capture_walk() -> Dictionary:
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
 		"forage_xp": skills.forage_xp,
+		"fishing_xp": skills.fishing_xp,
 		"pack": pack.to_save(),
 		"elapsed": elapsed,
 		"fog": fog_cells,
@@ -675,6 +690,7 @@ func apply_walk(data: Dictionary) -> void:
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
 	skills.firemaking_xp = int(data.get("firemaking_xp", 0))
 	skills.forage_xp = int(data.get("forage_xp", 0))
+	skills.fishing_xp = int(data.get("fishing_xp", 0))
 	pack.from_save(data.get("pack", {}))
 	if _hud != null:
 		_hud.bind_pack(pack)
@@ -1253,6 +1269,42 @@ func try_pole_raft() -> String:
 	if reason == "sea":
 		return "sea"
 	return ""
+
+
+## Cast the equipped hand-line. The line is not spent. Fish do not enter the forage count.
+func try_cast() -> String:
+	if pack == null or not pack.is_line_equipped():
+		return ""
+	if _player == null or not is_instance_valid(_player):
+		return ""
+	var origin := ChunkGenerator.world_cell_at(_player.global_position)
+	var dir := Interact.facing_vector(_player.facing_name())
+	var step := Vector2i(int(round(dir.x)), int(round(dir.y)))
+	var result := ChunkGenerator.raft_landing(origin, step, _sample_world_tile)
+	var water := str(result.get("reason", ""))
+	if water == "wade":
+		_hint = RAFT_WADE
+		_refresh_hud()
+		return "wade"
+	if water == "sea":
+		return "sea"
+	if water != "cross":
+		return ""
+	if not skills.roll_fish():
+		_hint = FISH_MISS
+		_refresh_hud()
+		return "miss"
+	var species := Skills.fish_species(skills.rng.randi_range(0, 99))
+	var caught := Skills.fish_yield(skills.fishing_level())
+	pack.add(species, caught)
+	var levels := skills.add_fishing_xp(Skills.XP_PER_CAST)
+	if levels > 0:
+		_hint = "Fishing is now %d." % skills.fishing_level()
+		_spawn_leaves()
+	else:
+		_hint = "Caught %s." % Skills.fish_name(species)
+	_refresh_hud()
+	return "catch"
 
 
 func _try_eat() -> void:
