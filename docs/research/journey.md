@@ -20,7 +20,7 @@ Fantasy is **journey length**. The walk is shortened. The places are not invente
 | 1 | `river_valley` | Saint John River valley and inner Southwest Miramichi, New Brunswick | **Researched.** Spawn in `docs/PLAN.md` Phase C. Empty `.tres` until then | Hardwood floodplain, intervale silt over clay, a river you cannot ford. Carried raft |
 | 2 | `inland_plains` | Rice Lake Plains, Oak Ridges Moraine, Ontario: tallgrass and black-oak savanna. Not the Madawaska highlands. | **Researched.** Spawn is Phase H, and that phase stops: no travel tool was named. Empty `.tres` until a later pass opens it on purpose | Grass, scattered oaks, eastern elk. Iron is not an 11th-century craft here |
 | 3 | `bayou` | Atchafalaya Basin, south-central Louisiana: baldcypress and water tupelo. Not a northern swamp with cypress pasted on. | **Spawned** at `chunk_y` −12..−15. Pictures are boxes. The plains gap is not generated | Flooded forest, many channels, muscadine and pecan. No new animal in the first spawn |
-| 4 | Later river country | One real corridor from the Maritimes into the later eastern rivers | **No file yet.** Phase K names it | The main stem is a barrier. Tributaries may be waded. No species until that file |
+| 4 | `river_country` | Connecticut River, from the Canadian border to Long Island Sound. Floodplain and terraces, not the spruce source pond and not the tidal mouth. | **Researched.** Spawn is Phase L. No `.tres` until then | Cottonwood, sycamore, chestnut, shagbark. One stem. No new skill |
 | 5 | Western shore | Compressed crossing toward the Pacific | **Long aim.** Phases M–N | The win is the first step onto that shore. No species list yet |
 
 Do not add rows by inventing a desert, a jungle, or a town. A new row needs a research pass with sources, the same way `coastal_north` and `river_valley` were done.
@@ -45,13 +45,13 @@ After that, the compressed walk keeps using **rivers as the road**, not a fantas
 
 1. **Leave the island** — the landing is Newfoundland. The next researched land is already mainland river country, not another spruce beach.
 2. **Saint John (`Wəlastəkw`) and the Miramichi** — first named crossings. Brooks are not those rivers.
-3. **Later south** — keep the same rule when those regions are researched: name a real corridor, then compress the miles. Do not spawn “the Mississippi” or “the Ohio” until a research file says so.
+3. **Connecticut River** — the named later river. One stem, not a second Mississippi and not the Ohio. Do not spawn it until Phase L.
 4. **West** — a later pass. Do not borrow California oaks or plains bison into an empty stub.
 
 ## What is not next
 
 - Phase B is the band table. A playable `river_valley` chunk waits for Phase C in `docs/PLAN.md`.
-- `inland_plains` is researched and stays empty. Phase H does not spawn it. `bayou` is spawned, and a walk from the valley does not reach it. No west-shore species until that research is on `main`.
+- `inland_plains` is researched and stays empty. Phase H does not spawn it. `bayou` is spawned, and a walk from the valley does not reach it. `river_country` is researched and stays unbuilt until Phase L. No west-shore species until that research is on `main`.
 - No PixelLab for maple, grape, or a map UI. Cloud leaves boxes and adds the `docs/ART.md` row.
 - No villages, meetings, or combat (the valley was already lived in; that is a later design pass)
 - No baked overworld scene that would replace seed / chunk / biome-as-data

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The later river is the Connecticut, and it teaches no new skill
+
+**Decision:** Phase K of `docs/PLAN.md`. `river_country` is the Connecticut River: eastern cottonwood and American sycamore on the floodplain, American chestnut and shagbark hickory on the terrace, and the chestnut nut as the food. One stem he does not wade. Tributaries he can. The raft he already carries is the crossing. The hand-line does not gain a water. No new animal. No resource until the spawn phase. The ladder name stays River country.
+
+**Why:** The mission asked for the southbound river into the later eastern states. This is New England’s long river from the Canadian border to Long Island Sound, and its terrace is the chestnut woods the Saint John does not have. The file does not support a new verb, so the next phase keeps the old skills.
+
+**Rejected:** The Ohio, and a second Mississippi beside the bayou. The Hudson estuary. The Penobscot, which is still spruce-fir. A tide clock, a dam, and a new fishery. Cypress on this river.
+
 ## 2026-11-12 — The bayou is drawn as three channels, not a measured depth
 
 **Decision:** Phase J of `docs/PLAN.md`. `chunk_y` −12 through −15 generates `bayou`. The plains rows −11 through −8 stay unbuilt, so a walk from the valley does not reach the swamp yet. Each of three north–south channels is one open water tile, with one tupelo-water tile on its east and one walkable cypress tile on its west. The rest is higher ground: overcup oak, water hickory, and pecan. Muscadine is on the cypress margin. The raft can cross that water. The hand-line cannot fish it. No alligator. Color boxes. The one-tile width is the drawing, because the research file gave no depth.

@@ -131,11 +131,11 @@ Only after Phase I is on `main`. Generate `chunk_y` −12..−15 from `docs/rese
 
 Docs only. Pick one real southbound corridor from the Maritimes into the later eastern rivers. Name it in the file. That name becomes the biome id. Add the resource only as an empty stub if the tests need the id to resolve. No species on it.
 
-**Done when:** the research file has sources and a draft signature list. Not a Play.
+**Done when:** the research file has sources and a draft signature list. Not a Play. This pass names the Connecticut River. The id is `river_country`. No resource yet.
 
 ## Phase L — That band
 
-Only after Phase K is on `main`. Generate `chunk_y` −16..−19 from that file. One new thing the file supports, or old skills on the new species if the file does not support a new verb. Do not invent a second Mississippi.
+Only after Phase K is on `main`. Generate `chunk_y` −16..−19 from `docs/research/biomes/river_country.md` only. That file supports old woodcutting and old foraging on cottonwood, sycamore, chestnut, shagbark hickory, and the chestnut nut. It does not support a new skill, a new boat, or a new catch. One stem he does not wade, and tributaries he can. Do not invent a tile width, a dam, or a tide. Do not invent a second Mississippi. Color boxes. `docs/ART.md` rows. No new animal.
 
 **Done when:** Actions is green. STATUS says **ready for Play**.
 
