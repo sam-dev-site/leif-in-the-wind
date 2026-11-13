@@ -37,7 +37,7 @@ Invisible in Play. The coast strip still generates, and only the coast strip.
 
 **Tests:** (0, 0) is `coastal_north`. A tile in chunk_y −4 is `river_valley`. A tile in chunk_y −8 is `inland_plains`. A tile in chunk_y −12 is `bayou`. The strip builder still only builds chunk_y 0..−3.
 
-**Done when:** those tests pass and a walk on the coast is the same woods.
+**Done when:** those tests pass and a walk on the coast is the same woods. The band lookup and the strip guard are in. Treat this phase as done once that change is on `main`.
 
 **Not a Play.**
 

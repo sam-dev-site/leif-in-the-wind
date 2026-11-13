@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — Inland bands are named, and the coast strip still stops
+
+**Decision:** `biome_id_at` reads the ladder rows from `docs/LOOP.md`. Chunk rows 0 through −3, and every row south of the landing, stay `coastal_north`. The landing sea is that coast’s water, not a new biome id. Rows −4 through −7 are `river_valley`, −8 through −11 are `inland_plains`, −12 through −15 are `bayou`. Farther inland has no id. The world still builds only the coast strip (`chunk_x` −1..1, `chunk_y` 0..−3). Empty spawn tables stay empty.
+
+**Why:** The lock’s next phase is a map of the lands before any of them are walkable. A walk on this coast has to stay the same woods.
+
+**Rejected:** Generating the valley in this phase. A separate ocean biome. Fifth and sixth biome resources before their research files exist.
+
 ## 2026-11-12 — The loop, the lands, and the win are locked
 
 **Decision:** The game is three beats: a night (gather, fire or a light, eat, sleep or die with skills kept), a place (use the skills he has, learn the one new thing that land teaches, sleep once), and the journey inland. The win is the first step onto the western shore. The line is **The other sea.** The save continues. Level 99, a house, a town, and a filled map are not the win. Death stays a tax, not a wiped run.

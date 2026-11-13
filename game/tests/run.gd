@@ -12,6 +12,7 @@ func _init() -> void:
 	_test_same_seed_same_chunk()
 	_test_different_seed_changes_woods()
 	_test_origin_biome_is_coastal_north()
+	_test_inland_bands_and_the_coast_strip()
 	_test_shore_south_trail_inland()
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
@@ -117,6 +118,38 @@ func _test_origin_biome_is_coastal_north() -> void:
 	_expect(catalog.get_biome(&"river_valley") != null, "river_valley stub loads")
 	_expect(catalog.get_biome(&"inland_plains") != null, "inland_plains stub loads")
 	_expect(catalog.get_biome(&"bayou") != null, "bayou stub loads")
+
+
+func _test_inland_bands_and_the_coast_strip() -> void:
+	print("inland bands stay off the coast strip")
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var height := ChunkGenerator.HEIGHT
+	_expect(catalog.biome_id_at(0, 0) == &"coastal_north", "the landing tile is coastal_north")
+	_expect(catalog.biome_id_at(5, -3 * height + 47) == &"coastal_north", "the north edge of the coast strip is still coast")
+	_expect(catalog.biome_id_at(0, height) == &"coastal_north", "south of the landing stays the coast's sea")
+	_expect(catalog.biome_id_at(10, -4 * height + 20) == &"river_valley", "chunk_y -4 is the river valley")
+	_expect(catalog.biome_id_at(0, -7 * height) == &"river_valley", "chunk_y -7 is still the river valley")
+	_expect(catalog.biome_id_at(0, -8 * height) == &"inland_plains", "chunk_y -8 is the interior")
+	_expect(catalog.biome_id_at(0, -12 * height + 47) == &"bayou", "chunk_y -12 is the bayou")
+	_expect(catalog.biome_id_at(0, -15 * height) == &"bayou", "chunk_y -15 is still the bayou")
+	_expect(catalog.biome_id_at(0, -16 * height) == &"", "past the bayou there is no biome yet")
+	var world := World.new()
+	world.begin_staged_boot()
+	for _i in 12:
+		world.stage_boot_step()
+	_expect(world.boot_chunk_count() == 12, "the coast strip is still 12 chunks")
+	var outside := false
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		if chunk.chunk_y < World.STRIP_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
+			outside = true
+		if chunk.chunk_x < World.STRIP_WEST or chunk.chunk_x > World.STRIP_EAST:
+			outside = true
+	_expect(not outside, "the strip builder does not build the valley")
+	world.free()
 
 
 func _test_shore_south_trail_inland() -> void:
