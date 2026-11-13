@@ -34,8 +34,9 @@ static func is_upper(pair: int, kind: int) -> bool:
 				kind == ChunkGenerator.TILE_MOSS
 				or kind == ChunkGenerator.TILE_PEAT
 				or kind == ChunkGenerator.TILE_TRAIL
-				or kind == ChunkGenerator.TILE_GRANITE
-			)
+			or kind == ChunkGenerator.TILE_GRANITE
+			or kind == ChunkGenerator.TILE_BROOK
+		)
 		PAIR_MOSS_TRAIL:
 			return kind == ChunkGenerator.TILE_TRAIL
 		PAIR_MOSS_GRANITE:

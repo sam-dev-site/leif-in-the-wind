@@ -57,7 +57,7 @@ The first player-visible land. He can walk to the bank. He cannot cross yet. He 
 
 **Tests:** valley chunks spawn only the allowed species. A coast chunk still spawns only fir, spruce, bakeapple, blueberry. The stem blocks. A brook does not. The deer spooks like the caribou and Space does nothing. Seed stability for a valley chunk. The plains band is still not generated.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The valley ground is in this branch. Pictures stay boxes until a named row in `docs/ART.md`.
 
 ## Phase D — Raft
 

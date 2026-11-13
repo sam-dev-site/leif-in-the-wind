@@ -50,7 +50,13 @@ What is still a box or a missing file on this coast.
 
 ## Not this coast
 
-River valley and the later biomes have research and no pictures. No spawn art until you ask.
+The river valley is walkable as colored boxes. Spend a generation only when you name a row. Files the game will load, under `art/biomes/river_valley/` and copied into `game/art/river_valley/`:
+
+1. **Valley trees.** Twelve species, each `tree_<species>.png`: sugar maple, yellow birch, beech, red oak, white pine, hemlock, silver maple, butternut, bur oak, elm, green ash, basswood. On screen they are colored crowns. Held on 2026-11-12: this pass is a cloud agent, and PixelLab stays on the playtest PC.
+2. **Valley food.** `forage_butternut.png`, `forage_riverbank_grape.png`, `forage_fiddlehead.png`. On screen they are colored berries. Same hold.
+3. **White-tailed deer.** `game/art/river_valley/deer.png`. On screen it is a brown rectangle. Same hold. No directions until you ask.
+
+The valley floor is flat color on purpose (silt, clay, river, brook). That is not a missing picture.
 
 ## How a row gets made
 

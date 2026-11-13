@@ -13,6 +13,7 @@ func _init() -> void:
 	_test_different_seed_changes_woods()
 	_test_origin_biome_is_coastal_north()
 	_test_inland_bands_and_the_coast_strip()
+	_test_river_valley_ground()
 	_test_shore_south_trail_inland()
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
@@ -136,20 +137,123 @@ func _test_inland_bands_and_the_coast_strip() -> void:
 	_expect(catalog.biome_id_at(0, -16 * height) == &"", "past the bayou there is no biome yet")
 	var world := World.new()
 	world.begin_staged_boot()
-	for _i in 12:
+	for _i in 24:
 		world.stage_boot_step()
-	_expect(world.boot_chunk_count() == 12, "the coast strip is still 12 chunks")
-	var outside := false
+	_expect(world.boot_chunk_count() == 24, "the coast and the valley are 24 chunks")
+	var plains := false
+	var valley_chunk := false
 	for child in world.get_children():
 		if not child is MapChunk:
 			continue
 		var chunk := child as MapChunk
-		if chunk.chunk_y < World.STRIP_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
-			outside = true
+		if chunk.chunk_y < World.LAND_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
+			plains = true
 		if chunk.chunk_x < World.STRIP_WEST or chunk.chunk_x > World.STRIP_EAST:
-			outside = true
-	_expect(not outside, "the strip builder does not build the valley")
+			plains = true
+		if chunk.chunk_y == -4:
+			valley_chunk = true
+	_expect(valley_chunk, "the valley band is built")
+	_expect(not plains, "the plains band is not built")
 	world.free()
+
+
+func _test_river_valley_ground() -> void:
+	print("river valley ground")
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var valley := catalog.get_biome(&"river_valley")
+	var gen := ChunkGenerator.new()
+	var data := gen.generate(11, 0, -5, valley)
+	var again := gen.generate(11, 0, -5, valley)
+	_expect(data["tiles"] == again["tiles"], "a valley chunk is stable")
+	_expect(data["trees"] == again["trees"], "valley trees are stable")
+	var allowed_trees := {}
+	for name in valley.tree_species:
+		allowed_trees[name] = true
+	var allowed_food := {}
+	for name in valley.forage_species:
+		allowed_food[name] = true
+	var tree_ok := true
+	var food_ok := true
+	var tree_count := 0
+	var food_count := 0
+	var upland := 0
+	var flood := 0
+	var rocks := 0
+	var clutter := 0
+	for i in data["trees"].size():
+		var tree := str(data["trees"][i])
+		if tree != "":
+			tree_count += 1
+			if not allowed_trees.has(tree):
+				tree_ok = false
+			var ty := int(i) / ChunkGenerator.WIDTH
+			var wy := -5 * ChunkGenerator.HEIGHT + ty
+			if ChunkGenerator.stem_distance(wy) <= ChunkGenerator.FLOOD_REACH:
+				flood += 1
+				if tree == "sugar_maple" or tree == "hemlock" or tree == "white_pine":
+					tree_ok = false
+			else:
+				upland += 1
+				if tree == "butternut" or tree == "silver_maple" or tree == "elm":
+					tree_ok = false
+		var food := str(data["forage"][i])
+		if food != "":
+			food_count += 1
+			if not allowed_food.has(food):
+				food_ok = false
+		if str(data["rocks"][i]) != "":
+			rocks += 1
+		if str(data["clutter"][i]) != "":
+			clutter += 1
+	_expect(tree_ok, "valley trees are the researched lists")
+	_expect(food_ok, "valley food is butternut, grape, and fiddlehead")
+	_expect(tree_count > 0 and food_count > 0, "the valley has timber and food")
+	_expect(upland > 0 and flood > 0, "upland and floodplain trees both appear")
+	_expect(rocks == 0 and clutter == 0, "no granite and no coast litter")
+	var stem := 0
+	var brook := 0
+	var brook_blocks := false
+	var tiles: PackedInt32Array = data["tiles"]
+	for i in tiles.size():
+		if tiles[i] == ChunkGenerator.TILE_WATER:
+			stem += 1
+			if not gen.is_blocked(tiles[i]):
+				brook_blocks = true
+		if tiles[i] == ChunkGenerator.TILE_BROOK:
+			brook += 1
+			if gen.is_blocked(tiles[i]):
+				brook_blocks = true
+	_expect(stem == ChunkGenerator.WIDTH * 3, "chunk -5 holds three rows of the stem")
+	_expect(brook > 0, "a brook crosses the valley")
+	_expect(not brook_blocks, "the stem blocks and a brook does not")
+	var coast := gen.generate(11, 0, 0, catalog.get_biome(&"coastal_north"))
+	var coast_ok := true
+	for name in coast["trees"]:
+		if name != "" and name != "fir" and name != "spruce":
+			coast_ok = false
+	_expect(coast_ok, "the landing chunk is still fir and spruce")
+	var path := gen.deer_trail_cells(11)
+	_expect(not path.is_empty(), "the deer trail reaches the bank")
+	_expect(path[0].y == gen.caribou_trail_cells(11, World.STRIP_NORTH)[-1].y - 1, "the deer trail starts at the coast seam")
+	_expect(path[path.size() - 1].y == ChunkGenerator.STEM_SOUTH + 1, "the deer trail stops on the near bank")
+	_expect(Interact.drops_pitch("fir") and not Interact.drops_pitch("sugar_maple"), "pitch stays on fir and spruce")
+	var deer := Deer.new()
+	var tile := float(ChunkGenerator.TILE)
+	var self_px := Vector2(8, 8)
+	var toward := Vector2(0, -1)
+	_expect(Caribou.should_spook(self_px, self_px + Vector2(0, 3.5 * tile), toward, true), "a jog at 4 tiles spooks the deer")
+	_expect(not Caribou.should_spook(self_px, self_px + Vector2(0, 1.5 * tile), Vector2.ZERO, false), "standing still does not spook the deer")
+	var dummy := Node2D.new()
+	dummy.set_meta("kind", "deer")
+	dummy.set_meta("species", "white_tailed_deer")
+	var interact := Interact.new()
+	interact.supplies = Supplies.new()
+	interact.biome = valley
+	_expect(interact.use_on(dummy) == "", "Space on the deer does nothing")
+	dummy.free()
+	interact.free()
+	deer.free()
 
 
 func _test_shore_south_trail_inland() -> void:
@@ -203,10 +307,15 @@ func _test_stub_biomes_have_no_spawn_tables() -> void:
 	print("stub biomes do not pretend to have species")
 	var catalog := BiomeCatalog.new()
 	catalog.load_all()
-	for biome_id in [&"river_valley", &"inland_plains", &"bayou"]:
+	for biome_id in [&"inland_plains", &"bayou"]:
 		var biome := catalog.get_biome(biome_id)
 		_expect(biome != null and biome.tree_species.is_empty(), "%s has empty trees until researched" % biome_id)
 		_expect(biome != null and biome.forage_species.is_empty(), "%s has empty forage until researched" % biome_id)
+	var valley := catalog.get_biome(&"river_valley")
+	_expect(valley != null and valley.tree_species.size() == 12, "the valley lists the twelve timber trees")
+	_expect(valley != null and valley.forage_species.size() == 3, "the valley lists three foods")
+	_expect(not valley.tree_species.has("fir") and not valley.tree_species.has("spruce"), "the valley does not chop fir or spruce")
+	_expect(not valley.forage_species.has("bakeapple"), "the valley does not grow bakeapple")
 
 
 func _coast() -> Biome:

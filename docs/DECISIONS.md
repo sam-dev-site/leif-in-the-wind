@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The valley is the next walkable land
+
+**Decision:** Phase C of `docs/PLAN.md`. `chunk_y` −4 through −7 generates `river_valley`: silt near the water, clay on the slopes, a six-tile stem from world y −243 through −238, and brooks that stop at the bank. Timber and food are the lists in `docs/LOOP.md`. Pitch still falls only from fir and spruce. One white-tailed deer walks the trail and is not a resource. Coast skill numbers stay as signed off. The floor and the animals are colored boxes until a row in `docs/ART.md` is named. Cloud does not call PixelLab.
+
+**Why:** The band table named the land. The next thing he can walk is the bank, before a raft or a line.
+
+**Rejected:** Coast Wang sheets on valley chunks. Fir, spruce, bakeapple, peat, granite, or pitch on the intervale. Hunting the deer. Generating the plains in this phase.
+
 ## 2026-11-12 — Inland bands are named, and the coast strip still stops
 
 **Decision:** `biome_id_at` reads the ladder rows from `docs/LOOP.md`. Chunk rows 0 through −3, and every row south of the landing, stay `coastal_north`. The landing sea is that coast’s water, not a new biome id. Rows −4 through −7 are `river_valley`, −8 through −11 are `inland_plains`, −12 through −15 are `bayou`. Farther inland has no id. The world still builds only the coast strip (`chunk_x` −1..1, `chunk_y` 0..−3). Empty spawn tables stay empty.
