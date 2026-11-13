@@ -59,6 +59,13 @@ The river valley is walkable as colored boxes. Spend a generation only when you 
 
 The valley floor is flat color on purpose (silt, clay, river, brook). That is not a missing picture.
 
+The bayou is walkable as colored boxes. Spend a generation only when you name a row. Files the game will load, under `art/biomes/bayou/` and copied into `game/art/bayou/`:
+
+1. **Swamp trees.** `tree_baldcypress.png`, `tree_water_tupelo.png`, `tree_overcup_oak.png`, `tree_water_hickory.png`. On screen they are colored crowns. Spanish moss is not its own picture yet; the cypress box stands in for the tree. Held on 2026-11-12: this pass is a cloud agent, and PixelLab stays on the playtest PC.
+2. **Swamp food.** `forage_muscadine.png`, `forage_pecan.png`. On screen they are colored fruit. Same hold.
+
+The bayou floor is flat color on purpose (open channel, tupelo water, cypress margin, higher ground). That is not a missing picture.
+
 ## How a row gets made
 
 Say which row. This PC generates it and wires the file the game already looks for. A cloud agent does not call PixelLab.

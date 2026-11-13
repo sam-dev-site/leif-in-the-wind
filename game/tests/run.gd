@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_origin_biome_is_coastal_north()
 	_test_inland_bands_and_the_coast_strip()
 	_test_river_valley_ground()
+	_test_bayou_ground()
 	_test_raft()
 	_test_fishing()
 	_test_hearts_and_continent_map()
@@ -140,22 +141,28 @@ func _test_inland_bands_and_the_coast_strip() -> void:
 	_expect(catalog.biome_id_at(0, -16 * height) == &"", "past the bayou there is no biome yet")
 	var world := World.new()
 	world.begin_staged_boot()
-	for _i in 24:
+	for _i in 36:
 		world.stage_boot_step()
-	_expect(world.boot_chunk_count() == 24, "the coast and the valley are 24 chunks")
+	_expect(world.boot_chunk_count() == 36, "the coast, the valley, and the bayou are 36 chunks")
 	var plains := false
 	var valley_chunk := false
+	var bayou_chunk := false
 	for child in world.get_children():
 		if not child is MapChunk:
 			continue
 		var chunk := child as MapChunk
-		if chunk.chunk_y < World.LAND_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
+		if chunk.chunk_y <= -8 and chunk.chunk_y >= -11:
+			plains = true
+		if chunk.chunk_y < World.BAYOU_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
 			plains = true
 		if chunk.chunk_x < World.STRIP_WEST or chunk.chunk_x > World.STRIP_EAST:
 			plains = true
 		if chunk.chunk_y == -4:
 			valley_chunk = true
+		if chunk.chunk_y == -12:
+			bayou_chunk = true
 	_expect(valley_chunk, "the valley band is built")
+	_expect(bayou_chunk, "the bayou band is built")
 	_expect(not plains, "the plains band is not built")
 	world.free()
 
@@ -575,14 +582,114 @@ func _test_only_researched_species() -> void:
 	_expect(forage_count > 0, "at least one forage spawned")
 
 
+func _test_bayou_ground() -> void:
+	print("bayou ground")
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var swamp := catalog.get_biome(&"bayou")
+	var gen := ChunkGenerator.new()
+	var allowed_trees := {}
+	for name in swamp.tree_species:
+		allowed_trees[str(name)] = true
+	var allowed_food := {}
+	for name in swamp.forage_species:
+		allowed_food[str(name)] = true
+	var saw_cypress := false
+	var saw_tupelo := false
+	var saw_high_tree := false
+	var saw_muscadine := false
+	var saw_pecan := false
+	var tree_ok := true
+	var food_ok := true
+	var channel_clear := true
+	var slough_holds_tupelo := true
+	var margin_walks := true
+	var not_a_stem := true
+	for cy in range(World.BAYOU_NORTH, World.BAYOU_SOUTH + 1):
+		for cx in range(World.STRIP_WEST, World.STRIP_EAST + 1):
+			var data := gen.generate(11, cx, cy, swamp)
+			var tiles: PackedInt32Array = data["tiles"]
+			var trees: Array = data["trees"]
+			var foods: Array = data["forage"]
+			for ty in ChunkGenerator.HEIGHT:
+				var water := 0
+				var walk := 0
+				for tx in ChunkGenerator.WIDTH:
+					var i := ty * ChunkGenerator.WIDTH + tx
+					var wx := cx * ChunkGenerator.WIDTH + tx
+					var wy := cy * ChunkGenerator.HEIGHT + ty
+					var part := gen.bayou_part(11, wx, wy)
+					var kind := int(tiles[i])
+					if kind == ChunkGenerator.TILE_WATER:
+						water += 1
+					else:
+						walk += 1
+					if part == "channel":
+						if kind != ChunkGenerator.TILE_WATER or str(trees[i]) != "":
+							channel_clear = false
+					elif part == "slough":
+						if kind != ChunkGenerator.TILE_WATER or str(trees[i]) != "water_tupelo":
+							slough_holds_tupelo = false
+					elif part == "margin":
+						if gen.is_blocked(kind):
+							margin_walks = false
+						if str(trees[i]) == "baldcypress":
+							saw_cypress = true
+					if str(trees[i]) != "":
+						if str(trees[i]) == "water_tupelo":
+							saw_tupelo = true
+						elif str(trees[i]) == "overcup_oak" or str(trees[i]) == "water_hickory":
+							saw_high_tree = true
+						if not allowed_trees.has(str(trees[i])):
+							tree_ok = false
+					if str(foods[i]) != "":
+						if str(foods[i]) == "muscadine":
+							saw_muscadine = true
+						if str(foods[i]) == "pecan":
+							saw_pecan = true
+							if part != "high":
+								food_ok = false
+						if not allowed_food.has(str(foods[i])):
+							food_ok = false
+				if water == ChunkGenerator.WIDTH or walk == 0:
+					not_a_stem = false
+	_expect(tree_ok, "bayou trees are only the research list")
+	_expect(food_ok, "bayou food is muscadine, and pecan stays on the high ground")
+	_expect(saw_cypress, "baldcypress stands on the margin")
+	_expect(saw_tupelo, "water tupelo stands in the slough")
+	_expect(saw_high_tree, "the higher ground has an oak or a hickory")
+	_expect(saw_muscadine, "muscadine grows")
+	_expect(saw_pecan, "pecan grows")
+	_expect(channel_clear, "the channel is open water")
+	_expect(slough_holds_tupelo, "the slough is water with tupelo in it")
+	_expect(margin_walks, "the cypress margin is walked")
+	_expect(not_a_stem, "a bayou row is not one wall of water")
+	_expect(not Interact.drops_pitch("baldcypress"), "cypress does not drop pitch")
+	var wy := World.BAYOU_SOUTH * ChunkGenerator.HEIGHT + 8
+	var at := gen.channel_x(11, 1, wy)
+	var sample := func(x: int, y: int) -> int:
+		return gen.peek_ground(11, x, y)
+	var landed := ChunkGenerator.raft_landing(Vector2i(at - 1, wy), Vector2i(1, 0), sample)
+	_expect(str(landed.get("reason", "")) == "channel", "a raft can cross a bayou channel")
+	_expect((landed.get("cell") as Vector2i).x > at, "the landing is past the channel")
+	var sea := ChunkGenerator.raft_landing(Vector2i(4, 41), Vector2i(0, 1), sample)
+	_expect(str(sea.get("reason", "")) == "sea", "the landing sea is still not a bayou")
+
+
 func _test_stub_biomes_have_no_spawn_tables() -> void:
 	print("stub biomes do not pretend to have species")
 	var catalog := BiomeCatalog.new()
 	catalog.load_all()
-	for biome_id in [&"inland_plains", &"bayou"]:
+	for biome_id in [&"inland_plains"]:
 		var biome := catalog.get_biome(biome_id)
-		_expect(biome != null and biome.tree_species.is_empty(), "%s has empty trees until researched" % biome_id)
-		_expect(biome != null and biome.forage_species.is_empty(), "%s has empty forage until researched" % biome_id)
+		_expect(biome != null and biome.tree_species.is_empty(), "%s has empty trees until a spawn phase" % biome_id)
+		_expect(biome != null and biome.forage_species.is_empty(), "%s has empty forage until a spawn phase" % biome_id)
+	var swamp := catalog.get_biome(&"bayou")
+	_expect(swamp != null and swamp.tree_species.size() == 4, "the bayou lists four timber trees")
+	_expect(swamp != null and swamp.forage_species.size() == 2, "the bayou lists muscadine and pecan")
+	_expect(swamp.tree_species.has("baldcypress"), "baldcypress is a bayou tree")
+	_expect(not swamp.tree_species.has("fir") and not swamp.tree_species.has("spruce"), "the bayou does not chop fir or spruce")
+	_expect(swamp.trail_maker == &"", "the bayou has no trail animal")
 	var valley := catalog.get_biome(&"river_valley")
 	_expect(valley != null and valley.tree_species.size() == 12, "the valley lists the twelve timber trees")
 	_expect(valley != null and valley.forage_species.size() == 3, "the valley lists three foods")
