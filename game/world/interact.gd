@@ -131,6 +131,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			if crossed != "":
 				_mark_handled()
 				return
+		if pack != null and pack.is_line_equipped() and world != null:
+			var cast := world.try_cast()
+			if cast != "":
+				_mark_handled()
+				return
 		# Equipped torch but Space missed a lit fire.
 		if pack != null and pack.is_torch_equipped() and not pack.torch_lit:
 			acted.emit("torch_need_fire", "")

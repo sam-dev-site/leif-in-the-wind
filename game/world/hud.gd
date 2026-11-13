@@ -5,12 +5,14 @@ signal save_pressed
 signal name_submitted(save_name: String)
 signal name_cancelled
 signal pack_changed
+signal fish_eaten(result: String)
 
 const FLOPPY := "res://art/ui/save_floppy.png"
 const SKILLS := "res://art/ui/skills.png"
 const WOODCUTTING := "res://art/ui/skill_woodcutting.png"
 const FIREMAKING := "res://art/ui/skill_firemaking.png"
 const FORAGING := "res://art/ui/skill_foraging.png"
+const FISHING := "res://art/ui/skill_fishing.png"
 const DEATH_SKULL := "res://art/ui/death_skull.png"
 const CREAM := Color(0.95, 0.93, 0.86)
 const _SAVE_DIM := Color(0.72, 0.7, 0.64)
@@ -39,6 +41,7 @@ var _fire_icon: TextureRect
 var _fire_level: Label
 var _forage_icon: TextureRect
 var _forage_level: Label
+var _fish_level: Label
 var _skill_hover: Label
 var _hover_tip := ""
 var _name_box: Control
@@ -49,6 +52,7 @@ var _pack_panel: Control
 var _pack_grid: Control
 var _pack_make: Button
 var _pack_raft: Button
+var _pack_line: Button
 var _pack: Rucksack
 var _supplies: Supplies
 var _click_times: Dictionary = {}
@@ -64,9 +68,13 @@ func show_play(world_seed: int, biome_name: String, supplies: Supplies, phase: S
 		_build()
 	_paint_hearts(supplies)
 	_paint_skills(skills)
-	if _pack_panel != null and _pack_panel.visible and _pack_raft != null and _pack != null:
-		_pack_raft.disabled = not _pack.can_craft_raft(supplies.wood)
-		_pack_raft.text = "Make raft (12 wood)"
+	if _pack_panel != null and _pack_panel.visible and _pack != null:
+		if _pack_raft != null:
+			_pack_raft.disabled = not _pack.can_craft_raft(supplies.wood)
+			_pack_raft.text = "Make raft (12 wood)"
+		if _pack_line != null:
+			_pack_line.disabled = not _pack.can_craft_line()
+			_pack_line.text = "Make line (1 stick, 1 pitch)"
 	var cost := skills.fire_cost() if skills != null else Skills.FIRE_WOOD_START
 	var eat := skills.eat_cost() if skills != null else Skills.EAT_FORAGE_START
 	var body := status_text(world_seed, biome_name, supplies, phase, hint, cost, eat)
@@ -399,7 +407,7 @@ func _build_skills() -> void:
 	_skills_panel.name = "SkillsPanel"
 	_skills_panel.visible = false
 	_skills_panel.position = Vector2(380, 32)
-	_skills_panel.size = Vector2(96, 58)
+	_skills_panel.size = Vector2(96, 76)
 	_skills_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_skills_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	var plate := StyleBoxFlat.new()
@@ -519,6 +527,42 @@ func _build_skills() -> void:
 	_forage_level.add_theme_constant_override("outline_size", 2)
 	_forage_level.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_skills_panel.add_child(_forage_level)
+	var fish_icon := TextureRect.new()
+	fish_icon.name = "FishingIcon"
+	fish_icon.position = Vector2(2, 57)
+	fish_icon.size = Vector2(16, 16)
+	fish_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fish_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	fish_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	fish_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(FISHING):
+		fish_icon.texture = load(FISHING) as Texture2D
+	_skills_panel.add_child(fish_icon)
+	var fish_name := Label.new()
+	fish_name.name = "FishingName"
+	fish_name.text = "Fishing"
+	fish_name.position = Vector2(18, 55)
+	fish_name.size = Vector2(58, 20)
+	fish_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	fish_name.modulate = CREAM
+	fish_name.add_theme_font_size_override("font_size", 10)
+	fish_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	fish_name.add_theme_constant_override("outline_size", 2)
+	fish_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(fish_name)
+	_fish_level = Label.new()
+	_fish_level.name = "FishingLevel"
+	_fish_level.text = "1"
+	_fish_level.position = Vector2(74, 55)
+	_fish_level.size = Vector2(20, 20)
+	_fish_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_fish_level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_fish_level.modulate = CREAM
+	_fish_level.add_theme_font_size_override("font_size", 10)
+	_fish_level.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	_fish_level.add_theme_constant_override("outline_size", 2)
+	_fish_level.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skills_panel.add_child(_fish_level)
 	add_child(_skills_panel)
 	_skill_hover = Label.new()
 	_skill_hover.name = "SkillHover"
@@ -669,7 +713,7 @@ func _build_pack() -> void:
 	_pack_panel.name = "PackPanel"
 	_pack_panel.visible = false
 	_pack_panel.position = Vector2(332, 32)
-	_pack_panel.size = Vector2(146, 142)
+	_pack_panel.size = Vector2(146, 166)
 	_pack_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pack_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	var plate := StyleBoxFlat.new()
@@ -724,6 +768,19 @@ func _build_pack() -> void:
 	_pack_raft.add_theme_color_override("font_disabled_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
 	_pack_raft.pressed.connect(_on_make_raft)
 	_pack_panel.add_child(_pack_raft)
+	_pack_line = Button.new()
+	_pack_line.name = "PackLine"
+	_pack_line.text = "Make line"
+	_pack_line.position = Vector2(4, 138)
+	_pack_line.size = Vector2(138, 22)
+	_pack_line.focus_mode = Control.FOCUS_NONE
+	_pack_line.add_theme_font_size_override("font_size", 10)
+	_pack_line.add_theme_color_override("font_color", CREAM)
+	_pack_line.add_theme_color_override("font_hover_color", CREAM)
+	_pack_line.add_theme_color_override("font_pressed_color", CREAM)
+	_pack_line.add_theme_color_override("font_disabled_color", Color(CREAM.r, CREAM.g, CREAM.b, 0.35))
+	_pack_line.pressed.connect(_on_make_line)
+	_pack_panel.add_child(_pack_line)
 	add_child(_pack_panel)
 
 
@@ -756,6 +813,15 @@ func _on_make_raft() -> void:
 	_paint_pack()
 
 
+func _on_make_line() -> void:
+	if _pack == null:
+		return
+	if not _pack.craft_line():
+		return
+	pack_changed.emit()
+	_paint_pack()
+
+
 func _paint_pack() -> void:
 	if _pack_panel == null:
 		_build_pack()
@@ -772,6 +838,9 @@ func _paint_pack() -> void:
 		if _pack_raft != null:
 			_pack_raft.disabled = true
 			_pack_raft.text = "Make raft"
+		if _pack_line != null:
+			_pack_line.disabled = true
+			_pack_line.text = "Make line"
 		return
 	var cols := 5
 	var i := 0
@@ -794,6 +863,9 @@ func _paint_pack() -> void:
 		var wood := 0.0 if _supplies == null else _supplies.wood
 		_pack_raft.disabled = not _pack.can_craft_raft(wood)
 		_pack_raft.text = "Make raft (12 wood)"
+	if _pack_line != null:
+		_pack_line.disabled = not _pack.can_craft_line()
+		_pack_line.text = "Make line (1 stick, 1 pitch)"
 
 
 func _make_item_tile(index: int, id: String, count: int, equipped: bool) -> Control:
@@ -847,6 +919,18 @@ func _item_color(id: String) -> Color:
 			return Color(0.85, 0.62, 0.28)
 		Rucksack.ID_RAFT:
 			return Color(0.45, 0.32, 0.16)
+		Rucksack.ID_LINE:
+			return Color(0.75, 0.72, 0.6)
+		"smelt":
+			return Color(0.62, 0.68, 0.72)
+		"gaspereau":
+			return Color(0.45, 0.55, 0.62)
+		"shad":
+			return Color(0.55, 0.58, 0.42)
+		"eel":
+			return Color(0.25, 0.32, 0.22)
+		"salmon":
+			return Color(0.72, 0.45, 0.38)
 		_:
 			return Color(0.5, 0.5, 0.45)
 
@@ -864,7 +948,12 @@ func _on_item_input(event: InputEvent, index: int, id: String) -> void:
 		return
 	if _pack == null:
 		return
-	if id != Rucksack.ID_TORCH and id != Rucksack.ID_RAFT:
+	if id != Rucksack.ID_TORCH and id != Rucksack.ID_RAFT and id != Rucksack.ID_LINE:
+		if Skills.is_fish(id) and _supplies != null:
+			var eaten := _pack.eat_fish_at(index, _supplies)
+			if eaten != "":
+				fish_eaten.emit(eaten)
+				call_deferred("_paint_pack")
 		return
 	if _pack.equip_held_at(index):
 		pack_changed.emit()
@@ -881,10 +970,13 @@ func _paint_skills(skills: Skills) -> void:
 		_fire_level.text = str(skills.firemaking_level())
 	if _forage_level != null:
 		_forage_level.text = str(skills.forage_level())
-	_hover_tip = "%s|%s|%s" % [
+	if _fish_level != null:
+		_fish_level.text = str(skills.fishing_level())
+	_hover_tip = "%s|%s|%s|%s" % [
 		skills.step_label(),
 		skills.firemaking_step_label(),
 		skills.forage_step_label(),
+		skills.fishing_step_label(),
 	]
 	_skills_panel.tooltip_text = ""
 	if _skill_hover != null:
