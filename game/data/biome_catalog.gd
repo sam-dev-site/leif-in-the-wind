@@ -25,6 +25,23 @@ func get_biome(biome_id: StringName) -> Biome:
 	return _by_id.get(biome_id) as Biome
 
 
-## Slice 0: the playable chunk is coastal_north. Later this reads a continent map.
-func biome_id_at(_world_tx: int, _world_ty: int) -> StringName:
-	return &"coastal_north"
+## Chunk rows inland of the landing. See docs/LOOP.md. The world still only builds the coast strip.
+const COAST_NORTH := -3
+const RIVER_NORTH := -7
+const PLAINS_NORTH := -11
+const BAYOU_NORTH := -15
+
+
+## Landing sea (chunk_y > 0) stays coastal_north. The generator paints that as water.
+## Past the bayou band there is no id yet, so nothing there can be built.
+func biome_id_at(_world_tx: int, world_ty: int) -> StringName:
+	var cy := ChunkGenerator.floor_div(world_ty, ChunkGenerator.HEIGHT)
+	if cy >= COAST_NORTH:
+		return &"coastal_north"
+	if cy >= RIVER_NORTH:
+		return &"river_valley"
+	if cy >= PLAINS_NORTH:
+		return &"inland_plains"
+	if cy >= BAYOU_NORTH:
+		return &"bayou"
+	return &""

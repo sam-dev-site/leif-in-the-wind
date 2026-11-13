@@ -903,6 +903,8 @@ func _build_strip() -> void:
 
 
 func _make_chunk(key: Vector2i) -> MapChunk:
+	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y < STRIP_NORTH or key.y > STRIP_SOUTH:
+		return null
 	if _chunks.has(key) and is_instance_valid(_chunks[key]):
 		return _chunks[key]
 	var biome := catalog.get_biome(catalog.biome_id_at(key.x * ChunkGenerator.WIDTH, key.y * ChunkGenerator.HEIGHT))

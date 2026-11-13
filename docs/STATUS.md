@@ -4,7 +4,7 @@ Updated: 2026-11-12
 
 ## Locked
 
-The loop, the skills, the six lands, the hearts, and the win are locked in `docs/LOOP.md`. The build order is `docs/PLAN.md`. Phase A is this lock. The next code phase is the band table (Phase B), which does not change a walk on the coast. Night on this coast is still the open Play. This lock does not sign it off and does not retune the three coast skills.
+The loop, the skills, the six lands, the hearts, and the win are locked in `docs/LOOP.md`. The build order is `docs/PLAN.md`. Phase A is the lock. Phase B is the band table: a tile’s biome follows the inland rows, and the walk still builds only the coast strip. That is not a Play. Next is Phase C, the valley ground, once this band table is on `main`. Night on this coast is still the open Play. This does not sign it off and does not retune the three coast skills.
 
 ## Where we are
 
@@ -48,7 +48,7 @@ PixelLab trial: **0** generations left. The daily stack is empty and refills +5 
 
 ## Blocked / next
 
-Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off. The next build is `docs/PLAN.md` Phase B, then the valley ground. Do not start plains, the bayou, or the win until their research phase is on `main`.
+Two lanes (see `AGENTS.md`). The minimap circle is signed off. Ringed stumps at 0.6 and the fir/spruce pairing stay signed off. The band table is in and is not a Play. The next build is `docs/PLAN.md` Phase C, the valley ground, after the band table is on `main`. Do not start plains, the bayou, or the win until their research phase is on `main`.
 
 
 
