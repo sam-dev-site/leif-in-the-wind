@@ -86,6 +86,10 @@ On this coast. In the build, ready for Play, not signed off. Four slices. Dawn c
   - Ask: This coast’s clock is day and night. A real tide is not only at night. Does the crossing use that night clock?
   - Ask: Raft or timber bridge is its own slice. Is this the same crossing, or the water leaving on its own?
 - **Raft.** Locked. 12 wood, made in the pack, poled from a bank across the main stem, and it stays in the pack so he can come back. Brooks he wades. The landing sea refuses. A timber bridge left on the map is not this crossing. See [LOOP.md](LOOP.md).
+- **Interior travel tool.** Not in build. The plains research named the Rice Lake grass and named no craft. Phase H stops on that gap. See `docs/research/biomes/inland_plains.md`.
+  - Ask: The mission still says iron is a travel tool. These hills do not support that century of iron. Does the wish stay open for another corridor, or does he walk the grass with the crafts he already has?
+  - Ask: Phase H says not to invent a tool. Is that the stop?
+  - Ask: New Jersey tea and the eastern elk are draft species in that file, not a recipe. Do not turn the tea into fuel unless you ask for that.
 
 ## Creatures
 
