@@ -6,6 +6,7 @@ signal name_submitted(save_name: String)
 signal name_cancelled
 signal pack_changed
 signal fish_eaten(result: String)
+signal map_pressed
 
 const FLOPPY := "res://art/ui/save_floppy.png"
 const SKILLS := "res://art/ui/skills.png"
@@ -31,6 +32,9 @@ var _death_mark: Control
 var _pips: Array[ColorRect] = []
 var _minimap: TextureRect
 var _minimap_tex: ImageTexture
+var _map_open := false
+var _map_panel: Panel
+var _map_rows: Array[Dictionary] = []
 var _floppy: TextureButton
 var _skills_btn: TextureButton
 var _skills_shadow: ColorRect
@@ -300,14 +304,103 @@ func _build_minimap() -> void:
 	if _minimap != null:
 		return
 	_minimap = TextureRect.new()
+	_minimap.name = "Minimap"
 	_minimap.position = Vector2(4, 270 - FogMap.VIEW - 4)
 	_minimap.size = Vector2(FogMap.VIEW, FogMap.VIEW)
 	_minimap.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_minimap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_minimap.stretch_mode = TextureRect.STRETCH_KEEP
-	_minimap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_minimap.mouse_filter = Control.MOUSE_FILTER_STOP
 	_minimap.focus_mode = Control.FOCUS_NONE
+	_minimap.gui_input.connect(_on_minimap_input)
 	add_child(_minimap)
+
+
+func _on_minimap_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var click := event as InputEventMouseButton
+		if click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+			map_pressed.emit()
+			_minimap.accept_event()
+
+
+func is_map_open() -> bool:
+	return _map_open
+
+
+func close_continent() -> void:
+	_map_open = false
+	if _map_panel != null:
+		_map_panel.visible = false
+
+
+func toggle_continent() -> void:
+	_map_open = not _map_open
+	if _map_panel == null:
+		_build_continent()
+	_map_panel.visible = _map_open
+	if _map_open:
+		move_child(_map_panel, get_child_count() - 1)
+
+
+func show_continent(rows: Array) -> void:
+	if _map_panel == null:
+		_build_continent()
+	var n := mini(rows.size(), _map_rows.size())
+	for i in n:
+		var row: Dictionary = rows[i]
+		var slot: Dictionary = _map_rows[i]
+		var label := slot["label"] as Label
+		var tex := slot["tex"] as TextureRect
+		var block := slot["block"] as ColorRect
+		label.text = str(row.get("name", ""))
+		var image: Variant = row.get("image")
+		if image is Image:
+			var pic := ImageTexture.create_from_image(image)
+			tex.texture = pic
+			tex.visible = true
+			block.visible = false
+		else:
+			tex.texture = null
+			tex.visible = false
+			block.visible = true
+
+
+func _build_continent() -> void:
+	_map_panel = Panel.new()
+	_map_panel.name = "ContinentMap"
+	_map_panel.position = Vector2(140, 28)
+	_map_panel.size = Vector2(200, 168)
+	_map_panel.visible = false
+	_map_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.1, 0.08, 0.94)
+	_map_panel.add_theme_stylebox_override("panel", style)
+	add_child(_map_panel)
+	for i in 6:
+		var label := Label.new()
+		label.position = Vector2(8, 6 + i * 26)
+		label.size = Vector2(130, 18)
+		label.add_theme_font_size_override("font_size", 10)
+		label.add_theme_color_override("font_color", CREAM)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_map_panel.add_child(label)
+		var block := ColorRect.new()
+		block.color = Color(0.16, 0.2, 0.14)
+		block.position = Vector2(148, 8 + i * 26)
+		block.size = Vector2(40, 16)
+		block.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_map_panel.add_child(block)
+		var tex := TextureRect.new()
+		tex.position = Vector2(148, 8 + i * 26)
+		tex.size = Vector2(40, 16)
+		tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex.stretch_mode = TextureRect.STRETCH_SCALE
+		tex.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tex.visible = false
+		_map_panel.add_child(tex)
+		_map_rows.append({"label": label, "tex": tex, "block": block})
 
 
 func lines() -> String:

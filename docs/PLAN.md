@@ -93,7 +93,7 @@ The first player-visible land. He can walk to the bank. He cannot cross yet. He 
 
 **Tests:** first sleep in a land adds one heart and a second sleep there does not. Cap 9. Death sets hearts to 1 and leaves the maximum. Old save loads at 3. Admin value other than 3 replaces the maximum. The map and the corner share a revealed tile. **R** keeps the maximum and clears fog.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. Hearts from the first sleep in a land, and the continent map, are in this branch. Blank inland bands stay names only. Coast skill numbers are unchanged.
 
 ## Phase G — Plains research
 

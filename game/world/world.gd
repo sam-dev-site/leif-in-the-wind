@@ -9,6 +9,11 @@ const STRIP_SOUTH := 0
 ## Coast trail and caribou stop here. The valley continues to LAND_NORTH.
 const STRIP_NORTH := -3
 const LAND_NORTH := -7
+## Baked maximum. A first sleep in each ladder land adds one, up to the six lands.
+const HEART_START := 3.0
+const HEART_CAP := 9.0
+## Continent band pixels. One sample covers this many tiles of the built strip.
+const BAND_STEP := 8
 
 var catalog: BiomeCatalog = BiomeCatalog.new()
 var generator: ChunkGenerator = ChunkGenerator.new()
@@ -31,6 +36,8 @@ var _sleep_phase := ""
 var _sleep_t := 0.0
 var _dying := false
 var _has_sleep_mark := false
+var _earned_hearts := 3.0
+var _slept_lands: Array[String] = []
 var _sleep_mark := Vector2.ZERO
 var _fog := FogMap.new()
 var _minimap_cell := Vector2i(99999, 99999)
@@ -128,6 +135,8 @@ func open_play() -> void:
 		_hud.pack_changed.connect(_on_pack_changed)
 		if not _hud.fish_eaten.is_connected(_on_fish_eaten):
 			_hud.fish_eaten.connect(_on_fish_eaten)
+		if not _hud.map_pressed.is_connected(_on_map_pressed):
+			_hud.map_pressed.connect(_on_map_pressed)
 		_hud.bind_pack(pack)
 	_music = AudioStreamPlayer.new()
 	_music.bus = "Master"
@@ -223,6 +232,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if _hud != null and _hud.is_skills_open():
 			_hud.close_skills()
+			_mark_handled()
+			return
+		if _hud != null and _hud.is_map_open():
+			_hud.close_continent()
 			_mark_handled()
 			return
 		open_quit_ask()
@@ -512,9 +525,10 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		skills.forage_xp = 0
 		skills.fishing_xp = 0
 		pack.clear()
-		var h := float(AdminSettings.hearts)
-		supplies.hearts = h
-		supplies.hearts_max = h
+		_earned_hearts = HEART_START
+		_slept_lands.clear()
+		supplies.hearts = float(AdminSettings.hearts)
+		_apply_heart_cap()
 	else:
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
@@ -635,7 +649,8 @@ func capture_walk() -> Dictionary:
 		"wood": supplies.wood,
 		"forage": supplies.forage,
 		"hearts": supplies.hearts,
-		"hearts_max": supplies.hearts_max,
+		"hearts_max": _earned_hearts,
+		"slept_lands": _slept_lands.duplicate(),
 		"cold_acc": supplies.cold_acc,
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
@@ -681,10 +696,10 @@ func apply_walk(data: Dictionary) -> void:
 		_save_name = ShoreSave.clean_name(str(data["name"]))
 	supplies.wood = float(data.get("wood", supplies.wood))
 	supplies.forage = int(data.get("forage", supplies.forage))
-	# File hearts first, then admin max, then clamp so a lower QC max does not overfill.
+	# File hearts first. The baked slider keeps the earned maximum. Any other slider replaces it for the session.
 	supplies.hearts = float(data.get("hearts", supplies.hearts))
-	supplies.hearts_max = float(AdminSettings.hearts)
-	supplies.hearts = snappedf(minf(supplies.hearts, supplies.hearts_max), Supplies.HEART_STEP)
+	_load_earned_hearts(data)
+	_apply_heart_cap()
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
 	# Old files may still carry heal_acc; day/fire no longer heal, so ignore it.
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
@@ -1518,6 +1533,8 @@ func _refresh_minimap() -> void:
 	if _hud == null:
 		return
 	_hud.show_minimap(_fog.paint(_minimap_sample, _minimap_color, _minimap_cell))
+	if _hud.is_map_open():
+		_hud.show_continent(_continent_rows())
 
 
 func _minimap_sample(cell: Vector2i) -> int:
@@ -1703,6 +1720,146 @@ func _respawn() -> void:
 		_refresh_hud()
 
 
+func earned_hearts() -> float:
+	return _earned_hearts
+
+
+func slept_lands() -> Array[String]:
+	return _slept_lands.duplicate()
+
+
+func clock_running() -> bool:
+	return _clock != null and is_instance_valid(_clock) and _clock.is_processing()
+
+
+func map_is_open() -> bool:
+	return _hud != null and _hud.is_map_open()
+
+
+func toggle_map() -> void:
+	_on_map_pressed()
+
+
+func apply_heart_session() -> void:
+	_apply_heart_cap()
+
+
+func _hearts_follow_save() -> bool:
+	return is_equal_approx(float(AdminSettings.hearts), HEART_START)
+
+
+func _apply_heart_cap() -> void:
+	if _hearts_follow_save():
+		supplies.hearts_max = _earned_hearts
+	else:
+		supplies.hearts_max = float(AdminSettings.hearts)
+	supplies.hearts = snappedf(minf(supplies.hearts, supplies.hearts_max), Supplies.HEART_STEP)
+
+
+func _load_earned_hearts(data: Dictionary) -> void:
+	_slept_lands.clear()
+	if data.has("slept_lands") and data["slept_lands"] is Array:
+		for item in data["slept_lands"]:
+			var id := str(item)
+			if id != "" and not _slept_lands.has(id):
+				_slept_lands.append(id)
+		_earned_hearts = clampf(float(data.get("hearts_max", HEART_START)), 1.0, HEART_CAP)
+	else:
+		# Old shore files have no slept-land list. Nothing is granted on load.
+		_earned_hearts = HEART_START
+
+
+## First C-sleep in a ladder land. Does not fill hearts. A non-baked admin slider pays nothing.
+func note_sleep() -> bool:
+	if _player == null or not is_instance_valid(_player):
+		return false
+	var id := BiomeCatalog.ladder_id(ChunkGenerator.world_cell_at(_player.global_position).y)
+	if id == "":
+		return false
+	if not _hearts_follow_save():
+		return false
+	if _slept_lands.has(id):
+		return false
+	_slept_lands.append(id)
+	if _earned_hearts >= HEART_CAP:
+		_apply_heart_cap()
+		return false
+	_earned_hearts = minf(HEART_CAP, _earned_hearts + 1.0)
+	_apply_heart_cap()
+	return true
+
+
+func _on_map_pressed() -> void:
+	if _hud == null:
+		return
+	_hud.toggle_continent()
+	if _hud.is_map_open():
+		_hud.show_continent(_continent_rows())
+
+
+func band_entered(id: String) -> bool:
+	for key in _fog.revealed.keys():
+		var cell := key as Vector2i
+		if BiomeCatalog.ladder_id(cell.y) == id:
+			return true
+	return false
+
+
+## Null when the band has no revealed tile. Otherwise the same fog, sampled across the built strip.
+func paint_band(id: String) -> Image:
+	if not band_entered(id):
+		return null
+	var row := BiomeCatalog.ladder_row(0)
+	var found := false
+	for item in BiomeCatalog.LADDER:
+		if str(item["id"]) == id:
+			row = item
+			found = true
+			break
+	if not found:
+		return null
+	var south_chunk := mini(int(row["south"]), STRIP_SOUTH)
+	var north_chunk := int(row["north"])
+	if south_chunk < north_chunk:
+		return null
+	var y0 := north_chunk * ChunkGenerator.HEIGHT
+	var x0 := STRIP_WEST * ChunkGenerator.WIDTH
+	var span_x := (STRIP_EAST - STRIP_WEST + 1) * ChunkGenerator.WIDTH
+	var span_y := (south_chunk - north_chunk + 1) * ChunkGenerator.HEIGHT
+	var w := span_x / BAND_STEP
+	var h := span_y / BAND_STEP
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	img.fill(FogMap.FOG_COLOR)
+	for py in h:
+		for px in w:
+			var origin := Vector2i(x0 + px * BAND_STEP, y0 + py * BAND_STEP)
+			var sample_cell := origin
+			var shown := false
+			for dy in BAND_STEP:
+				for dx in BAND_STEP:
+					var cell := Vector2i(origin.x + dx, origin.y + dy)
+					if _fog.is_revealed(cell):
+						sample_cell = cell
+						shown = true
+						break
+				if shown:
+					break
+			if shown:
+				img.set_pixel(px, py, _minimap_color(_minimap_sample(sample_cell)))
+	return img
+
+
+func _continent_rows() -> Array:
+	var rows: Array = []
+	for item in BiomeCatalog.LADDER:
+		var id := str(item["id"])
+		var image: Image = null
+		if band_entered(id):
+			image = paint_band(id)
+		rows.append({"name": str(item["name"]), "image": image})
+	return rows
+
+
 func _tick_sleep(delta: float) -> void:
 	_sleep_t += delta
 	var hold_for := DEATH_HOLD if _dying else SLEEP_HOLD
@@ -1741,6 +1898,8 @@ func _tick_sleep(delta: float) -> void:
 					_hint = "Slept by the fire."
 				else:
 					_hint = "Slept by the fire. It burned out."
+				if note_sleep():
+					_hint += " One more heart."
 				_refresh_hud()
 			_sleep_phase = "hold"
 			_sleep_t = 0.0
