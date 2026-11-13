@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Biome" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/biome.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"river_country"
+display_name = "River country"
+tree_species = PackedStringArray("eastern_cottonwood", "american_sycamore", "american_chestnut", "shagbark_hickory")
+forage_species = PackedStringArray("chestnut")
+trail_maker = &""
+water_color = Color(0.22, 0.38, 0.42, 1)
+shore_color = Color(0.55, 0.48, 0.32, 1)
+moss_color = Color(0.34, 0.42, 0.18, 1)
+peat_color = Color(0.48, 0.42, 0.24, 1)
+granite_color = Color(0.46, 0.44, 0.4, 1)
+trail_color = Color(0.42, 0.36, 0.22, 1)

@@ -1,8 +1,8 @@
 # Biome research: `river_country`
 
-Status: **draft — owner should skim before art or spawn tables**
+Status: **draft — the signature list below is what Phase L spawns.** Pictures are boxes.
 
-Research only. Nothing in this file is authorized for `game/`, spawn tables, art filenames, or PixelLab prompts until that skim. There is no `river_country.tres` yet. The id is `river_country`, the same id the continent map already uses for this band. The ladder name stays **River country**.
+The id is `river_country`, the same id the continent map already uses for this band. The ladder name stays **River country**. The one-tile stem is a drawing, logged in `docs/DECISIONS.md`, because this file gives no width.
 
 This is one southbound river out of the country just south of the Maritimes. It is not a second Mississippi, and it is not the Saint John again.
 
@@ -77,7 +77,7 @@ Phase L needs the river this file actually describes. The sources support one st
 
 ## Draft signature list (not a spawn table)
 
-Owner skims this file before any of the following is copied into a resource, art, or a prompt. Until Phase L, there is no resource.
+Phase L copies this list. Pictures stay boxes until a row in `docs/ART.md` is named.
 
 - Floodplain trees, later: eastern cottonwood, American sycamore. Color boxes.
 - Terrace trees, later: American chestnut, shagbark hickory. Color boxes. Chestnut is the canopy tree, not the blighted sprout.

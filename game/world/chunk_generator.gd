@@ -23,6 +23,12 @@ const VALLEY_NORTH := -7
 const BAYOU_SOUTH := -12
 const BAYOU_NORTH := -15
 const BAYOU_TREES: PackedStringArray = ["overcup_oak", "water_hickory"]
+## Connecticut band. One tile of stem is the drawing. The research gave no width.
+const COUNTRY_SOUTH := -16
+const COUNTRY_NORTH := -19
+const COUNTRY_STEM_Y := -816
+const FLOOD_TREES_CT: PackedStringArray = ["eastern_cottonwood", "american_sycamore"]
+const TERRACE_TREES: PackedStringArray = ["american_chestnut", "shagbark_hickory"]
 const STEM_NORTH := -243
 const STEM_SOUTH := -238
 const FLOOD_REACH := 4
@@ -77,10 +83,13 @@ func generate(world_seed: int, chunk_x: int, chunk_y: int, biome: Biome) -> Dict
 
 	var valley := biome != null and biome.id == &"river_valley"
 	var bayou := biome != null and biome.id == &"bayou"
+	var country := biome != null and biome.id == &"river_country"
 	if valley:
 		_fill_valley(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	elif bayou:
 		_fill_bayou(world_seed, chunk_x, chunk_y, tiles, trees, forage)
+	elif country:
+		_fill_country(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	else:
 		_carve_caribou_trail(world_seed, chunk_x, chunk_y, tiles)
 		if biome != null and not biome.tree_species.is_empty():
@@ -118,6 +127,8 @@ func peek_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
 		return _valley_ground(world_seed, cx, cy, local_x, local_y)
 	if cy <= BAYOU_SOUTH and cy >= BAYOU_NORTH:
 		return _bayou_ground(world_seed, world_tx, world_ty)
+	if cy <= COUNTRY_SOUTH and cy >= COUNTRY_NORTH:
+		return _country_ground(world_seed, world_tx, world_ty)
 	return _ground_tile(world_seed, cx, cy, local_x, local_y)
 
 
@@ -232,6 +243,8 @@ static func raft_landing(origin: Vector2i, step: Vector2i, sample: Callable, ste
 	if not _raft_on_stem(cell.y, stem):
 		if _bayou_row(cell.y):
 			return _raft_bayou(cell, step, sample)
+		if _country_row(cell.y):
+			return _raft_country(cell, step, sample)
 		return {"ok": false, "reason": "sea", "cell": cell}
 	var crossed := 0
 	while crossed < RAFT_REACH and kind == TILE_WATER and _raft_on_stem(cell.y, stem):
@@ -243,6 +256,24 @@ static func raft_landing(origin: Vector2i, step: Vector2i, sample: Callable, ste
 	if kind == TILE_WATER:
 		return {"ok": false, "reason": "wide", "cell": cell}
 	return {"ok": true, "reason": "cross", "cell": cell}
+
+
+static func _country_row(world_ty: int) -> bool:
+	var cy := floor_div(world_ty, HEIGHT)
+	return cy <= COUNTRY_SOUTH and cy >= COUNTRY_NORTH
+
+
+## The Connecticut stem is not the valley fishery and not the landing sea.
+static func _raft_country(cell: Vector2i, step: Vector2i, sample: Callable) -> Dictionary:
+	var crossed := 0
+	var kind := TILE_WATER
+	while crossed < RAFT_REACH and kind == TILE_WATER and _country_row(cell.y):
+		crossed += 1
+		cell += step
+		kind = int(sample.call(cell.x, cell.y))
+	if kind == TILE_WATER:
+		return {"ok": false, "reason": "wide", "cell": cell}
+	return {"ok": true, "reason": "river", "cell": cell}
 
 
 static func _bayou_row(world_ty: int) -> bool:
@@ -470,6 +501,69 @@ func _fill_bayou(
 					trees[i] = BAYOU_TREES[_hash(world_seed, tx, ty, 33) % BAYOU_TREES.size()]
 				elif _rand01(world_seed, wx, wy, 47) <= clampf(0.04 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
 					forage[i] = "pecan"
+
+
+## One meandering tile. Not the six-tile Saint John, and not a measured mouth.
+func country_stem_y(world_seed: int, world_tx: int) -> int:
+	var band := floor_div(world_tx, 6)
+	var shift := (_hash(world_seed, band, 771, 0) % 9) - 4
+	return COUNTRY_STEM_Y + shift
+
+
+func country_is_brook(world_seed: int, world_tx: int) -> bool:
+	for which in 3:
+		var at := -36 + which * 48 + ((_hash(world_seed, which, 772, 1) % 5) - 2)
+		if world_tx == at:
+			return true
+	return false
+
+
+func country_part(world_seed: int, world_tx: int, world_ty: int) -> String:
+	if world_ty == country_stem_y(world_seed, world_tx):
+		return "stem"
+	if country_is_brook(world_seed, world_tx):
+		return "brook"
+	if absi(world_ty - country_stem_y(world_seed, world_tx)) == 1:
+		return "flood"
+	return "terrace"
+
+
+func _country_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
+	var part := country_part(world_seed, world_tx, world_ty)
+	if part == "stem":
+		return TILE_WATER
+	if part == "brook":
+		return TILE_BROOK
+	if part == "flood":
+		return TILE_PEAT
+	return TILE_MOSS
+
+
+func _fill_country(
+	world_seed: int,
+	chunk_x: int,
+	chunk_y: int,
+	tiles: PackedInt32Array,
+	trees: Array[String],
+	forage: Array[String],
+) -> void:
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			var wx := chunk_x * WIDTH + tx
+			var wy := chunk_y * HEIGHT + ty
+			var i := _idx(tx, ty)
+			var part := country_part(world_seed, wx, wy)
+			tiles[i] = _country_ground(world_seed, wx, wy)
+			if part == "flood":
+				var chance := clampf(0.22 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+				if _rand01(world_seed, wx, wy, 21) <= chance:
+					trees[i] = FLOOD_TREES_CT[_hash(world_seed, tx, ty, 34) % FLOOD_TREES_CT.size()]
+			elif part == "terrace":
+				var chance := clampf(0.1 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+				if _rand01(world_seed, wx, wy, 21) <= chance:
+					trees[i] = TERRACE_TREES[_hash(world_seed, tx, ty, 35) % TERRACE_TREES.size()]
+				elif _rand01(world_seed, wx, wy, 48) <= clampf(0.04 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
+					forage[i] = "chestnut"
 
 
 func _ground_tile(world_seed: int, chunk_x: int, chunk_y: int, tx: int, ty: int) -> int:

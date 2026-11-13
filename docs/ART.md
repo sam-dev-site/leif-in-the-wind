@@ -66,6 +66,13 @@ The bayou is walkable as colored boxes. Spend a generation only when you name a 
 
 The bayou floor is flat color on purpose (open channel, tupelo water, cypress margin, higher ground). That is not a missing picture.
 
+The Connecticut is walkable as colored boxes. Spend a generation only when you name a row. Files the game will load, under `art/biomes/river_country/` and copied into `game/art/river_country/`:
+
+1. **River trees.** `tree_eastern_cottonwood.png`, `tree_american_sycamore.png`, `tree_american_chestnut.png`, `tree_shagbark_hickory.png`. On screen they are colored crowns. The chestnut is the old canopy tree, not a blighted sprout. Held on 2026-11-12: this pass is a cloud agent, and PixelLab stays on the playtest PC.
+2. **River food.** `forage_chestnut.png`. On screen it is a colored nut. Same hold.
+
+The river floor is flat color on purpose (one stem, a brook, the floodplain, the terrace). That is not a missing picture.
+
 ## How a row gets made
 
 Say which row. This PC generates it and wires the file the game already looks for. A cloud agent does not call PixelLab.

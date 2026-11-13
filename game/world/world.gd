@@ -12,6 +12,9 @@ const LAND_NORTH := -7
 ## The swamp band. Plains rows between the valley and this band are not generated.
 const BAYOU_SOUTH := -12
 const BAYOU_NORTH := -15
+## The Connecticut band. It starts on the north side of the bayou. Plains stay unbuilt.
+const COUNTRY_SOUTH := -16
+const COUNTRY_NORTH := -19
 ## Baked maximum. A first sleep in each ladder land adds one, up to the six lands.
 const HEART_START := 3.0
 const HEART_CAP := 9.0
@@ -289,6 +292,11 @@ func _plant_name(species: String) -> String:
 		"water_hickory": "water hickory",
 		"muscadine": "muscadine",
 		"pecan": "pecan",
+		"eastern_cottonwood": "eastern cottonwood",
+		"american_sycamore": "American sycamore",
+		"american_chestnut": "American chestnut",
+		"shagbark_hickory": "shagbark hickory",
+		"chestnut": "chestnut",
 		"forage_butternut": "butternut",
 		"riverbank_grape": "riverbank grape",
 		"fiddlehead": "fiddlehead",
@@ -990,6 +998,9 @@ func _land_keys() -> Array[Vector2i]:
 	for cy in range(BAYOU_NORTH, BAYOU_SOUTH + 1):
 		for cx in range(STRIP_WEST, STRIP_EAST + 1):
 			keys.append(Vector2i(cx, cy))
+	for cy in range(COUNTRY_NORTH, COUNTRY_SOUTH + 1):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			keys.append(Vector2i(cx, cy))
 	return keys
 
 
@@ -998,7 +1009,9 @@ func _built_key(key: Vector2i) -> bool:
 		return false
 	if key.y >= LAND_NORTH:
 		return true
-	return key.y <= BAYOU_SOUTH and key.y >= BAYOU_NORTH
+	if key.y <= BAYOU_SOUTH and key.y >= BAYOU_NORTH:
+		return true
+	return key.y <= COUNTRY_SOUTH and key.y >= COUNTRY_NORTH
 
 
 func _make_chunk(key: Vector2i) -> MapChunk:
@@ -1260,6 +1273,8 @@ func _sample_world_tile(world_tx: int, world_ty: int) -> int:
 			return ChunkGenerator.TILE_WATER
 		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS:
 			return ChunkGenerator.TILE_SHORE
+	if key.y <= COUNTRY_SOUTH and key.y >= COUNTRY_NORTH:
+		return generator.peek_ground(world_seed, world_tx, world_ty)
 	return ChunkGenerator.TILE_MOSS
 
 
@@ -1274,7 +1289,7 @@ func try_pole_raft() -> String:
 	var step := Vector2i(int(round(dir.x)), int(round(dir.y)))
 	var result := ChunkGenerator.raft_landing(origin, step, _sample_world_tile)
 	var reason := str(result.get("reason", ""))
-	if reason == "cross" or reason == "channel":
+	if reason == "cross" or reason == "channel" or reason == "river":
 		var dest: Vector2i = result["cell"]
 		var guard := 0
 		while guard < 8 and is_blocked_pixel(ChunkGenerator.cell_center(dest)):
@@ -1321,7 +1336,7 @@ func try_cast() -> String:
 		_hint = RAFT_WADE
 		_refresh_hud()
 		return "wade"
-	if water == "sea" or water == "channel":
+	if water == "sea" or water == "channel" or water == "river":
 		return "sea" if water == "sea" else ""
 	if water != "cross":
 		return ""

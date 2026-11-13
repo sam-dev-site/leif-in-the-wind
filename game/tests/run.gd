@@ -15,6 +15,7 @@ func _init() -> void:
 	_test_inland_bands_and_the_coast_strip()
 	_test_river_valley_ground()
 	_test_bayou_ground()
+	_test_river_country_ground()
 	_test_raft()
 	_test_fishing()
 	_test_hearts_and_continent_map()
@@ -138,7 +139,9 @@ func _test_inland_bands_and_the_coast_strip() -> void:
 	_expect(catalog.biome_id_at(0, -8 * height) == &"inland_plains", "chunk_y -8 is the interior")
 	_expect(catalog.biome_id_at(0, -12 * height + 47) == &"bayou", "chunk_y -12 is the bayou")
 	_expect(catalog.biome_id_at(0, -15 * height) == &"bayou", "chunk_y -15 is still the bayou")
-	_expect(catalog.biome_id_at(0, -16 * height) == &"", "past the bayou there is no biome yet")
+	_expect(catalog.biome_id_at(0, -16 * height) == &"river_country", "chunk_y -16 is the Connecticut")
+	_expect(catalog.biome_id_at(0, -19 * height) == &"river_country", "chunk_y -19 is still the Connecticut")
+	_expect(catalog.biome_id_at(0, -20 * height) == &"", "past the Connecticut there is no biome yet")
 	var world := World.new()
 	world.begin_staged_boot()
 	for _i in 36:
@@ -163,7 +166,7 @@ func _test_inland_bands_and_the_coast_strip() -> void:
 			bayou_chunk = true
 	_expect(valley_chunk, "the valley band is built")
 	_expect(bayou_chunk, "the bayou band is built")
-	_expect(not plains, "the plains band is not built")
+	_expect(not plains, "the plains, and anything past the bayou, are not in the first 36 chunks")
 	world.free()
 
 
@@ -676,6 +679,114 @@ func _test_bayou_ground() -> void:
 	_expect(str(sea.get("reason", "")) == "sea", "the landing sea is still not a bayou")
 
 
+func _test_river_country_ground() -> void:
+	print("connecticut ground")
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var country := catalog.get_biome(&"river_country")
+	var gen := ChunkGenerator.new()
+	var allowed_trees := {}
+	for name in country.tree_species:
+		allowed_trees[str(name)] = true
+	var saw_cottonwood := false
+	var saw_sycamore := false
+	var saw_chestnut_tree := false
+	var saw_hickory := false
+	var saw_nut := false
+	var tree_ok := true
+	var food_ok := true
+	var one_stem := true
+	var brook_wades := true
+	var flood_holds_bank_trees := true
+	var water_by_x := {}
+	for cy in range(World.COUNTRY_NORTH, World.COUNTRY_SOUTH + 1):
+		for cx in range(World.STRIP_WEST, World.STRIP_EAST + 1):
+			var data := gen.generate(11, cx, cy, country)
+			var tiles: PackedInt32Array = data["tiles"]
+			var trees: Array = data["trees"]
+			var foods: Array = data["forage"]
+			for tx in ChunkGenerator.WIDTH:
+				var wx := cx * ChunkGenerator.WIDTH + tx
+				for ty in ChunkGenerator.HEIGHT:
+					var i := ty * ChunkGenerator.WIDTH + tx
+					var wy := cy * ChunkGenerator.HEIGHT + ty
+					var part := gen.country_part(11, wx, wy)
+					var kind := int(tiles[i])
+					if kind == ChunkGenerator.TILE_WATER:
+						water_by_x[wx] = int(water_by_x.get(wx, 0)) + 1
+					if part == "stem" and (kind != ChunkGenerator.TILE_WATER or str(trees[i]) != ""):
+						one_stem = false
+					if part == "brook":
+						if kind != ChunkGenerator.TILE_BROOK or gen.is_blocked(kind):
+							brook_wades = false
+					if part == "flood" and str(trees[i]) != "":
+						if str(trees[i]) != "eastern_cottonwood" and str(trees[i]) != "american_sycamore":
+							flood_holds_bank_trees = false
+					if str(foods[i]) != "":
+						if str(foods[i]) != "chestnut" or part != "terrace":
+							food_ok = false
+						else:
+							saw_nut = true
+					var tree_name := str(trees[i])
+					if tree_name != "":
+						if not allowed_trees.has(tree_name):
+							tree_ok = false
+						if tree_name == "eastern_cottonwood":
+							saw_cottonwood = true
+						elif tree_name == "american_sycamore":
+							saw_sycamore = true
+						elif tree_name == "american_chestnut":
+							saw_chestnut_tree = true
+							if part != "terrace":
+								tree_ok = false
+						elif tree_name == "shagbark_hickory":
+							saw_hickory = true
+	for wx in range(World.STRIP_WEST * ChunkGenerator.WIDTH, (World.STRIP_EAST + 1) * ChunkGenerator.WIDTH):
+		if int(water_by_x.get(wx, 0)) != 1:
+			one_stem = false
+	_expect(tree_ok, "connecticut trees are only the research list, and chestnut stays on the terrace")
+	_expect(food_ok, "the chestnut nut stays on the terrace")
+	_expect(saw_cottonwood and saw_sycamore, "the floodplain has cottonwood and sycamore")
+	_expect(saw_chestnut_tree and saw_hickory, "the terrace has chestnut and shagbark")
+	_expect(saw_nut, "the chestnut nut grows")
+	_expect(one_stem, "each column has one stem tile and nothing stands in it")
+	_expect(brook_wades, "a tributary is a brook he can wade")
+	_expect(flood_holds_bank_trees, "the bank trees are cottonwood and sycamore")
+	_expect(not Interact.drops_pitch("eastern_cottonwood"), "cottonwood does not drop pitch")
+	_expect(not Interact.drops_pitch("american_chestnut"), "chestnut does not drop pitch")
+	var wx := 20
+	while gen.country_is_brook(11, wx):
+		wx += 1
+	var stem_y := gen.country_stem_y(11, wx)
+	var sample := func(x: int, y: int) -> int:
+		return gen.peek_ground(11, x, y)
+	var landed := ChunkGenerator.raft_landing(Vector2i(wx, stem_y + 1), Vector2i(0, -1), sample)
+	_expect(str(landed.get("reason", "")) == "river", "a raft can cross the Connecticut")
+	_expect((landed.get("cell") as Vector2i).y < stem_y, "the landing is past the stem")
+	var sea := ChunkGenerator.raft_landing(Vector2i(4, 41), Vector2i(0, 1), sample)
+	_expect(str(sea.get("reason", "")) == "sea", "the landing sea is still not this river")
+	var world := World.new()
+	world.begin_staged_boot()
+	for _i in 48:
+		world.stage_boot_step()
+	_expect(world.boot_chunk_count() == 48, "the coast, valley, bayou, and Connecticut are 48 chunks")
+	var plains := false
+	var country_chunk := false
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		if chunk.chunk_y <= -8 and chunk.chunk_y >= -11:
+			plains = true
+		if chunk.chunk_y < World.COUNTRY_NORTH or chunk.chunk_y > World.STRIP_SOUTH:
+			plains = true
+		if chunk.chunk_y == -16:
+			country_chunk = true
+	_expect(country_chunk, "the Connecticut band is built")
+	_expect(not plains, "the plains band is still not built")
+	world.free()
+
+
 func _test_stub_biomes_have_no_spawn_tables() -> void:
 	print("stub biomes do not pretend to have species")
 	var catalog := BiomeCatalog.new()
@@ -690,6 +801,13 @@ func _test_stub_biomes_have_no_spawn_tables() -> void:
 	_expect(swamp.tree_species.has("baldcypress"), "baldcypress is a bayou tree")
 	_expect(not swamp.tree_species.has("fir") and not swamp.tree_species.has("spruce"), "the bayou does not chop fir or spruce")
 	_expect(swamp.trail_maker == &"", "the bayou has no trail animal")
+	var country := catalog.get_biome(&"river_country")
+	_expect(country != null and country.tree_species.size() == 4, "the Connecticut lists four timber trees")
+	_expect(country != null and country.forage_species.size() == 1, "the Connecticut lists the chestnut nut")
+	_expect(country.tree_species.has("american_chestnut"), "American chestnut is a terrace tree")
+	_expect(not country.tree_species.has("fir") and not country.tree_species.has("baldcypress"), "the Connecticut does not chop fir or cypress")
+	_expect(not country.forage_species.has("silver_maple") and country.forage_species.has("chestnut"), "the food is the chestnut nut")
+	_expect(country.trail_maker == &"", "the Connecticut has no trail animal")
 	var valley := catalog.get_biome(&"river_valley")
 	_expect(valley != null and valley.tree_species.size() == 12, "the valley lists the twelve timber trees")
 	_expect(valley != null and valley.forage_species.size() == 3, "the valley lists three foods")
