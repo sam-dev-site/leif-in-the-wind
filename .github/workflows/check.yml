@@ -30,6 +30,7 @@ jobs:
           test -f docs/research/biomes/inland_plains.md
           test -f docs/research/biomes/bayou.md
           test -f docs/research/biomes/river_country.md
+          test -f docs/research/biomes/western_shore.md
           test -f .cursor/rules/knowledge.mdc
           test -f .cursor/rules/dev-loop.mdc
           test -f .cursor/rules/commit-signoff.mdc

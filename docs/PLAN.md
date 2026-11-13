@@ -143,13 +143,13 @@ Only after Phase K is on `main`. Generate `chunk_y` −16..−19 from `docs/rese
 
 Docs only. A real Pacific-edge analogue for a compressed crossing. The file says what the shore is. The win does not need a new skill.
 
-**Done when:** the research file has sources and a draft signature list. Not a Play.
+**Done when:** the research file has sources and a draft signature list. Not a Play. This pass names the Olympic Peninsula outer coast. The id is `western_shore`. No resource yet.
 
 ## Phase N — The win
 
-Only after Phase M is on `main`.
+Only after Phase M is on `main`. Generate `chunk_y` −20..−23 from `docs/research/biomes/western_shore.md` only. That file supports old woodcutting on Sitka spruce, western hemlock, and western redcedar, and old foraging on salmonberry and salal. It does not support a new skill, a pitch drop, a fishery, or a boat. The water is the west edge. He does not win by walking into it.
 
-- Generate the last band, `chunk_y` −20..−23, wide enough that `chunk_x <= -2` is walkable shore.
+- Generate the last band wide enough that `chunk_x <= -2` is walkable shore.
 - The first time he stands on that shore, show **The other sea.** once. Store the flag on the shore file so it does not repeat. **R** keeps the flag if this run already won. A new run on a new shore has not won.
 - The world does not end. He can walk back.
 
