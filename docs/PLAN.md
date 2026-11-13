@@ -125,7 +125,7 @@ Docs only, same gate as Phase G, for `docs/research/biomes/bayou.md`. Real inter
 
 Only after Phase I is on `main`. Generate `chunk_y` −12..−15 from `docs/research/biomes/bayou.md` only. The water rule is the one in that file: bayou channels and tupelo sloughs are not waded, the cypress margin and the higher floodplain are the walk, and it is not one stem. Do not invent a tile depth, a flood calendar, or a second boat. Color boxes. `docs/ART.md` rows. No alligator in this phase.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The bayou band is in this branch. The plains rows between it and the valley are still not generated, so a walk from the coast does not reach it yet.
 
 ## Phase K — Later river country, research
 

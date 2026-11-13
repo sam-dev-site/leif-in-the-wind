@@ -19,6 +19,10 @@ const TILE_BROOK := 6
 ## Valley band and the six-tile stem centered on the seam between chunk -6 and -5.
 const VALLEY_SOUTH := -4
 const VALLEY_NORTH := -7
+## Bayou band. The plains rows between the valley and this band are not built.
+const BAYOU_SOUTH := -12
+const BAYOU_NORTH := -15
+const BAYOU_TREES: PackedStringArray = ["overcup_oak", "water_hickory"]
 const STEM_NORTH := -243
 const STEM_SOUTH := -238
 const FLOOD_REACH := 4
@@ -72,8 +76,11 @@ func generate(world_seed: int, chunk_x: int, chunk_y: int, biome: Biome) -> Dict
 			tiles[i] = _ground_tile(world_seed, chunk_x, chunk_y, tx, ty)
 
 	var valley := biome != null and biome.id == &"river_valley"
+	var bayou := biome != null and biome.id == &"bayou"
 	if valley:
 		_fill_valley(world_seed, chunk_x, chunk_y, tiles, trees, forage)
+	elif bayou:
+		_fill_bayou(world_seed, chunk_x, chunk_y, tiles, trees, forage)
 	else:
 		_carve_caribou_trail(world_seed, chunk_x, chunk_y, tiles)
 		if biome != null and not biome.tree_species.is_empty():
@@ -109,6 +116,8 @@ func peek_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
 	var local_y := posmod(world_ty, HEIGHT)
 	if cy <= VALLEY_SOUTH and cy >= VALLEY_NORTH:
 		return _valley_ground(world_seed, cx, cy, local_x, local_y)
+	if cy <= BAYOU_SOUTH and cy >= BAYOU_NORTH:
+		return _bayou_ground(world_seed, world_tx, world_ty)
 	return _ground_tile(world_seed, cx, cy, local_x, local_y)
 
 
@@ -221,6 +230,8 @@ static func raft_landing(origin: Vector2i, step: Vector2i, sample: Callable, ste
 	if kind != TILE_WATER:
 		return none
 	if not _raft_on_stem(cell.y, stem):
+		if _bayou_row(cell.y):
+			return _raft_bayou(cell, step, sample)
 		return {"ok": false, "reason": "sea", "cell": cell}
 	var crossed := 0
 	while crossed < RAFT_REACH and kind == TILE_WATER and _raft_on_stem(cell.y, stem):
@@ -232,6 +243,24 @@ static func raft_landing(origin: Vector2i, step: Vector2i, sample: Callable, ste
 	if kind == TILE_WATER:
 		return {"ok": false, "reason": "wide", "cell": cell}
 	return {"ok": true, "reason": "cross", "cell": cell}
+
+
+static func _bayou_row(world_ty: int) -> bool:
+	var cy := floor_div(world_ty, HEIGHT)
+	return cy <= BAYOU_SOUTH and cy >= BAYOU_NORTH
+
+
+## A bayou channel is not the landing sea and not the valley stem. The line does not fish it.
+static func _raft_bayou(cell: Vector2i, step: Vector2i, sample: Callable) -> Dictionary:
+	var crossed := 0
+	var kind := TILE_WATER
+	while crossed < RAFT_REACH and kind == TILE_WATER and _bayou_row(cell.y):
+		crossed += 1
+		cell += step
+		kind = int(sample.call(cell.x, cell.y))
+	if kind == TILE_WATER:
+		return {"ok": false, "reason": "wide", "cell": cell}
+	return {"ok": true, "reason": "channel", "cell": cell}
 
 
 static func _raft_on_stem(world_ty: int, stem: Callable) -> bool:
@@ -380,6 +409,67 @@ func _scatter_valley_plants(
 			if _rand01(world_seed, chunk_x * WIDTH + tx, wy, 44) > chance:
 				continue
 			forage[i] = VALLEY_FORAGE[_hash(world_seed, tx, ty, 45) % VALLEY_FORAGE.size()]
+
+
+## Three wandering channels. One tile of open water, one tile of tupelo water beside it,
+## one tile of cypress ground on the other side. The research gave no width. This is the drawing.
+func channel_x(world_seed: int, which: int, world_ty: int) -> int:
+	var base := -20 + which * 36
+	var band := floor_div(world_ty, 4)
+	var shift := (_hash(world_seed, which, band, 880) % 9) - 4
+	return base + shift
+
+
+func bayou_part(world_seed: int, world_tx: int, world_ty: int) -> String:
+	for which in 3:
+		var at := channel_x(world_seed, which, world_ty)
+		if world_tx == at:
+			return "channel"
+		if world_tx == at + 1:
+			return "slough"
+		if world_tx == at - 1:
+			return "margin"
+	return "high"
+
+
+func _bayou_ground(world_seed: int, world_tx: int, world_ty: int) -> int:
+	var part := bayou_part(world_seed, world_tx, world_ty)
+	if part == "channel" or part == "slough":
+		return TILE_WATER
+	if part == "margin":
+		return TILE_MOSS
+	return TILE_PEAT
+
+
+func _fill_bayou(
+	world_seed: int,
+	chunk_x: int,
+	chunk_y: int,
+	tiles: PackedInt32Array,
+	trees: Array[String],
+	forage: Array[String],
+) -> void:
+	for ty in HEIGHT:
+		for tx in WIDTH:
+			var wx := chunk_x * WIDTH + tx
+			var wy := chunk_y * HEIGHT + ty
+			var i := _idx(tx, ty)
+			var part := bayou_part(world_seed, wx, wy)
+			tiles[i] = _bayou_ground(world_seed, wx, wy)
+			if part == "slough":
+				trees[i] = "water_tupelo"
+			elif part == "margin":
+				var chance := clampf(0.28 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+				if _rand01(world_seed, wx, wy, 21) <= chance:
+					trees[i] = "baldcypress"
+				elif _rand01(world_seed, wx, wy, 46) <= clampf(0.05 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
+					forage[i] = "muscadine"
+			elif part == "high":
+				var chance := clampf(0.1 * AdminSettings.foliage_multiplier(), 0.0, 1.0)
+				if _rand01(world_seed, wx, wy, 21) <= chance:
+					trees[i] = BAYOU_TREES[_hash(world_seed, tx, ty, 33) % BAYOU_TREES.size()]
+				elif _rand01(world_seed, wx, wy, 47) <= clampf(0.04 * AdminSettings.foliage_multiplier(), 0.0, 1.0):
+					forage[i] = "pecan"
 
 
 func _ground_tile(world_seed: int, chunk_x: int, chunk_y: int, tx: int, ty: int) -> int:

@@ -6,8 +6,8 @@
 script = ExtResource("1")
 id = &"bayou"
 display_name = "Interior South"
-tree_species = PackedStringArray()
-forage_species = PackedStringArray()
+tree_species = PackedStringArray("baldcypress", "water_tupelo", "overcup_oak", "water_hickory")
+forage_species = PackedStringArray("muscadine", "pecan")
 trail_maker = &""
 water_color = Color(0.15, 0.28, 0.24, 1)
 shore_color = Color(0.35, 0.32, 0.2, 1)

@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The bayou is drawn as three channels, not a measured depth
+
+**Decision:** Phase J of `docs/PLAN.md`. `chunk_y` −12 through −15 generates `bayou`. The plains rows −11 through −8 stay unbuilt, so a walk from the valley does not reach the swamp yet. Each of three north–south channels is one open water tile, with one tupelo-water tile on its east and one walkable cypress tile on its west. The rest is higher ground: overcup oak, water hickory, and pecan. Muscadine is on the cypress margin. The raft can cross that water. The hand-line cannot fish it. No alligator. Color boxes. The one-tile width is the drawing, because the research file gave no depth.
+
+**Why:** The swamp had to be more than one stem, and it had to stay inside the species list. A numbered sounding would have been invented.
+
+**Rejected:** Generating the plains so he can walk there. A six-tile east–west stem. Fishing the bayou. Spanish moss as a prop that steals the chop. Pondcypress.
+
 ## 2026-11-12 — The southern swamp is the Atchafalaya, and cypress stays there
 
 **Decision:** Phase I of `docs/PLAN.md`. `bayou` is the Atchafalaya Basin: baldcypress and water tupelo in the backswamp, overcup oak and water hickory on the higher floodplain, muscadine and pecan as the foods, Spanish moss as a look and not a pickup. Channels and tupelo sloughs are not waded. The cypress margin and the higher ground are the walk. That is not one raft stem, and this file gives no tile depth. No new animal in the first spawn. The alligator is recorded and waits. The resource stays empty. Pondcypress is not the river-swamp tree. The modern stalled, hypoxic basin is not the 11th-century picture.

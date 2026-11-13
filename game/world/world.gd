@@ -9,6 +9,9 @@ const STRIP_SOUTH := 0
 ## Coast trail and caribou stop here. The valley continues to LAND_NORTH.
 const STRIP_NORTH := -3
 const LAND_NORTH := -7
+## The swamp band. Plains rows between the valley and this band are not generated.
+const BAYOU_SOUTH := -12
+const BAYOU_NORTH := -15
 ## Baked maximum. A first sleep in each ladder land adds one, up to the six lands.
 const HEART_START := 3.0
 const HEART_CAP := 9.0
@@ -280,6 +283,12 @@ func _plant_name(species: String) -> String:
 		"elm": "elm",
 		"green_ash": "green ash",
 		"basswood": "basswood",
+		"baldcypress": "baldcypress",
+		"water_tupelo": "water tupelo",
+		"overcup_oak": "overcup oak",
+		"water_hickory": "water hickory",
+		"muscadine": "muscadine",
+		"pecan": "pecan",
 		"forage_butternut": "butternut",
 		"riverbank_grape": "riverbank grape",
 		"fiddlehead": "fiddlehead",
@@ -978,11 +987,22 @@ func _land_keys() -> Array[Vector2i]:
 	for cy in range(LAND_NORTH, STRIP_NORTH):
 		for cx in range(STRIP_WEST, STRIP_EAST + 1):
 			keys.append(Vector2i(cx, cy))
+	for cy in range(BAYOU_NORTH, BAYOU_SOUTH + 1):
+		for cx in range(STRIP_WEST, STRIP_EAST + 1):
+			keys.append(Vector2i(cx, cy))
 	return keys
 
 
+func _built_key(key: Vector2i) -> bool:
+	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y > STRIP_SOUTH:
+		return false
+	if key.y >= LAND_NORTH:
+		return true
+	return key.y <= BAYOU_SOUTH and key.y >= BAYOU_NORTH
+
+
 func _make_chunk(key: Vector2i) -> MapChunk:
-	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y < LAND_NORTH or key.y > STRIP_SOUTH:
+	if not _built_key(key):
 		return null
 	if _chunks.has(key) and is_instance_valid(_chunks[key]):
 		return _chunks[key]
@@ -1254,7 +1274,7 @@ func try_pole_raft() -> String:
 	var step := Vector2i(int(round(dir.x)), int(round(dir.y)))
 	var result := ChunkGenerator.raft_landing(origin, step, _sample_world_tile)
 	var reason := str(result.get("reason", ""))
-	if reason == "cross":
+	if reason == "cross" or reason == "channel":
 		var dest: Vector2i = result["cell"]
 		var guard := 0
 		while guard < 8 and is_blocked_pixel(ChunkGenerator.cell_center(dest)):
@@ -1301,8 +1321,8 @@ func try_cast() -> String:
 		_hint = RAFT_WADE
 		_refresh_hud()
 		return "wade"
-	if water == "sea":
-		return "sea"
+	if water == "sea" or water == "channel":
+		return "sea" if water == "sea" else ""
 	if water != "cross":
 		return ""
 	if not skills.roll_fish():
