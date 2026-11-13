@@ -46,6 +46,15 @@ var _opened := false
 var _caribou: Caribou
 var _hares: Array[Hare] = []
 var _torch_light: PointLight2D
+var _glint_cells: Array[Vector2i] = []
+var _glint_nodes: Dictionary = {}
+var _spent_glints: Dictionary = {}
+var _rime_nodes: Array[Node2D] = []
+var _bed_mark: Node2D
+var _bed_cell := Vector2i(NightField.NO_CELL, NightField.NO_CELL)
+var _night_active := false
+var _night_index := -999
+var _night_restore: Dictionary = {}
 var _torch_rng := RandomNumberGenerator.new()
 var _torch_rng_ready := false
 
@@ -165,7 +174,9 @@ func _process(delta: float) -> void:
 	else:
 		_sync_torch_light()
 	var warm := is_near_fire(_player.global_position)
-	var change := supplies.tick_vitals(_clock.is_night(), warm, delta)
+	var torch_lit := pack != null and pack.torch_lit
+	var change := supplies.tick_vitals(_clock.is_night(), warm, delta, torch_lit)
+	sync_night()
 	if change == "cold":
 		_hint = "The night is cold. Get to a fire."
 		_refresh_hud()
@@ -235,6 +246,7 @@ func _mark_handled() -> void:
 
 
 func _on_phase_changed(_next: String) -> void:
+	sync_night()
 	_refresh_hud()
 
 
@@ -265,9 +277,12 @@ func _on_acted(action: String, species: String) -> void:
 		_hint = "Cleared a branch. +%s wood." % Supplies.wood_label(Supplies.WOOD_PER_BRANCH)
 		if _interact != null and _interact.last_extra == Rucksack.ID_STICK:
 			_hint += " Stick."
+	elif action == "pitch":
+		_hint = "Pitch."
 	elif action == "torch":
 		_hint = "Torch lit."
 		_sync_torch_light()
+		sync_night()
 	elif action == "torch_need_fire":
 		_hint = "Light it at a fire."
 	_refresh_hud()
@@ -341,6 +356,13 @@ func _torch_radial_texture() -> Texture2D:
 func rebuild() -> void:
 	# R is a new coast. Do not drop him back on the shore he had saved.
 	# The last-sleep mark goes with the old ground, same as fires.
+	# Tonight's glints go too. The new seed rolls its own night.
+	_clear_night_dressing()
+	_spent_glints.clear()
+	_night_active = false
+	_night_index = -999
+	_night_restore = {}
+	_bed_cell = Vector2i(NightField.NO_CELL, NightField.NO_CELL)
 	_pending_snapshot = {}
 	_has_sleep_mark = false
 	_sleep_mark = Vector2.ZERO
@@ -582,6 +604,16 @@ func capture_walk() -> Dictionary:
 		"caribou_dir": caribou_dir,
 		"hares": hare_rows,
 	}
+	if _night_active:
+		var spent: Array = []
+		for key in _spent_glints.keys():
+			var cell := key as Vector2i
+			spent.append([cell.x, cell.y])
+		data["pitch_spent"] = spent
+		data["caribou_bedded"] = _caribou != null and is_instance_valid(_caribou) and _caribou.is_bedded()
+		data["caribou_bed_abandoned"] = _caribou != null and is_instance_valid(_caribou) and _caribou.is_bed_abandoned()
+		data["caribou_bed_x"] = _bed_cell.x
+		data["caribou_bed_y"] = _bed_cell.y
 	if _has_sleep_mark:
 		data["sleep_x"] = _sleep_mark.x
 		data["sleep_y"] = _sleep_mark.y
@@ -641,6 +673,16 @@ func apply_walk(data: Dictionary) -> void:
 		_sleep_mark = Vector2.ZERO
 	_apply_caribou(data)
 	_apply_hares(data)
+	_night_restore = {
+		"has_bed": data.has("caribou_bedded"),
+		"bedded": bool(data.get("caribou_bedded", false)),
+		"abandoned": bool(data.get("caribou_bed_abandoned", false)),
+		"bed_x": int(data.get("caribou_bed_x", NightField.NO_CELL)),
+		"bed_y": int(data.get("caribou_bed_y", NightField.NO_CELL)),
+		"spent": data.get("pitch_spent", []),
+	}
+	sync_night()
+	_night_restore = {}
 	_reveal_visible_view()
 	_refresh_hud()
 
@@ -1430,6 +1472,7 @@ func _respawn() -> void:
 			DayClock.darkness_now = _clock.darkness()
 			if _night != null:
 				_night.color = _clock.modulate_color()
+		sync_night()
 	# Lit torch is single-use on death, then the extras tax, then wood/berries half.
 	if pack != null:
 		pack.extinguish_and_consume()
@@ -1476,6 +1519,7 @@ func _tick_sleep(delta: float) -> void:
 				_clock.set_process(true)
 				var skipped := _clock.seconds_until_dawn()
 				if not _clock.sleep_to_dawn():
+					sync_night()
 					_sleep_phase = ""
 					_dying = false
 					_hud.set_fade(0.0)
@@ -1484,6 +1528,7 @@ func _tick_sleep(delta: float) -> void:
 					_refresh_hud()
 					return
 				_burn_fires(skipped)
+				sync_night()
 				supplies.cold_acc = 0.0
 				if pack != null and pack.extinguish_and_consume():
 					_sync_torch_light()
@@ -1517,3 +1562,341 @@ func _tick_sleep(delta: float) -> void:
 			_dying = false
 			_hud.set_fade(0.0)
 			_hud.set_death_mark(0.0)
+
+
+func set_clock_elapsed(seconds: float) -> void:
+	if _clock == null:
+		return
+	_clock.elapsed = seconds
+	DayClock.darkness_now = _clock.darkness()
+	if _night != null:
+		_night.color = _clock.modulate_color()
+	sync_night()
+
+
+func glint_cells() -> Array[Vector2i]:
+	return _glint_cells.duplicate()
+
+
+func rime_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for node in _rime_nodes:
+		if node != null and is_instance_valid(node):
+			cells.append(node.get_meta("cell"))
+	return cells
+
+
+func night_bed_cell() -> Vector2i:
+	return _bed_cell
+
+
+func try_take_pitch(tree: Node2D) -> bool:
+	if tree == null or not is_instance_valid(tree) or pack == null:
+		return false
+	if not pitch_glint_ready(tree):
+		return false
+	var cell := _prop_world_cell(tree)
+	pack.add(Rucksack.ID_PITCH, 1)
+	_spent_glints[cell] = true
+	_glint_cells.erase(cell)
+	var mark: Node = _glint_nodes.get(cell)
+	if mark != null and is_instance_valid(mark):
+		mark.queue_free()
+	_glint_nodes.erase(cell)
+	return true
+
+
+func pitch_glint_ready(tree: Node2D) -> bool:
+	if tree == null or not is_instance_valid(tree) or pack == null or not pack.torch_lit:
+		return false
+	if _player == null or not is_instance_valid(_player):
+		return false
+	var cell := _prop_world_cell(tree)
+	if not _glint_cells.has(cell):
+		return false
+	return NightField.in_torch_pool(_player.global_position, tree.global_position)
+
+
+func sync_night() -> void:
+	if _clock == null:
+		return
+	if _clock.phase() != "night":
+		if _night_active:
+			_leave_night()
+		return
+	var index := NightField.night_index(_clock.elapsed, _clock.cycle_length())
+	if _night_active and index == _night_index:
+		_refresh_glint_visibility()
+		return
+	_enter_night(index)
+
+
+func _leave_night() -> void:
+	_clear_night_dressing()
+	_spent_glints.clear()
+	_night_active = false
+	_night_index = -999
+	_bed_cell = Vector2i(NightField.NO_CELL, NightField.NO_CELL)
+	if _caribou != null and is_instance_valid(_caribou):
+		_caribou.wake_on_trail()
+
+
+func _enter_night(index: int) -> void:
+	_clear_night_dressing()
+	_night_index = index
+	_night_active = true
+	_spent_glints.clear()
+	var restore_spent: Variant = _night_restore.get("spent", [])
+	if restore_spent is Array:
+		for item in restore_spent:
+			if item is Array and item.size() >= 2:
+				_spent_glints[Vector2i(int(item[0]), int(item[1]))] = true
+	var picked := NightField.pick_glints(world_seed, index, _pitch_tree_cells())
+	for cell in picked:
+		if _spent_glints.has(cell):
+			continue
+		_glint_cells.append(cell)
+	_attach_glints()
+	var bed := Vector2i(NightField.NO_CELL, NightField.NO_CELL)
+	var restored_bed := bool(_night_restore.get("has_bed", false))
+	if restored_bed:
+		bed = Vector2i(int(_night_restore.get("bed_x", NightField.NO_CELL)), int(_night_restore.get("bed_y", NightField.NO_CELL)))
+	else:
+		var trail := generator.caribou_trail_cells(world_seed, STRIP_NORTH)
+		bed = NightField.pick_bed(world_seed, index, trail, _bed_open)
+	_bed_cell = bed
+	_spawn_rime()
+	_spawn_bed_mark()
+	_refresh_glint_visibility()
+	if _caribou == null or not is_instance_valid(_caribou):
+		return
+	if bed.x == NightField.NO_CELL:
+		return
+	if restored_bed and bool(_night_restore.get("abandoned", false)):
+		_caribou.note_bed_abandoned()
+		return
+	if restored_bed and bool(_night_restore.get("bedded", false)):
+		_caribou.hold_bed()
+		return
+	_caribou.begin_night_bed(bed)
+
+
+func _bed_open(cell: Vector2i) -> bool:
+	var chunk := _chunk_for_cell(cell)
+	if chunk == null:
+		return false
+	var local := ChunkGenerator.local_of_cell(cell)
+	var kind := chunk.tile_kind(local)
+	if kind != ChunkGenerator.TILE_MOSS and kind != ChunkGenerator.TILE_PEAT:
+		return false
+	if chunk.cell_blocks_walk(local):
+		return false
+	for hare in _hares:
+		if hare == null or not is_instance_valid(hare):
+			continue
+		if ChunkGenerator.world_cell_at(hare.global_position) == cell:
+			return false
+	return true
+
+
+func _pitch_tree_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for key in _chunks.keys():
+		var chunk: MapChunk = _chunks[key]
+		if chunk == null or not is_instance_valid(chunk):
+			continue
+		for node in chunk.prop_nodes():
+			if str(node.get_meta("kind", "")) != "tree":
+				continue
+			var species := str(node.get_meta("species", ""))
+			if species != "fir" and species != "spruce":
+				continue
+			cells.append(_world_cell(chunk, node))
+	return cells
+
+
+func _rime_ground_cells() -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	for key in _chunks.keys():
+		var chunk: MapChunk = _chunks[key]
+		if chunk == null or not is_instance_valid(chunk):
+			continue
+		for ty in ChunkGenerator.HEIGHT:
+			for tx in ChunkGenerator.WIDTH:
+				var local := Vector2i(tx, ty)
+				var kind := chunk.tile_kind(local)
+				if kind != ChunkGenerator.TILE_MOSS and kind != ChunkGenerator.TILE_TRAIL:
+					continue
+				if chunk.cell_occupied(local):
+					continue
+				var cell := Vector2i(
+					chunk.chunk_x * ChunkGenerator.WIDTH + tx,
+					chunk.chunk_y * ChunkGenerator.HEIGHT + ty
+				)
+				if cell == _bed_cell:
+					continue
+				cells.append(cell)
+	return cells
+
+
+func _attach_glints() -> void:
+	var tex := _night_texture("res://art/coastal_north/pitch_glint.png")
+	for cell in _glint_cells:
+		var tree := _tree_at(cell)
+		if tree == null:
+			continue
+		var mark := Sprite2D.new()
+		mark.name = "PitchGlint"
+		mark.centered = true
+		mark.position = Vector2(0, -14)
+		mark.z_index = 2
+		mark.visible = false
+		mark.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if tex != null:
+			mark.texture = tex
+		else:
+			var dot := ColorRect.new()
+			dot.size = Vector2(3, 3)
+			dot.position = Vector2(-1, -1)
+			dot.color = Color(1.0, 0.82, 0.35)
+			dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			mark.add_child(dot)
+		tree.add_child(mark)
+		_glint_nodes[cell] = mark
+
+
+func _refresh_glint_visibility() -> void:
+	var lit := pack != null and pack.torch_lit and _player != null and is_instance_valid(_player)
+	var from := Vector2.ZERO
+	if lit:
+		from = _player.global_position
+	for cell in _glint_nodes.keys():
+		var mark: Node = _glint_nodes[cell]
+		if mark == null or not is_instance_valid(mark):
+			_glint_nodes.erase(cell)
+			continue
+		var tree := mark.get_parent() as Node2D
+		var show := false
+		if lit and tree != null:
+			show = NightField.in_torch_pool(from, tree.global_position)
+		if mark is CanvasItem:
+			(mark as CanvasItem).visible = show
+
+
+func _spawn_rime() -> void:
+	var tex := _night_texture("res://art/coastal_north/rime.png")
+	var cells := NightField.pick_rime(world_seed, _night_index, _rime_ground_cells(), _bed_cell)
+	for cell in cells:
+		var chunk := _chunk_for_cell(cell)
+		if chunk == null:
+			continue
+		var mark := Sprite2D.new()
+		mark.name = "Rime"
+		mark.centered = true
+		mark.z_index = -8
+		mark.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		mark.set_meta("cell", cell)
+		mark.set_meta("kind", "rime")
+		var local := ChunkGenerator.local_of_cell(cell)
+		mark.position = Vector2(
+			(float(local.x) + 0.5) * ChunkGenerator.TILE,
+			(float(local.y) + 0.5) * ChunkGenerator.TILE
+		)
+		if tex != null:
+			mark.texture = tex
+		else:
+			var fleck := ColorRect.new()
+			fleck.size = Vector2(4, 2)
+			fleck.position = Vector2(-2, -1)
+			fleck.color = Color(0.9, 0.94, 0.96, 0.85)
+			fleck.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			mark.add_child(fleck)
+		chunk.add_child(mark)
+		_rime_nodes.append(mark)
+
+
+func _spawn_bed_mark() -> void:
+	if _bed_cell.x == NightField.NO_CELL:
+		return
+	var chunk := _chunk_for_cell(_bed_cell)
+	if chunk == null:
+		return
+	var tex := _night_texture("res://art/coastal_north/caribou_bed.png")
+	var mark := Sprite2D.new()
+	mark.name = "CaribouBed"
+	mark.centered = true
+	mark.z_index = -6
+	mark.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	mark.set_meta("cell", _bed_cell)
+	var local := ChunkGenerator.local_of_cell(_bed_cell)
+	mark.position = Vector2(
+		(float(local.x) + 0.5) * ChunkGenerator.TILE,
+		(float(local.y) + 0.5) * ChunkGenerator.TILE
+	)
+	if tex != null:
+		mark.texture = tex
+	else:
+		var oval := ColorRect.new()
+		oval.size = Vector2(10, 6)
+		oval.position = Vector2(-5, -3)
+		oval.color = Color(0.22, 0.32, 0.18, 0.9)
+		oval.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mark.add_child(oval)
+	chunk.add_child(mark)
+	_bed_mark = mark
+
+
+func _clear_night_dressing() -> void:
+	for key in _glint_nodes.keys():
+		var mark: Node = _glint_nodes[key]
+		if mark != null and is_instance_valid(mark):
+			mark.queue_free()
+	_glint_nodes.clear()
+	_glint_cells.clear()
+	for node in _rime_nodes:
+		if node != null and is_instance_valid(node):
+			node.queue_free()
+	_rime_nodes.clear()
+	if _bed_mark != null and is_instance_valid(_bed_mark):
+		_bed_mark.queue_free()
+	_bed_mark = null
+
+
+func _tree_at(cell: Vector2i) -> Node2D:
+	var chunk := _chunk_for_cell(cell)
+	if chunk == null:
+		return null
+	for node in chunk.prop_nodes():
+		if str(node.get_meta("kind", "")) != "tree":
+			continue
+		if _world_cell(chunk, node) == cell:
+			return node
+	return null
+
+
+func _prop_world_cell(node: Node2D) -> Vector2i:
+	var host := node.get_parent()
+	if host is MapChunk:
+		return _world_cell(host as MapChunk, node)
+	return ChunkGenerator.world_cell_at(node.global_position)
+
+
+func _world_cell(chunk: MapChunk, node: Node2D) -> Vector2i:
+	var local := chunk.cell_of_prop(node)
+	return Vector2i(
+		chunk.chunk_x * ChunkGenerator.WIDTH + local.x,
+		chunk.chunk_y * ChunkGenerator.HEIGHT + local.y
+	)
+
+
+func _chunk_for_cell(cell: Vector2i) -> MapChunk:
+	var chunk: MapChunk = _chunks.get(ChunkGenerator.chunk_of_cell(cell))
+	if chunk != null and is_instance_valid(chunk):
+		return chunk
+	return null
+
+
+func _night_texture(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as Texture2D

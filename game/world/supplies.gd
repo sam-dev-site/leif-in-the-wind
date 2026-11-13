@@ -81,13 +81,14 @@ func _add_wood(amount: float) -> void:
 	wood = snappedf(wood + amount, 0.1)
 
 
-## Night away from a fire: lose half a heart every 5s. Day and fire warmth do not heal.
-## The cold that would take the last half-heart returns "die" instead.
-func tick_vitals(is_night: bool, is_warm: bool, delta: float) -> String:
+## Night away from a fire: lose half a heart every 5s. A lit torch makes that 10s.
+## Day and fire warmth do not heal. The last half-heart returns "die".
+func tick_vitals(is_night: bool, is_warm: bool, delta: float, torch_lit: bool = false) -> String:
 	if delta <= 0.0:
 		return ""
 	if is_night and not is_warm:
-		cold_acc += delta
+		# 50% slower while the torch is burning. Standing and walking both count.
+		cold_acc += delta * (0.5 if torch_lit else 1.0)
 		if cold_acc < COLD_SECONDS:
 			return ""
 		cold_acc = 0.0
