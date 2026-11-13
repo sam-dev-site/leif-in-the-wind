@@ -16,6 +16,7 @@ func _init() -> void:
 	_test_river_valley_ground()
 	_test_raft()
 	_test_fishing()
+	_test_hearts_and_continent_map()
 	_test_shore_south_trail_inland()
 	_test_only_researched_species()
 	_test_stub_biomes_have_no_spawn_tables()
@@ -3074,6 +3075,120 @@ func _test_night_on_this_coast() -> void:
 		var trail := world.generator.caribou_trail_cells(world.world_seed, World.STRIP_NORTH)
 		_expect(trail.has(back), "dawn puts the caribou back on the trail")
 	world.free()
+
+
+func _test_hearts_and_continent_map() -> void:
+	print("hearts and continent map")
+	AdminSettings.hearts = 3
+	_expect(BiomeCatalog.ladder_id(0) == "coastal_north", "the landing is the coast")
+	_expect(BiomeCatalog.ladder_id(48) == "coastal_north", "the landing sea stays the coast")
+	_expect(BiomeCatalog.ladder_id(-200) == "river_valley", "the stem sits in the valley")
+	_expect(BiomeCatalog.ladder_name("inland_plains") == "Interior", "the plains band is named Interior")
+	_expect(BiomeCatalog.ladder_name("western_shore") == "The other sea", "the last band is the other sea")
+	_use_empty_saves()
+	var world := _boot_run(0, {})
+	var hud := _hud_of(world)
+	var leif := world.leif()
+	_expect(hud != null and leif != null, "the woods are up for hearts")
+	if hud == null or leif == null:
+		world.free()
+		AdminSettings.hearts = 3
+		return
+	world.apply_walk({"hearts": 2.0, "hearts_max": 6.0})
+	_expect(is_equal_approx(world.supplies.hearts_max, 3.0), "an old save loads at 3")
+	_expect(is_equal_approx(world.supplies.hearts, 2.0), "an old save does not grant a heart")
+	_expect(world.slept_lands().is_empty(), "an old save has no slept lands")
+	AdminSettings.hearts = 5
+	world.apply_walk({
+		"hearts": 2.0,
+		"hearts_max": 4.0,
+		"slept_lands": ["coastal_north"],
+	})
+	_expect(is_equal_approx(world.supplies.hearts_max, 5.0), "a slider other than 3 replaces the maximum")
+	_expect(is_equal_approx(world.earned_hearts(), 4.0), "the file still holds the earned maximum")
+	leif.global_position = ChunkGenerator.cell_center(Vector2i(0, -200))
+	_expect(not world.note_sleep(), "a sleep under the slider does not pay")
+	_expect(is_equal_approx(world.earned_hearts(), 4.0), "the slider sleep leaves the earned maximum")
+	_expect(not world.slept_lands().has("river_valley"), "the slider sleep does not spend the land")
+	AdminSettings.hearts = 3
+	world.apply_heart_session()
+	_expect(is_equal_approx(world.supplies.hearts_max, 4.0), "baked 3 plays the earned maximum")
+	world.apply_walk({"hearts": 2.0, "hearts_max": 9.0})
+	_expect(is_equal_approx(world.supplies.hearts_max, 3.0), "dropping the slept list returns to 3")
+	_expect(is_equal_approx(world.supplies.hearts, 2.0), "the reset keeps the hearts he is carrying")
+	leif.global_position = ChunkGenerator.cell_center(Vector2i(8, -16))
+	_expect(world.note_sleep(), "the first sleep in a land adds one heart")
+	_expect(is_equal_approx(world.supplies.hearts_max, 4.0), "the coast sleep raises the maximum to 4")
+	_expect(is_equal_approx(world.supplies.hearts, 2.0), "sleep does not fill hearts")
+	_expect(not world.note_sleep(), "a second sleep in that land does not pay")
+	_expect(is_equal_approx(world.supplies.hearts_max, 4.0), "the second coast sleep stays at 4")
+	world.supplies.hearts = 2.0
+	world._respawn()
+	_expect(is_equal_approx(world.supplies.hearts, 1.0), "death sets hearts to 1")
+	_expect(is_equal_approx(world.supplies.hearts_max, 4.0), "death leaves the maximum")
+	world.apply_walk({"hearts": 3.0})
+	var lands: Array[Vector2i] = [
+		Vector2i(0, 0),
+		Vector2i(0, -200),
+		Vector2i(0, -384),
+		Vector2i(0, -576),
+		Vector2i(0, -768),
+		Vector2i(0, -960),
+	]
+	for cell in lands:
+		leif.global_position = ChunkGenerator.cell_center(cell)
+		_expect(world.note_sleep(), "sleep pays in %s" % BiomeCatalog.ladder_id(cell.y))
+	_expect(is_equal_approx(world.earned_hearts(), 9.0), "six lands cap the maximum at 9")
+	leif.global_position = ChunkGenerator.cell_center(lands[0])
+	_expect(not world.note_sleep(), "a repeated land stays at the cap")
+	_expect(is_equal_approx(world.supplies.hearts_max, 9.0), "the cap does not grow past 9")
+	var shared := Vector2i(2, -200)
+	var look := Vector2i(0, -200)
+	var before := world._fog.paint(world._minimap_sample, world._minimap_color, look)
+	_expect(before.get_pixel(FogMap.RADIUS + 2, FogMap.RADIUS) == FogMap.FOG_COLOR, "the corner starts fog on that tile")
+	_expect(not world.band_entered("bayou"), "a band with no look stays blank")
+	_expect(world.paint_band("bayou") == null, "a blank band draws no ground")
+	world._fog.reveal(shared)
+	var after := world._fog.paint(world._minimap_sample, world._minimap_color, look)
+	_expect(after.get_pixel(FogMap.RADIUS + 2, FogMap.RADIUS) != FogMap.FOG_COLOR, "the corner shows the revealed tile")
+	var band := world.paint_band("river_valley")
+	_expect(band != null, "entering the valley opens that band")
+	var px := (shared.x - World.STRIP_WEST * ChunkGenerator.WIDTH) / World.BAND_STEP
+	var py := (shared.y - -7 * ChunkGenerator.HEIGHT) / World.BAND_STEP
+	_expect(band.get_pixel(px, py) != FogMap.FOG_COLOR, "the continent map shows the same revealed tile")
+	var mini := hud.get_node_or_null("Minimap") as Control
+	_expect(mini != null and mini.mouse_filter == Control.MOUSE_FILTER_STOP, "a click can land on the corner map")
+	world.toggle_map()
+	_expect(world.map_is_open(), "a click opens the continent map")
+	_expect(world.clock_running(), "the clock keeps running")
+	var panel := hud.get_node_or_null("ContinentMap") as Control
+	_expect(panel != null and panel.visible, "the six bands are on screen")
+	if panel != null:
+		var bayou := panel.get_child(9) as Label
+		var bayou_block := panel.get_child(10) as ColorRect
+		var bayou_tex := panel.get_child(11) as TextureRect
+		_expect(bayou != null and bayou.text == "Bayou", "a blank band keeps the ladder name")
+		_expect(bayou_block != null and bayou_block.visible, "a blank band is a block")
+		_expect(bayou_tex != null and not bayou_tex.visible, "a blank band draws no species")
+		var other := panel.get_child(15) as Label
+		_expect(other != null and other.text == "The other sea", "the western band is named")
+	_send_key(world, KEY_ESCAPE)
+	_expect(not world.map_is_open(), "Escape closes the map")
+	_expect(not world.is_quit_ask(), "closing the map does not ask to quit")
+	_send_key(world, KEY_ESCAPE)
+	_expect(world.is_quit_ask(), "the next Escape asks to quit")
+	_send_key(world, KEY_N)
+	_expect(not world.is_quit_ask(), "No closes the ask")
+	var far := Vector2i(200, -10)
+	world._fog.reveal(far)
+	var kept := world.earned_hearts()
+	var slept := world.slept_lands()
+	world.rebuild()
+	_expect(is_equal_approx(world.earned_hearts(), kept), "R keeps the maximum")
+	_expect(world.slept_lands().size() == slept.size(), "R keeps the slept lands")
+	_expect(not world._fog.is_revealed(far), "R clears the fog")
+	world.free()
+	AdminSettings.hearts = 3
 
 
 func _tree_for_world_cell(world: World, cell: Vector2i) -> Node2D:

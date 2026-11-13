@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — Hearts are earned per land, and the map is six bands
+
+**Decision:** Phase F of `docs/PLAN.md`. The first **C** sleep in a ladder land adds one to the earned maximum and does not fill hearts. The file stores that maximum and the slept-land list. A file with no list stays at 3. When the admin slider is 3, he plays the earned maximum. Any other slider is the session maximum, and a sleep under it does not pay and does not mark the land. The cap is 9. A single click on the corner map toggles six bands: Coastal North, River valley, Interior, Bayou, River country, The other sea. A band with no revealed tile is a blank block and its name. A band he has entered draws the same fog, sampled every 8 tiles across the built strip (`chunk_x` −1..1). The coast drawing is chunk rows −3 through 0. Escape closes the map before the quit ask. The clock keeps running.
+
+**Why:** The lock left the close key and the slider-sleep mark open. The map has to be readable before the plains exist, so unresearched bands stay names.
+
+**Rejected:** Filling hearts on sleep. Granting a heart on load of an old file. Marking a land slept while the slider is overriding the maximum. Pausing the night while the map is open. Drawing species in a band that has no research.
+
 ## 2026-11-12 — Fishing uses the half-size table
 
 **Decision:** Phase E of `docs/PLAN.md`. The hand-line is 1 stick and 1 pitch, cap 1, and it takes the one held-tool slot. Space on a bank facing the main stem casts. A prop in front still chops or picks. A brook and the landing sea do not. The catch is smelt, gaspereau, shad, eel, or salmon, at the weights in `docs/LOOP.md`. A miss spends nothing. Fish are eaten from the pack for half a heart. **E** still spends forage. Fishing XP is the Old School total integer-divided by 2. Woodcutting, fire-making, and foraging stay on the coast table, and coast level 99 stays 341,036. The QC slider does not rewrite the fishing anchors.

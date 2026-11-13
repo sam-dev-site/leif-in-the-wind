@@ -30,6 +30,37 @@ const COAST_NORTH := -3
 const RIVER_NORTH := -7
 const PLAINS_NORTH := -11
 const BAYOU_NORTH := -15
+const RIVER_COUNTRY_NORTH := -19
+const WESTERN_NORTH := -23
+
+## Display names for the continent map. The last two have no biome resource yet.
+const LADDER: Array[Dictionary] = [
+	{"id": "coastal_north", "name": "Coastal North", "north": -3, "south": 1000000},
+	{"id": "river_valley", "name": "River valley", "north": -7, "south": -4},
+	{"id": "inland_plains", "name": "Interior", "north": -11, "south": -8},
+	{"id": "bayou", "name": "Bayou", "north": -15, "south": -12},
+	{"id": "river_country", "name": "River country", "north": -19, "south": -16},
+	{"id": "western_shore", "name": "The other sea", "north": -23, "south": -20},
+]
+
+
+static func ladder_row(chunk_y: int) -> Dictionary:
+	for row in LADDER:
+		if chunk_y <= int(row["south"]) and chunk_y >= int(row["north"]):
+			return row
+	return {}
+
+
+static func ladder_id(world_ty: int) -> String:
+	var cy := ChunkGenerator.floor_div(world_ty, ChunkGenerator.HEIGHT)
+	return str(ladder_row(cy).get("id", ""))
+
+
+static func ladder_name(id: String) -> String:
+	for row in LADDER:
+		if str(row["id"]) == id:
+			return str(row["name"])
+	return ""
 
 
 ## Landing sea (chunk_y > 0) stays coastal_north. The generator paints that as water.
