@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The other sea is the Olympic outer coast, and the win stays a step
+
+**Decision:** Phase M of `docs/PLAN.md`. `western_shore` is the outer coast of the Olympic Peninsula: Sitka spruce, western hemlock, and western redcedar, with salmonberry and salal. The Pacific is the west edge. The win stays the locked line, **The other sea.**, the first time he stands on that shore. No new skill, no pitch drop, no fishery, and no boat. No trail animal. No resource until the spawn phase. The ladder name stays The other sea.
+
+**Why:** The mission asked for a compressed walk to a Pacific shore. This is that ocean, and the trees are not the Newfoundland fir and spruce. The arrival is the whole new thing. The file does not support a verb on top of it.
+
+**Rejected:** Coast redwood as this band. Another river to cross. A salmon catch. Sitka resin as the coast pitch stack. An elk path. A village that hands him the win.
+
 ## 2026-11-12 — The Connecticut is one tile of water, not a measured mouth
 
 **Decision:** Phase L of `docs/PLAN.md`. `chunk_y` −16 through −19 generates `river_country`. The stem is one meandering water tile. The tile beside it is the floodplain (cottonwood and sycamore). The rest is terrace (American chestnut, shagbark hickory, and the chestnut nut). Three brooks are the tributaries he can wade. The raft can cross the stem. The hand-line cannot fish it. No new animal and no new skill. The plains rows stay unbuilt. The one-tile width is the drawing, because the research file gave no width and forbade turning the modern mouth into tiles.
