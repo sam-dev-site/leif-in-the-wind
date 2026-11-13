@@ -1,8 +1,8 @@
 # Biome research: `western_shore`
 
-Status: **draft — owner should skim before art or spawn tables**
+Status: **draft — the signature list below is what Phase N spawns.** Pictures are boxes.
 
-Research only. Nothing in this file is authorized for `game/`, spawn tables, art filenames, or PixelLab prompts until that skim. There is no `western_shore.tres` yet. The id is `western_shore`, the same id the continent map already uses for this band. The ladder name stays **The other sea**. That name is the win line. It is not a species.
+The id is `western_shore`, the same id the continent map already uses for this band. The ladder name stays **The other sea**. That name is the win line. It is not a species. The ocean chunk west of the walkable shore is a drawing, logged in `docs/DECISIONS.md`, because this file gives no width.
 
 This is the Pacific edge of a compressed crossing. The win is standing on that shore. This file does not add a skill to get there.
 
@@ -78,7 +78,7 @@ Phase N needs the edge this file actually describes. The sources support a fores
 
 ## Draft signature list (not a spawn table)
 
-Owner skims this file before any of the following is copied into a resource, art, or a prompt. Until Phase N, there is no resource.
+Phase N copies this list. Pictures stay boxes until a row in `docs/ART.md` is named.
 
 - Shore trees, later: Sitka spruce, western hemlock, western redcedar. Color boxes. No pitch.
 - Forage, later: salmonberry, salal. They join the same forage count.

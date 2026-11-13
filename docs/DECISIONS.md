@@ -2,6 +2,14 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-12 — The win is one step on chunk −2, and the ocean is the chunk west of it
+
+**Decision:** Phase N of `docs/PLAN.md`. `chunk_y` −20 through −23 generates `western_shore`, and that band also builds `chunk_x` −3. Chunk −3 is water. Chunk −2 is walkable forest, and that is the shore. The first step there shows **The other sea.** once. The save stores the flag. **R** keeps it. A new run does not. Death and sleep do not clear it. Water does not set it. A coast tile does not. Sitka spruce, western hemlock, western redcedar, salmonberry, and salal. No pitch, no fishery, no boat. The plains stay unbuilt. The whole water chunk is the drawing, because the research file gave no width.
+
+**Why:** The lock already said the win is `chunk_x <= -2` once the band is wide enough, and that walking into the water is not the win. A numbered surf would have been invented.
+
+**Rejected:** A six-tile beach. Fishing the Pacific. A pitch drop from Sitka spruce. Ending the world. Generating the plains so he can walk here from the landing.
+
 ## 2026-11-12 — The other sea is the Olympic outer coast, and the win stays a step
 
 **Decision:** Phase M of `docs/PLAN.md`. `western_shore` is the outer coast of the Olympic Peninsula: Sitka spruce, western hemlock, and western redcedar, with salmonberry and salal. The Pacific is the west edge. The win stays the locked line, **The other sea.**, the first time he stands on that shore. No new skill, no pitch drop, no fishery, and no boat. No trail animal. No resource until the spawn phase. The ladder name stays The other sea.

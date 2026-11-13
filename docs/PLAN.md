@@ -155,7 +155,7 @@ Only after Phase M is on `main`. Generate `chunk_y` −20..−23 from `docs/rese
 
 **Tests:** stepping onto the shore sets the flag and the line. A second step does not show it again. Death and sleep do not clear it. A coast tile does not set it.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The other sea is in this branch. Chunk −3 is water. Chunk −2 is the walkable shore. The plains rows are still not generated, so a walk from the coast does not reach it yet.
 
 ## After the path
 

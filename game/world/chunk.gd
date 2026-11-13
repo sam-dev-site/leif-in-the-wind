@@ -63,7 +63,7 @@ func bake_floor_step(rows: int) -> bool:
 	var end := mini(_bake_ty + maxi(rows, 1), ChunkGenerator.HEIGHT)
 	var tiles: PackedInt32Array = data["tiles"]
 	var row_from := _bake_ty
-	var flat := biome.id == &"river_valley" or biome.id == &"bayou" or biome.id == &"river_country"
+	var flat := biome.id == &"river_valley" or biome.id == &"bayou" or biome.id == &"river_country" or biome.id == &"western_shore"
 	for ty in range(row_from, end):
 		for tx in ChunkGenerator.WIDTH:
 			if flat or not _wang.blit_to_image(_floor_img, tx, ty, _sample_ground):
@@ -558,6 +558,9 @@ func _crown_color(species: String) -> Color:
 		"american_sycamore": Color(0.62, 0.68, 0.40),
 		"american_chestnut": Color(0.42, 0.32, 0.14),
 		"shagbark_hickory": Color(0.36, 0.40, 0.16),
+		"sitka_spruce": Color(0.18, 0.32, 0.22),
+		"western_hemlock": Color(0.12, 0.26, 0.18),
+		"western_redcedar": Color(0.22, 0.34, 0.16),
 	}
 	return colors.get(species, Color(0.16, 0.28, 0.16))
 
@@ -572,6 +575,8 @@ func _forage_color(species: String) -> Color:
 		"muscadine": Color(0.32, 0.14, 0.28),
 		"pecan": Color(0.48, 0.32, 0.16),
 		"chestnut": Color(0.50, 0.28, 0.12),
+		"salmonberry": Color(0.72, 0.34, 0.28),
+		"salal": Color(0.16, 0.18, 0.36),
 	}
 	return colors.get(species, Color(0.22, 0.22, 0.48))
 
