@@ -1,8 +1,10 @@
 # Journey spine (schematic world map)
 
-Status: **draft — schematic only. Not playable. Not a spawn table.**
+Status: **spine locked in `docs/LOOP.md` (2026-11-12). Still not playable. Still not a spawn table.**
 
-This is the continent as a sequence of walks, not a painted overworld and not a new biome pass. Slice 0 stays `coastal_north`. In-game orientation is a tiny fog-of-war minimap, not a map he holds. This file is the long-aim spine for later biomes.
+This is the continent as a sequence of walks, not a painted overworld. The playable cut stays `coastal_north` until `docs/PLAN.md` says otherwise. The corner map stays. A later phase adds one continent view of the same fog. This file is not that screen.
+
+The landing sea stays south. Inland (decreasing `chunk_y`) is the journey, including the later bands the mission calls south and west. He does not win by walking into the surf. Ladder order follows the mission: coast, river valley, interior, bayou, later river country, western shore.
 
 ## How this helps Leif go inland
 
@@ -15,11 +17,11 @@ Fantasy is **journey length**. The walk is shortened. The places are not invente
 | Step | Region in the game | Real analogue | Status | What changes underfoot |
 |---|---|---|---|---|
 | 0 | `coastal_north` | L’Anse aux Meadows / Great Northern Peninsula, Newfoundland | **Playable now** | Boreal coast: fir, spruce, peat, granite, caribou trail, bakeapple, blueberry |
-| 1 | `river_valley` | Saint John River valley and inner Southwest Miramichi, New Brunswick | **Researched only** (PR #2, owner-approved). Empty `.tres` | Hardwood floodplain, intervale silt over clay, a river you cannot ford. Raft or timber bridge |
-| 2 | `inland_plains` | Interior mainland after the first valleys (mixed grassland / mineral hills) | **Stub later** | Distance, large game, iron as a travel tool. No species list yet |
-| 3 | South along the rivers | River country from the Maritimes into the later eastern United States | **Stub later** | Same rule as step 1: the main stem is a barrier; tributaries may be waded. No species list yet |
-| 4 | `bayou` | Interior south of a compressed continent | **Stub later** | Cypress / swamp as proof you crossed a lot of land, not as fake trees on the Vinland shore |
-| 5 | West | Compressed crossing toward the Pacific | **Long aim** | Named so the walk has an end of the map. Not the next slice. No species list |
+| 1 | `river_valley` | Saint John River valley and inner Southwest Miramichi, New Brunswick | **Researched.** Spawn in `docs/PLAN.md` Phase C. Empty `.tres` until then | Hardwood floodplain, intervale silt over clay, a river you cannot ford. Carried raft |
+| 2 | `inland_plains` | Interior mainland after the first valleys (mixed grassland / mineral hills) | **Stub.** Research is Phase G | Distance, large game, a travel tool if the research names the material |
+| 3 | `bayou` | Interior south of a compressed continent | **Stub.** Research is Phase I | Swamp as proof you crossed a lot of land. Species only after that research |
+| 4 | Later river country | One real corridor from the Maritimes into the later eastern rivers | **No file yet.** Phase K names it | The main stem is a barrier. Tributaries may be waded. No species until that file |
+| 5 | Western shore | Compressed crossing toward the Pacific | **Long aim.** Phases M–N | The win is the first step onto that shore. No species list yet |
 
 Do not add rows by inventing a desert, a jungle, or a town. A new row needs a research pass with sources, the same way `coastal_north` and `river_valley` were done.
 
@@ -30,10 +32,10 @@ These are implied by the ground, not a crafting tree.
 | Need | Why | When |
 |---|---|---|
 | Walk, forage, chop, eat, fire | Night on the shore; 3 berries heal half a heart | Slice 0 (in now). A hunger meter is not |
-| Raft or timber bridge | The Saint John / Miramichi main stem is not a brook | First time `river_valley` is playable |
-| Later boat | Southbound rivers, then larger water | After the first crossing exists |
-| Iron as a travel tool | Interior hills in the mission ladder | `inland_plains` research, not now |
-| Tiny bottom-left minimap with fog of war | So he can see where he has walked on this coast | Next UI. Not a held item. This file stays the continent spine |
+| Carried raft, 12 wood | The Saint John / Miramichi main stem is not a brook | `docs/PLAN.md` Phase D. A bridge left on the map is not this crossing |
+| Later boat | Southbound rivers, then larger water | After the first crossing exists, and only if that land’s research asks for one |
+| A travel tool from a named mineral | Interior hills in the mission ladder | `inland_plains` research, Phase G, before any spawn |
+| Corner minimap, then one continent view of the same fog | So the next band is a rumor before he can walk it | The corner map is in. The continent view is Phase F. Not a held item |
 
 ## River spine (southbound)
 
@@ -48,9 +50,9 @@ After that, the compressed walk keeps using **rivers as the road**, not a fantas
 
 ## What is not next
 
-- No playable `river_valley` chunk
-- No `inland_plains` or west-coast species lists
-- No PixelLab for maple, grape, or a map UI
+- Phase B is the band table. A playable `river_valley` chunk waits for Phase C in `docs/PLAN.md`.
+- No `inland_plains`, bayou, or west-shore species until that land’s research phase is on `main`.
+- No PixelLab for maple, grape, or a map UI. Cloud leaves boxes and adds the `docs/ART.md` row.
 - No villages, meetings, or combat (the valley was already lived in; that is a later design pass)
 - No baked overworld scene that would replace seed / chunk / biome-as-data
 

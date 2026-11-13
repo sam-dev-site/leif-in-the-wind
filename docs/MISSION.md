@@ -21,9 +21,9 @@ We design from **aesthetics** (the feelings) back to **dynamics** (what play doe
 3. **Discovery** — uncharted land. A new seed, a trail that keeps going, a biome that changes underfoot. The continent is the toy. More of this same shore is not the next discovery. A few steps already show its whole vocabulary.
 4. **Submission** — the game as a pastime. Walking without a quest marker. Sitting the night out. Chilling in the woods is valid play, not wasted time.
 
-**Next, on this biome, before more land:**
+**On this biome (in):**
 
-5. **Challenge** — woodcutting and fire-making, and the leveling curve in `docs/IDEAS.md`. They appear here first, in the biome that suits them: trees and fallen wood to chop, cold that makes a fire matter. A new biome is where something new is learned. That waits until this place is worth staying in. Getting better at the work is not a grind loop dressed as survival.
+5. **Challenge** — woodcutting, fire-making, and foraging. They showed up here first, where the trees, the fallen wood, and the cold are. A new biome is where something new is learned. That next land, and the win, are locked in `docs/LOOP.md`. Getting better at the work is not a grind loop dressed as survival, and no part of the journey checks a level.
 
 **Later (named, not this slice):**
 
@@ -36,9 +36,13 @@ Getting Leif to move is not the goal. Movement is one way to feel the place. A f
 ## Pillars (every slice must serve these)
 
 1. **A generated continent** — a seed, chunks, and land that can grow. Not a painted one-off level.
-2. **Biomes that change the land** — researched flora and fauna. Walking far enough should feel like a different place. That change waits. This coast is practiced first.
+2. **Biomes that change the land** — researched flora and fauna. Walking far enough should feel like a different place. The order and the rules are locked in `docs/LOOP.md`. Spawn waits for the matching phase in `docs/PLAN.md`.
 3. **Survival that lets you stay and go** — chop, forage, fire, later warmth, tools, rafts. These exist so you can linger after dark and so you can keep going inland.
 4. **The pull inland, and the right to linger** — shore behind you, trail away from the water. The camp is a rest, not the destination and not a waste of time.
+
+## Locked loop
+
+The night, the place, the journey, the skills, the hearts, and the win are locked in [LOOP.md](LOOP.md). The build order is [PLAN.md](PLAN.md). If a slice doc disagrees with the loop, the loop wins. If the loop disagrees with this file, this file wins.
 
 ## Continent ladder
 

@@ -9,6 +9,8 @@ GitHub `main` is the brain. Chat memory is not.
 | File | Job |
 |---|---|
 | [docs/MISSION.md](docs/MISSION.md) | Why the game exists. Never overridden by a slice doc. |
+| [docs/LOOP.md](docs/LOOP.md) | Locked loop, skills, lands, hearts, and win. Agents do not reopen it. |
+| [docs/PLAN.md](docs/PLAN.md) | Build order. One phase, one PR. Research before spawn. |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Append-only log of lasting choices. |
 | [docs/STATUS.md](docs/STATUS.md) | What exists, what is blocked, what is next. |
 | [docs/SLICE_0.md](docs/SLICE_0.md) | Current playable cut only. |
@@ -18,7 +20,7 @@ GitHub `main` is the brain. Chat memory is not.
 | [docs/ART.md](docs/ART.md) | Pictures still missing or standing in as boxes. Spend a generation only when the owner names a row. A hold in the same session must add the row here. |
 | [docs/research/biomes/](docs/research/biomes/) | Flora and fauna with sources. |
 
-Before doing project work, read `MISSION.md`, the latest `DECISIONS.md` and `STATUS.md`, and any biome research file you will touch.
+Before doing project work, read `MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, the latest `DECISIONS.md` and `STATUS.md`, and any biome research file you will touch. Take the first plan phase whose done line is not yet true. Do not reopen the lock.
 
 ## Facts you must not invent
 
@@ -31,7 +33,7 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 1. Prefer a cloud agent + pull request for research, code, tests, and review.
 2. This PC is for PixelLab and pressing Play. Local agents land the one open PR. Cloud never opens Godot. Do not treat this laptop as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
-4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. Ideas have no order. When the owner asks what to work on next, read the mission, the decisions, the status, and `docs/IDEAS.md`, and choose one slice.
+4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. The loop is locked in `docs/LOOP.md`. When the owner asks what to work on next, take the next unfinished phase in `docs/PLAN.md`, unless they asked for art, a bug, or a new wish. Open wishes in `docs/IDEAS.md` have no order.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
 6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — sync GitHub `main` to this PC in that turn: commit if needed, push, merge a playtest PR if that is the branch, checkout `main`, pull. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc` and `.cursor/skills/playtest-pr`.
 7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Taking one in includes a pass over that file: combine the same slice, split a line that is more than one, drop a duplicate, and add questions grounded in the game. Do not invent the answers. See `.cursor/rules/ideas.mdc`.
@@ -54,8 +56,8 @@ Art and code can run at the same time if they do not edit the same files. **Push
 | Lane | Where | Owns | Must not touch |
 |---|---|---|---|
 | **Art** | This PC, PixelLab MCP | `art/`, `game/art/`, player sprites/animations, swapping ColorRects for named PNGs | Slice verbs, HUD counts, other biomes’ research |
-| **Verbs** | Cloud agent + PR | Pick, chop, campfire, night, HUD numbers, tests for those. New scripts under `game/world/` (interact, time, fire). Props keep `set_meta("species")` / `set_meta("kind")` | PixelLab, tokens, generating or replacing PNGs |
-| **Research** | Cloud agent + PR | `docs/research/biomes/` with sources. `river_valley` is already researched. Do not start another biome. | Spawn tables and art. Skills on this coast come before more map. |
+| **Verbs** | Cloud agent + PR | The next phase in `docs/PLAN.md`. Pick, chop, campfire, night, HUD numbers, tests. New scripts under `game/world/`. Props keep `set_meta("species")` / `set_meta("kind")` | PixelLab, tokens, generating or replacing PNGs. A later plan phase |
+| **Research** | Cloud agent + PR | `docs/research/biomes/` with sources, when that phase is the next unfinished one. `river_valley` is already researched | Spawn tables and art. Researching a land before its phase |
 
 Player movement lives on this PC until art is done with it. Verbs should read facing/position, not rewrite walk/run.
 

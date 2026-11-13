@@ -15,6 +15,8 @@ jobs:
           set -e
           test -f AGENTS.md
           test -f docs/MISSION.md
+          test -f docs/LOOP.md
+          test -f docs/PLAN.md
           test -f docs/DECISIONS.md
           test -f docs/STATUS.md
           test -f docs/SLICE_0.md

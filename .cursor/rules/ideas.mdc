@@ -14,6 +14,7 @@ alwaysApply: false
 2. Write the wish in the owner's words. One slice. Group it with similar slices. Combine duplicates. Split a line that is more than one slice.
 3. Add a few questions the next agent should ask before building. Base each one on something already true in the game, the research, or another slice.
 4. Do not answer the questions. Do not invent a cost, a species, a timer, a material, or a rule they did not say. If a plant or animal is not in `docs/research/biomes/`, the question is that research is required, not a made-up species.
+5. If `docs/LOOP.md` already locked that slice, say so and point at the loop. The question, if one remains, is whether they want the lock changed. Do not redesign it in the ideas file.
 
 ## Shape
 
