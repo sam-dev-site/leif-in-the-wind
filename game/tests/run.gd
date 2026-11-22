@@ -16,6 +16,7 @@ func _init() -> void:
 	_test_river_valley_ground()
 	_test_bayou_ground()
 	_test_river_country_ground()
+	_test_other_sea()
 	_test_raft()
 	_test_fishing()
 	_test_hearts_and_continent_map()
@@ -141,7 +142,9 @@ func _test_inland_bands_and_the_coast_strip() -> void:
 	_expect(catalog.biome_id_at(0, -15 * height) == &"bayou", "chunk_y -15 is still the bayou")
 	_expect(catalog.biome_id_at(0, -16 * height) == &"river_country", "chunk_y -16 is the Connecticut")
 	_expect(catalog.biome_id_at(0, -19 * height) == &"river_country", "chunk_y -19 is still the Connecticut")
-	_expect(catalog.biome_id_at(0, -20 * height) == &"", "past the Connecticut there is no biome yet")
+	_expect(catalog.biome_id_at(0, -20 * height) == &"western_shore", "chunk_y -20 is the other sea")
+	_expect(catalog.biome_id_at(0, -23 * height) == &"western_shore", "chunk_y -23 is still the other sea")
+	_expect(catalog.biome_id_at(0, -24 * height) == &"", "past the other sea there is no biome yet")
 	var world := World.new()
 	world.begin_staged_boot()
 	for _i in 36:
@@ -787,6 +790,108 @@ func _test_river_country_ground() -> void:
 	world.free()
 
 
+func _test_other_sea() -> void:
+	print("the other sea")
+	var catalog := BiomeCatalog.new()
+	catalog.load_all()
+	var shore := catalog.get_biome(&"western_shore")
+	var gen := ChunkGenerator.new()
+	var allowed := {}
+	for name in shore.tree_species:
+		allowed[str(name)] = true
+	var saw := {"sitka_spruce": false, "western_hemlock": false, "western_redcedar": false, "salmonberry": false, "salal": false}
+	var tree_ok := true
+	var ocean := true
+	var walkable := true
+	for cy in range(World.SHORE_NORTH, World.SHORE_SOUTH + 1):
+		for cx in range(World.SHORE_WEST, World.STRIP_EAST + 1):
+			var data := gen.generate(11, cx, cy, shore)
+			var tiles: PackedInt32Array = data["tiles"]
+			var trees: Array = data["trees"]
+			var foods: Array = data["forage"]
+			for i in tiles.size():
+				var kind := int(tiles[i])
+				if cx <= World.SHORE_WEST:
+					if kind != ChunkGenerator.TILE_WATER or str(trees[i]) != "":
+						ocean = false
+				else:
+					if gen.is_blocked(kind):
+						walkable = false
+				var tree_name := str(trees[i])
+				if tree_name != "":
+					if not allowed.has(tree_name):
+						tree_ok = false
+					saw[tree_name] = true
+				var food_name := str(foods[i])
+				if food_name != "":
+					if food_name != "salmonberry" and food_name != "salal":
+						tree_ok = false
+					saw[food_name] = true
+	_expect(tree_ok, "shore trees and food are only the research list")
+	_expect(bool(saw["sitka_spruce"]) and bool(saw["western_hemlock"]) and bool(saw["western_redcedar"]), "the three shore trees stand")
+	_expect(bool(saw["salmonberry"]) and bool(saw["salal"]), "salmonberry and salal grow")
+	_expect(ocean, "the chunk west of the shore is open water")
+	_expect(walkable, "chunk_x -2 and the way in are walked")
+	_expect(not Interact.drops_pitch("sitka_spruce"), "Sitka spruce does not drop pitch")
+	var world := World.new()
+	world.begin_staged_boot()
+	for _i in 68:
+		world.stage_boot_step()
+	_expect(world.boot_chunk_count() == 68, "the shore rows bring the built world to 68 chunks")
+	var plains := false
+	var edge := false
+	for child in world.get_children():
+		if not child is MapChunk:
+			continue
+		var chunk := child as MapChunk
+		if chunk.chunk_y <= -8 and chunk.chunk_y >= -11:
+			plains = true
+		if chunk.chunk_y == -21 and chunk.chunk_x == World.SHORE_EDGE:
+			edge = true
+	_expect(edge, "the walkable shore is generated")
+	_expect(not plains, "the plains band is still not built")
+	world.free()
+	var played := _boot_run(0, {})
+	_expect(not played.has_won(), "a new shore has not won")
+	played.note_other_sea()
+	_expect(not played.has_won(), "a coast tile does not set it")
+	var water_cell := Vector2i(World.SHORE_WEST * ChunkGenerator.WIDTH + 4, -21 * ChunkGenerator.HEIGHT + 8)
+	played._player.global_position = ChunkGenerator.cell_center(water_cell)
+	played._reparent_player()
+	played.note_other_sea()
+	_expect(not played.has_won(), "the water does not win")
+	var shore_cell := Vector2i(World.SHORE_EDGE * ChunkGenerator.WIDTH + 10, -21 * ChunkGenerator.HEIGHT + 8)
+	played._player.global_position = ChunkGenerator.cell_center(shore_cell)
+	played._reparent_player()
+	_expect(played.note_other_sea(), "the first step sets the line")
+	_expect(played.has_won(), "the shore file remembers the win")
+	_expect(played._hint == World.OTHER_SEA, "the line is The other sea.")
+	played._hint = ""
+	played._player.global_position = ChunkGenerator.cell_center(shore_cell + Vector2i(1, 0))
+	played._reparent_player()
+	_expect(not played.note_other_sea(), "a second step does not show it again")
+	_expect(played._hint == "", "the line stays quiet")
+	var saved := played.capture_walk()
+	_expect(bool(saved.get("other_sea", false)), "the save stores the win")
+	played._respawn()
+	_expect(played.has_won(), "death does not clear it")
+	played._clock.elapsed = played._clock._day_seconds() + 1.0
+	played._sleep_phase = "out"
+	played._sleep_t = 0.0
+	played._dying = false
+	played._tick_sleep(0.5)
+	_expect(played.has_won(), "sleep does not clear it")
+	played.rebuild()
+	_expect(played.has_won(), "R keeps the win")
+	played.prepare_run(0, {})
+	_expect(not played.has_won(), "a new run has not won")
+	played.apply_walk(saved)
+	_expect(played.has_won(), "continue keeps the win")
+	played.apply_walk({"wood": 1.0})
+	_expect(not played.has_won(), "an old save has not won")
+	played.free()
+
+
 func _test_stub_biomes_have_no_spawn_tables() -> void:
 	print("stub biomes do not pretend to have species")
 	var catalog := BiomeCatalog.new()
@@ -808,6 +913,12 @@ func _test_stub_biomes_have_no_spawn_tables() -> void:
 	_expect(not country.tree_species.has("fir") and not country.tree_species.has("baldcypress"), "the Connecticut does not chop fir or cypress")
 	_expect(not country.forage_species.has("silver_maple") and country.forage_species.has("chestnut"), "the food is the chestnut nut")
 	_expect(country.trail_maker == &"", "the Connecticut has no trail animal")
+	var shore := catalog.get_biome(&"western_shore")
+	_expect(shore != null and shore.tree_species.size() == 3, "the other sea lists three timber trees")
+	_expect(shore != null and shore.forage_species.size() == 2, "the other sea lists salmonberry and salal")
+	_expect(shore.tree_species.has("sitka_spruce"), "Sitka spruce is a shore tree")
+	_expect(not shore.tree_species.has("fir") and not shore.tree_species.has("spruce"), "the other sea does not chop the Newfoundland spruce")
+	_expect(shore.trail_maker == &"", "the other sea has no trail animal")
 	var valley := catalog.get_biome(&"river_valley")
 	_expect(valley != null and valley.tree_species.size() == 12, "the valley lists the twelve timber trees")
 	_expect(valley != null and valley.forage_species.size() == 3, "the valley lists three foods")

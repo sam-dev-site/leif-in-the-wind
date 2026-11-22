@@ -2,12 +2,14 @@
 
 Status: **locked 2026-11-12.** The rules are `docs/LOOP.md`. This file is the order. One phase is one pull request. Do not skip ahead. Do not combine a research phase with a spawn phase. Do not combine two lands.
 
-The open night Play (pitch, rime, the bed, the slower cold) stays its own branch until the owner signs it off. Later phases keep that coast behavior. They do not retune it.
+**As of 2026-11-22:** Phases A through N are already committed on `cursor/other-sea-943d` (the path through `0c98800`). They are ready for Play and not signed off. `main` does not contain those phases, and it does not contain this file. Phase H has not started, on purpose. Read `CLAUDE.md` before the steps below. Do not rebuild a phase because `main` is missing it.
+
+The night slices (pitch, rime, the bed, the slower cold) are on `cursor/other-sea-943d` with the rest of the path. They are ready for Play and not signed off. Later phases keep that coast behavior. They do not retune it. Do not check out `cursor/night-coast-bdc2` to play them. That branch is the base of the stack, not a newer game.
 
 ## How an agent takes a phase
 
-1. Read `docs/MISSION.md`, `docs/DECISIONS.md`, `docs/STATUS.md`, `docs/LOOP.md`, and this file. Read the biome research for any land the phase touches.
-2. Take the first phase whose **Done when** is not already true on `main`.
+1. Read `CLAUDE.md`, `docs/MISSION.md`, `docs/DECISIONS.md`, `docs/STATUS.md`, `docs/LOOP.md`, and this file. Read the biome research for any land the phase touches.
+2. While `cursor/other-sea-943d` is unmerged, Phases A–G and I–N are already done on that branch. Phase H is the stop. Do not start Phase A again. After that branch is on `main`, take the first phase whose **Done when** is not already true on `main`.
 3. Branch `cursor/<phase>-<suffix>`. Cloud never opens the Godot editor and never calls PixelLab.
 4. Code and headless tests for that phase only. Species, weights, costs, and hints come from `docs/LOOP.md`. If a number is missing there, stop and add the question to `docs/IDEAS.md`. Do not invent it.
 5. A picture that ships as a box gets a row in `docs/ART.md` in that same PR.
@@ -155,7 +157,7 @@ Only after Phase M is on `main`. Generate `chunk_y` −20..−23 from `docs/rese
 
 **Tests:** stepping onto the shore sets the flag and the line. A second step does not show it again. Death and sleep do not clear it. A coast tile does not set it.
 
-**Done when:** Actions is green. STATUS says **ready for Play**.
+**Done when:** Actions is green. STATUS says **ready for Play**. The other sea is in this branch. Chunk −3 is water. Chunk −2 is the walkable shore. The plains rows are still not generated, so a walk from the coast does not reach it yet.
 
 ## After the path
 

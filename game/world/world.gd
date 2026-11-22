@@ -15,6 +15,12 @@ const BAYOU_NORTH := -15
 ## The Connecticut band. It starts on the north side of the bayou. Plains stay unbuilt.
 const COUNTRY_SOUTH := -16
 const COUNTRY_NORTH := -19
+## The Pacific band. Chunk -3 is water. Chunk -2 is the walkable shore.
+const SHORE_SOUTH := -20
+const SHORE_NORTH := -23
+const SHORE_WEST := -3
+const SHORE_EDGE := -2
+const OTHER_SEA := "The other sea."
 ## Baked maximum. A first sleep in each ladder land adds one, up to the six lands.
 const HEART_START := 3.0
 const HEART_CAP := 9.0
@@ -37,6 +43,7 @@ var _clock: DayClock
 var _night: CanvasModulate
 var _music: AudioStreamPlayer
 var _hint := ""
+var _other_sea := false
 var _fires: Array[Node2D] = []
 var _sleep_phase := ""
 var _sleep_t := 0.0
@@ -206,6 +213,7 @@ func _process(delta: float) -> void:
 	elif change == "die":
 		_begin_death()
 	_reveal_visible_view()
+	note_other_sea()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -297,6 +305,11 @@ func _plant_name(species: String) -> String:
 		"american_chestnut": "American chestnut",
 		"shagbark_hickory": "shagbark hickory",
 		"chestnut": "chestnut",
+		"sitka_spruce": "Sitka spruce",
+		"western_hemlock": "western hemlock",
+		"western_redcedar": "western redcedar",
+		"salmonberry": "salmonberry",
+		"salal": "salal",
 		"forage_butternut": "butternut",
 		"riverbank_grape": "riverbank grape",
 		"fiddlehead": "fiddlehead",
@@ -546,7 +559,9 @@ func prepare_run(slot: int, snapshot: Dictionary = {}) -> void:
 		_slept_lands.clear()
 		supplies.hearts = float(AdminSettings.hearts)
 		_apply_heart_cap()
+		_other_sea = false
 	else:
+		_other_sea = bool(snapshot.get("other_sea", false))
 		skills.woodcutting_xp = int(snapshot.get("woodcutting_xp", 0))
 		skills.firemaking_xp = int(snapshot.get("firemaking_xp", 0))
 		skills.forage_xp = int(snapshot.get("forage_xp", 0))
@@ -668,6 +683,7 @@ func capture_walk() -> Dictionary:
 		"hearts": supplies.hearts,
 		"hearts_max": _earned_hearts,
 		"slept_lands": _slept_lands.duplicate(),
+		"other_sea": _other_sea,
 		"cold_acc": supplies.cold_acc,
 		"woodcutting_xp": skills.woodcutting_xp,
 		"firemaking_xp": skills.firemaking_xp,
@@ -717,6 +733,7 @@ func apply_walk(data: Dictionary) -> void:
 	supplies.hearts = float(data.get("hearts", supplies.hearts))
 	_load_earned_hearts(data)
 	_apply_heart_cap()
+	_other_sea = bool(data.get("other_sea", false))
 	supplies.cold_acc = float(data.get("cold_acc", 0.0))
 	# Old files may still carry heal_acc; day/fire no longer heal, so ignore it.
 	skills.woodcutting_xp = int(data.get("woodcutting_xp", 0))
@@ -1001,11 +1018,18 @@ func _land_keys() -> Array[Vector2i]:
 	for cy in range(COUNTRY_NORTH, COUNTRY_SOUTH + 1):
 		for cx in range(STRIP_WEST, STRIP_EAST + 1):
 			keys.append(Vector2i(cx, cy))
+	for cy in range(SHORE_NORTH, SHORE_SOUTH + 1):
+		for cx in range(SHORE_WEST, STRIP_EAST + 1):
+			keys.append(Vector2i(cx, cy))
 	return keys
 
 
 func _built_key(key: Vector2i) -> bool:
-	if key.x < STRIP_WEST or key.x > STRIP_EAST or key.y > STRIP_SOUTH:
+	if key.y > STRIP_SOUTH or key.x > STRIP_EAST:
+		return false
+	if key.y <= SHORE_SOUTH and key.y >= SHORE_NORTH:
+		return key.x >= SHORE_WEST
+	if key.x < STRIP_WEST:
 		return false
 	if key.y >= LAND_NORTH:
 		return true
@@ -1274,6 +1298,8 @@ func _sample_world_tile(world_tx: int, world_ty: int) -> int:
 		if local_y >= ChunkGenerator.HEIGHT - ChunkGenerator.WATER_ROWS - ChunkGenerator.SHORE_ROWS:
 			return ChunkGenerator.TILE_SHORE
 	if key.y <= COUNTRY_SOUTH and key.y >= COUNTRY_NORTH:
+		return generator.peek_ground(world_seed, world_tx, world_ty)
+	if key.y <= SHORE_SOUTH and key.y >= SHORE_NORTH:
 		return generator.peek_ground(world_seed, world_tx, world_ty)
 	return ChunkGenerator.TILE_MOSS
 
@@ -1753,6 +1779,30 @@ func _respawn() -> void:
 		_commit_save()
 		_hint = DEATH_HINT
 		_refresh_hud()
+
+
+func has_won() -> bool:
+	return _other_sea
+
+
+## The first step onto the walkable Pacific shore. Water does not count. A later step stays quiet.
+func note_other_sea() -> bool:
+	if _other_sea or _player == null or not is_instance_valid(_player):
+		return false
+	var cell := ChunkGenerator.world_cell_at(_player.global_position)
+	if not _shore_win_cell(cell):
+		return false
+	_other_sea = true
+	_hint = OTHER_SEA
+	_refresh_hud()
+	return true
+
+
+func _shore_win_cell(cell: Vector2i) -> bool:
+	var key := ChunkGenerator.chunk_of_cell(cell)
+	if key.x > SHORE_EDGE or key.y > SHORE_SOUTH or key.y < SHORE_NORTH:
+		return false
+	return _sample_world_tile(cell.x, cell.y) != ChunkGenerator.TILE_WATER
 
 
 func earned_hearts() -> float:

@@ -7,6 +7,10 @@ description: Lands one open GitHub PR for owner Play on this PC, then syncs GitH
 
 Local machine only. Cloud agents do not land PRs and do not open Godot.
 
+## Stack exception (2026-11-22)
+
+Sixteen pull requests are open. Fourteen of them are one stack. The tip is `cursor/other-sea-943d` (PR #27), and this PC should already be on it. Do not land one PR. Do not ask which PR. Play that branch. A sign-off merges that branch into `main`, as `CLAUDE.md` says. PRs #3 and #4 are stale and stay open.
+
 The first local reply, and the last line of a land or sync turn, is one next-action line from **Next-action lines** below. Do not invent a paragraph of git advice.
 
 ## When to land

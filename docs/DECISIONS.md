@@ -2,6 +2,28 @@
 
 Append only. Newest at the top. Date, decision, why, what we rejected.
 
+## 2026-11-22 — Claude takes the project; the unmerged stack is the game
+
+**Decision:** Work leaves Cursor for a Claude suite. `CLAUDE.md` is the session brief, and GitHub’s knowledge check requires it. `.mcp.json` points Claude Code at PixelLab with `PIXELLAB_API_TOKEN` expanded from the environment. The token stays off git. `.cursor/mcp.json` stays for the record.
+
+The game that matches `docs/LOOP.md` is branch `cursor/other-sea-943d` at the tip that contains Phases A–N (fifteen commits ahead of `main`, tip was `0c98800` before this handoff). `main` is `1a1a7c9`, the signed-off coast through the hares, and it has no loop file. An agent starts on that branch. It does not rebuild the path from `main`.
+
+Those phases are **ready for Play**, not signed off. Phase H stays unstarted. A sign-off of this path merges `cursor/other-sea-943d` into `main` with a merge commit and pushes. It does not `gh pr merge` PR #27 into `cursor/western-shore-research-943d`. That would move the tip sideways and leave `main` on the old coast. PRs #3 and #4 stay unmerged. `leif_survival_style_guide.md` is an early pitch and is not a spec.
+
+Godot had dropped `window/stretch/aspect=keep` and `window/stretch/scale_mode=fractional` from `game/project.godot` in the working tree. Those two lines stay. The window rule from 2026-10-27 is unchanged.
+
+**Why:** A fresh clone of `main` looks like a finished coast and an agent following “the first phase missing from `main`” would rewrite the lock. Fourteen green stacked PRs were never played and never merged. Cursor’s rules will not load in Claude, and merging the tip into its parent would not put the game on `main`.
+
+**Rejected:** Merging the stack onto `main` without Play. Treating `main` as current. Landing #3 or #4. Putting the PixelLab token in `.mcp.json`. Deleting the early style guide. Changing the stretch mode because the editor had omitted two lines.
+
+## 2026-11-12 — The win is one step on chunk −2, and the ocean is the chunk west of it
+
+**Decision:** Phase N of `docs/PLAN.md`. `chunk_y` −20 through −23 generates `western_shore`, and that band also builds `chunk_x` −3. Chunk −3 is water. Chunk −2 is walkable forest, and that is the shore. The first step there shows **The other sea.** once. The save stores the flag. **R** keeps it. A new run does not. Death and sleep do not clear it. Water does not set it. A coast tile does not. Sitka spruce, western hemlock, western redcedar, salmonberry, and salal. No pitch, no fishery, no boat. The plains stay unbuilt. The whole water chunk is the drawing, because the research file gave no width.
+
+**Why:** The lock already said the win is `chunk_x <= -2` once the band is wide enough, and that walking into the water is not the win. A numbered surf would have been invented.
+
+**Rejected:** A six-tile beach. Fishing the Pacific. A pitch drop from Sitka spruce. Ending the world. Generating the plains so he can walk here from the landing.
+
 ## 2026-11-12 — The other sea is the Olympic outer coast, and the win stays a step
 
 **Decision:** Phase M of `docs/PLAN.md`. `western_shore` is the outer coast of the Olympic Peninsula: Sitka spruce, western hemlock, and western redcedar, with salmonberry and salal. The Pacific is the west edge. The win stays the locked line, **The other sea.**, the first time he stands on that shore. No new skill, no pitch drop, no fishery, and no boat. No trail animal. No resource until the spawn phase. The ladder name stays The other sea.

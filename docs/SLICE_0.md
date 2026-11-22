@@ -1,6 +1,8 @@
 # Slice 0 — current cut
 
-This is **not** the game. The game is [MISSION.md](MISSION.md). The locked loop, lands, and win are [LOOP.md](LOOP.md). This file is the vertical cut we are building now.
+This is **not** the game. The game is [MISSION.md](MISSION.md). The locked loop, lands, and win are [LOOP.md](LOOP.md). This file is the coast.
+
+On `cursor/other-sea-943d` the valley, the raft, fishing, hearts, the bayou, the Connecticut, and the western shore are also in the build. A walk from the landing reaches the valley and stops. The plains rows are not generated, so the later bands are in the world and are not on the path from the shore. See [CLAUDE.md](../CLAUDE.md).
 
 ## Playable content
 

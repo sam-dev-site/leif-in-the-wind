@@ -20,6 +20,12 @@ If the same message also asks for a change, do that change first, then sync.
 
 A sign-off does not ask for another change. `perfect, but the bars are wrong` is still notes. Finish the notes. Sync only when they close it.
 
+## While the 2026-11-13 stack is open
+
+The playable path is one branch, `cursor/other-sea-943d`. PR #27’s base is another feature branch, not `main`. A sign-off of that path does **not** run `gh pr merge` on #27. Merge the branch into `main` with a merge commit, push, and leave this PC on `main`. Then the stacked PRs can be closed. The steps are in `CLAUDE.md`. PRs #3 and #4 are not this path.
+
+A later sign-off, after `main` holds the path and the work is a normal single PR, uses the steps below.
+
 ## What to run
 
 Follow the Sync job in `.cursor/skills/playtest-pr` when a PR is in play. Otherwise:

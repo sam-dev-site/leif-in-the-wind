@@ -73,6 +73,13 @@ The Connecticut is walkable as colored boxes. Spend a generation only when you n
 
 The river floor is flat color on purpose (one stem, a brook, the floodplain, the terrace). That is not a missing picture.
 
+The western shore is walkable as colored boxes. Spend a generation only when you name a row. Files the game will load, under `art/biomes/western_shore/` and copied into `game/art/western_shore/`:
+
+1. **Shore trees.** `tree_sitka_spruce.png`, `tree_western_hemlock.png`, `tree_western_redcedar.png`. On screen they are colored crowns. Held on 2026-11-12: this pass is a cloud agent, and PixelLab stays on the playtest PC.
+2. **Shore food.** `forage_salmonberry.png`, `forage_salal.png`. On screen they are colored fruit. Same hold.
+
+The shore floor is flat color on purpose (ocean to the west, forest underfoot). Ferns and moss are that color, not their own props. That is not a missing picture.
+
 ## How a row gets made
 
 Say which row. This PC generates it and wires the file the game already looks for. A cloud agent does not call PixelLab.

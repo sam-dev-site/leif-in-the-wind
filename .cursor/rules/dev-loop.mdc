@@ -7,6 +7,10 @@ alwaysApply: true
 
 Cloud writes verbs and research. This PC is PixelLab and Play. Do not move that split.
 
+## Stack exception (2026-11-22)
+
+The game is `cursor/other-sea-943d`. The open PRs are one stack plus two stale leftovers. The first reply is: the path is ready for Play. Open the `game` folder in Godot and press Play. Do not ask which PR. A sign-off merges that branch into `main`. Detail is `CLAUDE.md`. After `main` holds the path, the lines below apply again.
+
 ## Next-action line
 
 The first local reply, and the last reply of a cloud or sign-off turn, is one short line. Use these words. Do not invent a paragraph of git advice.
