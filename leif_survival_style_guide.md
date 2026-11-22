@@ -1,5 +1,7 @@
 # Game Project Master Context & Art Style Guide: Vinland Survival
 
+> **Early pitch, not the game.** Written before the lock, and the file cuts off mid-sentence. `docs/MISSION.md` and `docs/LOOP.md` win. This page still says combat, stamina, bison, and iron. Those are not in the game. The camera line that still matches is high top-down, a slight tilt, 16×16. Do not build from this file.
+
 ## 1. High-Level Game Concept
 
 * **Title Concept:** *Leif in the Wind*

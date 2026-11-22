@@ -4,10 +4,13 @@ The project owner is making a first game. Make sound defaults. Explain consequen
 
 ## Where the truth lives
 
-GitHub `main` is the brain. Chat memory is not.
+Read [CLAUDE.md](CLAUDE.md) first. Chat memory is not the brain.
+
+Until the 2026-11-13 stack is merged, the game is branch `cursor/other-sea-943d`, not `main`. `main` is the signed-off coast through the hares. The loop, the valley, and the win are on that branch. After the owner signs the path off and that branch is merged, GitHub `main` is the brain again.
 
 | File | Job |
 |---|---|
+| [CLAUDE.md](CLAUDE.md) | Session brief for Claude. Branch, stack, locks, and how to work without Cursor. |
 | [docs/MISSION.md](docs/MISSION.md) | Why the game exists. Never overridden by a slice doc. |
 | [docs/LOOP.md](docs/LOOP.md) | Locked loop, skills, lands, hearts, and win. Agents do not reopen it. |
 | [docs/PLAN.md](docs/PLAN.md) | Build order. One phase, one PR. Research before spawn. |
@@ -20,7 +23,7 @@ GitHub `main` is the brain. Chat memory is not.
 | [docs/ART.md](docs/ART.md) | Pictures still missing or standing in as boxes. Spend a generation only when the owner names a row. A hold in the same session must add the row here. |
 | [docs/research/biomes/](docs/research/biomes/) | Flora and fauna with sources. |
 
-Before doing project work, read `MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, the latest `DECISIONS.md` and `STATUS.md`, and any biome research file you will touch. Take the first plan phase whose done line is not yet true. Do not reopen the lock.
+Before doing project work, read `CLAUDE.md`, `docs/MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, the latest `docs/DECISIONS.md` and `docs/STATUS.md`, and any biome research file you will touch. Phases A–N are already on `cursor/other-sea-943d`. Do not restart them because `main` lacks them. Phase H is the stop. Do not reopen the lock.
 
 ## Facts you must not invent
 
@@ -30,23 +33,21 @@ If you make a lasting decision (engine, tile size, scope, tool change), **append
 
 ## How work should happen
 
-1. Prefer a cloud agent + pull request for research, code, tests, and review.
-2. This PC is for PixelLab and pressing Play. Local agents land the one open PR. Cloud never opens Godot. Do not treat this laptop as the CI machine.
+1. Prefer a pull request for research, code, tests, and review. Cursor cloud is no longer the lane. Claude follows [CLAUDE.md](CLAUDE.md).
+2. This PC is for PixelLab and pressing Play. The open work is one stack, tip `cursor/other-sea-943d`. Do not land a single PR out of it. An agent does not open Godot. Do not treat this laptop as the CI machine.
 3. Never replace the continent with a one-off `Level1` scene. World / seed / chunk / biome-as-data from day one.
-4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. The loop is locked in `docs/LOOP.md`. When the owner asks what to work on next, take the next unfinished phase in `docs/PLAN.md`, unless they asked for art, a bug, or a new wish. Open wishes in `docs/IDEAS.md` have no order.
+4. Every feature must serve a named aesthetic in `docs/MISSION.md`. Sensation and sitting still count. “Leif moved,” or “the map got bigger,” is not enough. The loop is locked in `docs/LOOP.md`. When the owner asks what to work on next, the path on `cursor/other-sea-943d` is built and waiting for Play. Phase H is the stop. After that, art, a bug, or a wish in `docs/IDEAS.md`. Open wishes have no order. Do not treat the ideas file as a queue.
 5. Stay agile: if a tool or workflow is wrong for a newbie on this laptop, change it and log why.
-6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — sync GitHub `main` to this PC in that turn: commit if needed, push, merge a playtest PR if that is the branch, checkout `main`, pull. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. GitHub `main` is the brain. Detail: `.cursor/rules/commit-signoff.mdc` and `.cursor/skills/playtest-pr`.
+6. When the owner signs off — `commit`, `save`, `save and commit`, `all set`, `good`, `done`, `all done`, `perfect`, `everything is working`, or `push` — sync GitHub `main` to this PC in that turn. While the stack is open, merge `cursor/other-sea-943d` into `main`. Do not `gh pr merge` #27 into its parent branch. After the path is on `main`, a normal playtest PR merges with `gh pr merge`. Commit if needed, push, checkout `main`, pull. Do not ask. Do not report a commit hash unless `git log -1` printed it. Do not say it has not been pushed. A signed-off change left only on this PC is not done. Detail: `CLAUDE.md`, `.cursor/rules/commit-signoff.mdc`, and `.cursor/skills/playtest-pr`.
 7. Bugs that are not the current Play go in `docs/BUGS.md`. Logging one does not start the fix. When the owner asks for bug fixes, read that file and name the open headings, in those words, before changing the game. New wishes stay in `docs/IDEAS.md`. Taking one in includes a pass over that file: combine the same slice, split a line that is more than one, drop a duplicate, and add questions grounded in the game. Do not invent the answers. See `.cursor/rules/ideas.mdc`.
 
 ## Dev loop
 
-The owner should never have to remember git. Every phase change ends with **one next-action line** (copy in `.cursor/rules/dev-loop.mdc`).
+The owner should never have to remember git. Right now the loop is the stack in `CLAUDE.md`: Play `cursor/other-sea-943d`, then a sign-off merges that branch into `main`. Cursor’s **Build in Cloud** button is not the next step. After `main` holds the path, a new slice is a pull request again. Every phase change ends with **one next-action line** (copy in `.cursor/rules/dev-loop.mdc`, stack exception in `CLAUDE.md`).
 
-Owner steps after plan: click **Build in Cloud**, start a new local chat when the PR exists, press Play, say `done`. Next idea is a new chat on `main`.
-
-- Cloud: PR + headless + Actions. REVIEW gates 1–5 only. STATUS says **ready for Play**. Last line: start a new local chat on the Surface. Do not open Godot.
-- Local, one open PR, clean tree, not an art / `top 3` chat: land the PR (`.cursor/skills/playtest-pr`), then tell them Godot is ready.
-- Sign-off: merge, return to `main`, both sides match. Last line: start a new chat for the next idea.
+- An agent opens a PR, runs headless tests, and waits for Actions. Review gates 1–5 only. STATUS says **ready for Play**. The agent does not open Godot and does not claim Play.
+- While the stack is open, do not land one of the fourteen PRs. The tip branch is already the game.
+- Sign-off of that path: merge the branch into `main`, both sides match. Last line: start a new chat for the next idea.
 - Play notes stay in the playtest chat. A third agent is not required.
 
 ## Parallel lanes (do not collide)

@@ -1,8 +1,10 @@
-# PixelLab in Cursor
+# PixelLab
 
-PixelLab is how we turn researched species into pixel art from this chat. The MCP config is already in `.cursor/mcp.json`. **The only thing a human has to do is create an account and put the API token on this PC.**
+PixelLab is how we turn researched species into pixel art. **The only thing a human has to do is keep the API token on this PC.** Never commit the token. Never paste it into a GitHub file.
 
-Never commit the token. Never paste it into a GitHub file.
+Claude Code reads [`.mcp.json`](../.mcp.json) and expands `PIXELLAB_API_TOKEN` from the environment. Cursor reads `.cursor/mcp.json` the same way. Both files name the variable. Neither file holds the token.
+
+The Windows user variable must already be set before the app launches. Fully quit Claude Code (or Cursor) and open the project again after you create or change it. `claude mcp list` should show the server without a missing-variable warning. If PixelLab answers 401, the variable did not expand. Do not paste the token into `.mcp.json` to get past that.
 
 ## You (one sitting)
 
@@ -16,7 +18,7 @@ Never commit the token. Never paste it into a GitHub file.
    - Name: `PIXELLAB_API_TOKEN`
    - Value: the token
 
-5. **Fully quit Cursor** (not just the chat) and open this project again.
+5. **Fully quit Claude Code** (not just the chat) and open this project again. The same quit applies if Cursor is still what launches the tools.
 
 When it worked, a new chat will see PixelLab tools (`create_character`, `create_topdown_tileset`, and so on). Say “PixelLab is in” and we generate Leif + coastal tiles against the forest screenshot.
 

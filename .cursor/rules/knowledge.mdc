@@ -7,7 +7,7 @@ alwaysApply: true
 
 This repo (`sam-dev-site/leif-in-the-wind`) is the source of truth. Chat memory is not.
 
-Before project work, read `AGENTS.md`, `docs/MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, `docs/DECISIONS.md`, and `docs/STATUS.md`. The loop is locked. Take the next unfinished phase in the plan. Do not reopen it.
+Before project work, read `CLAUDE.md`, `AGENTS.md`, `docs/MISSION.md`, `docs/LOOP.md`, `docs/PLAN.md`, `docs/DECISIONS.md`, and `docs/STATUS.md`. The loop is locked. Phases A–N are already on `cursor/other-sea-943d`. Do not restart them from `main`. Phase H is the stop. Do not reopen the lock. If this rule and `CLAUDE.md` disagree about which branch is current, `CLAUDE.md` wins until that branch is on `main`.
 
 If you make a lasting decision, append `docs/DECISIONS.md` in the same session. Update `docs/STATUS.md` before you finish.
 
